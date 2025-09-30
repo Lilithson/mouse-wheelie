@@ -19,7 +19,6 @@ package de.siphalor.mousewheelie.client.inventory.sort;
 
 import lombok.Value;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
 
 import java.util.List;
