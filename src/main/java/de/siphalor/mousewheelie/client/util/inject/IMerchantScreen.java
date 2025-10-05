@@ -25,5 +25,5 @@ public interface IMerchantScreen {
 
 	void mouseWheelie_syncRecipeId();
 
-	int getRecipeIdOffset();
+	int mouseWheelie_getRecipeIdOffset();
 }

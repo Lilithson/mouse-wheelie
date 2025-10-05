@@ -61,8 +61,8 @@ public abstract class MixinContainer {
 		}
 	}
 
-	@Inject(method = "updateSlotStacks", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/slot/Slot;setStackNoCallbacks(Lnet/minecraft/item/ItemStack;)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILSOFT)
-	public void onSlotUpdated(int i, List<ItemStack> stacks, ItemStack cursorStack, CallbackInfo callbackInfo, int index) {
+	@Inject(method = "updateSlotStacks", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/slot/Slot;setStackNoCallbacks(Lnet/minecraft/item/ItemStack;)V", shift = At.Shift.AFTER))
+	public void onSlotUpdated(int i, List<ItemStack> stacks, ItemStack cursorStack, CallbackInfo callbackInfo) {
 		SlotRefiller.performRefill();
 	}
 

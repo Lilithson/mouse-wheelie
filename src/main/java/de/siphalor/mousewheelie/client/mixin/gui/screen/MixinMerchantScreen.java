@@ -29,7 +29,8 @@ public abstract class MixinMerchantScreen implements IMerchantScreen {
 
 	@Shadow protected abstract void syncRecipeIndex();
 
-	@Shadow private int indexStartOffset;
+	@Shadow
+	int indexStartOffset;
 
 	@Override
 	public void mouseWheelie_setRecipeId(int id) {
@@ -42,7 +43,7 @@ public abstract class MixinMerchantScreen implements IMerchantScreen {
 	}
 
 	@Override
-	public int getRecipeIdOffset() {
+	public int mouseWheelie_getRecipeIdOffset() {
 		return indexStartOffset;
 	}
 }

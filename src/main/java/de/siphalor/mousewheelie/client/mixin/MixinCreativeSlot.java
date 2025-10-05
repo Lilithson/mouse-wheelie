@@ -28,7 +28,7 @@ public class MixinCreativeSlot implements ISlot {
 
 	@Shadow
 	@Final
-	private Slot slot;
+	Slot slot;
 
 	@Override
 	public int mouseWheelie_getIndexInInv() {
