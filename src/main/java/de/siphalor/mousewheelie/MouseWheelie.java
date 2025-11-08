@@ -40,24 +40,19 @@ public class MouseWheelie implements ModInitializer {
 	public static final String MOD_ID = "mousewheelie";
 	public static final String MOD_NAME = "Mouse Wheelie";
 
-	//# if CONFIG == "TWEED_5"
 	public static MWConfig config;
 	public static FabricConfigContainerHelper<MWConfig> configContainerHelper;
-	//# end
 
 	@Override
 	public void onInitialize() {
-		//# if CONFIG == "TWEED_5"
 		initializeConfig();
 		loadConfig();
-		//# end
 
 		UseItemCallback.EVENT.register(this::onPlayerUseItem);
 
 		MWLogicalServerNetworking.setup();
 	}
 
-	//# if CONFIG == "TWEED_5"
 	private void loadConfig() {
 		config = configContainerHelper.loadAndUpdateInConfigDirectory();
 		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
@@ -81,7 +76,6 @@ public class MouseWheelie implements ModInitializer {
 				MOD_ID
 		);
 	}
-	//# end
 
 	private TypedActionResult<ItemStack> onPlayerUseItem(PlayerEntity player, World world, Hand hand) {
 		ItemStack stack = player.getStackInHand(hand);

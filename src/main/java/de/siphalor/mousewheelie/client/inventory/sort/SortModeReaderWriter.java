@@ -2,7 +2,6 @@ package de.siphalor.mousewheelie.client.inventory.sort;
 
 import de.siphalor.tweed5.core.api.entry.ConfigEntry;
 import de.siphalor.tweed5.data.extension.api.TweedEntryReadException;
-import de.siphalor.tweed5.data.extension.api.TweedEntryWriteException;
 import de.siphalor.tweed5.data.extension.api.TweedReadContext;
 import de.siphalor.tweed5.data.extension.api.TweedWriteContext;
 import de.siphalor.tweed5.data.extension.api.readwrite.TweedEntryReaderWriter;
@@ -10,7 +9,6 @@ import de.siphalor.tweed5.dataapi.api.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-//# if CONFIG == "TWEED_5"
 public class SortModeReaderWriter implements TweedEntryReaderWriter<SortMode, @NotNull ConfigEntry<SortMode>> {
 	@Override
 	public SortMode read(
@@ -39,7 +37,7 @@ public class SortModeReaderWriter implements TweedEntryReaderWriter<SortMode, @N
 			@Nullable SortMode sortMode,
 			@NotNull ConfigEntry<SortMode> sortModeConfigEntry,
 			@NotNull TweedWriteContext context
-	) throws TweedEntryWriteException, TweedDataWriteException {
+	) throws TweedDataWriteException {
 		if (sortMode == null) {
 			tweedDataVisitor.visitNull();
 		} else {
@@ -47,4 +45,3 @@ public class SortModeReaderWriter implements TweedEntryReaderWriter<SortMode, @N
 		}
 	}
 }
-//# end

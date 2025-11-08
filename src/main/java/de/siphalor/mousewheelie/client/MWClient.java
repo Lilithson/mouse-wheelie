@@ -114,9 +114,7 @@ public class MWClient implements ClientModInitializer {
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
 			CreativeSearchOrder.refreshItemSearchPositionLookup();
-			//# if CONFIG == "TWEED_5"
 			updateTickRate();
-			//# end
 		});
 	}
 
@@ -137,8 +135,8 @@ public class MWClient implements ClientModInitializer {
 		return CLIENT.mouse.getY() * (double) CLIENT.getWindow().getScaledHeight() / (double) CLIENT.getWindow().getHeight();
 	}
 
-	//# if CONFIG == "TWEED_5"
 	public static void onConfigChanged() {
+		CreativeSearchOrder.refreshItemSearchPositionLookup();
 		updateTickRate();
 	}
 
@@ -149,7 +147,6 @@ public class MWClient implements ClientModInitializer {
 			InteractionManager.setTickRate(MouseWheelie.config.general.interactionRate);
 		}
 	}
-	//# end
 
 	public static boolean isOnLocalServer() {
 		return CLIENT.getServer() != null;
@@ -179,7 +176,6 @@ public class MWClient implements ClientModInitializer {
 		return false;
 	}
 
-	//# if CONFIG == "TWEED_5"
 	public static ConfigScreen createConfigScreen() {
 		TweedCoatBridgeExtension coatBridge = MouseWheelie.configContainerHelper.configContainer().extension(TweedCoatBridgeExtension.class)
 				.orElseThrow(() -> new IllegalStateException("Failed to get TweedCoatBridgeExtension"));
@@ -217,5 +213,4 @@ public class MWClient implements ClientModInitializer {
 				})
 				.build());
 	}
-	//# end
 }

@@ -36,18 +36,7 @@ public class OpenConfigScreenKeybinding extends AmecsKeyBinding implements Prior
 	public boolean onPressedPriority() {
 		MinecraftClient minecraftClient = MinecraftClient.getInstance();
 		if (minecraftClient.currentScreen == null || minecraftClient.currentScreen instanceof HandledScreen || minecraftClient.currentScreen instanceof TitleScreen) {
-			//# if CONFIG == "TWEED_4"
-			//- TweedRegistry.TAILORS.getOrEmpty(new Identifier("tweed4", "coat")).ifPresent(tailor -> {
-			//- 	if (tailor instanceof CoatTailor) {
-			//- 		ScreenTailorScreenFactory<?> screenFactory = ((CoatTailor) tailor).getScreenFactories().get(MouseWheelie.MOD_ID);
-			//- 		if (screenFactory != null) {
-			//- 			minecraftClient.setScreen(screenFactory.create(minecraftClient.currentScreen));
-			//- 		}
-			//- 	}
-			//- });
-			//# elif CONFIG == "TWEED_5"
 			minecraftClient.setScreen(MWClient.createConfigScreen());
-			//# end
 			return true;
 		}
 		return false;

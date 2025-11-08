@@ -17,9 +17,6 @@
 
 package de.siphalor.mousewheelie.client.inventory.sort;
 
-//- import de.siphalor.mousewheelie.MWConfig;
-//- import de.siphalor.coat.util.EnumeratedMaterial;
-
 import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.util.CreativeSearchOrder;
 import de.siphalor.mousewheelie.client.util.ItemStackUtils;
@@ -36,14 +33,8 @@ import net.minecraft.registry.Registries;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 
-//# if CONFIG == "TWEED_5"
 @EntryReadWriteConfig("de.siphalor.mousewheelie.client.inventory.sort.SortModeReaderWriter")
-//# end
-public abstract class SortMode
-		//# if CONFIG == "TWEED_4"
-		//- implements DropdownMaterial<SortMode>
-		//# end
-{
+public abstract class SortMode {
 	private static final Map<String, SortMode> SORT_MODES = new HashMap<>();
 	private final String name;
 
@@ -94,23 +85,6 @@ public abstract class SortMode
 	public String name() {
 		return name;
 	}
-
-	//# if CONFIG == "TWEED_4"
-	//- @Override
-	//- public DropdownMaterial<SortMode> valueOf(String s) {
-	//- 	return SORT_MODES.get(s);
-	//- }
-
-	//- @Override
-	//- public Collection<SortMode> values() {
-	//- 	return SORT_MODES.values();
-	//- }
-
-	//- @Override
-	//- public String getTranslationKey() {
-	//- 	return "mousewheelie.sortmode." + name.toLowerCase(Locale.ENGLISH);
-	//- }
-	//# end
 
 	private static void sortByValues(int[] sortIds, ItemStack[] stacks, int[] values) {
 		IntArrays.quickSort(sortIds, (a, b) -> {

@@ -17,7 +17,6 @@
 
 package de.siphalor.mousewheelie.client.inventory;
 
-//- import de.siphalor.mousewheelie.MouseWheelie.config;
 import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.MWClient;
 import lombok.RequiredArgsConstructor;

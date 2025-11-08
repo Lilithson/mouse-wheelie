@@ -17,7 +17,6 @@
 
 package de.siphalor.mousewheelie.client.inventory;
 
-//- import de.siphalor.mousewheelie.MWConfig;
 import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.util.ItemStackUtils;
 import net.minecraft.item.ItemStack;
