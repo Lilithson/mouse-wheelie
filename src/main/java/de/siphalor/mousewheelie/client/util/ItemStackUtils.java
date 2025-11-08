@@ -18,7 +18,7 @@
 package de.siphalor.mousewheelie.client.util;
 
 import com.google.common.collect.Sets;
-import de.siphalor.mousewheelie.MWConfig;
+import de.siphalor.mousewheelie.MouseWheelie;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.DyeableItem;
 import net.minecraft.item.Item;
@@ -146,7 +146,7 @@ public class ItemStackUtils {
 	}
 
 	public static boolean areItemsOfSameKind(ItemStack stack1, ItemStack stack2) {
-		return areItemsOfSameKind(stack1, stack2, MWConfig.general.itemKindsNbtMatchMode);
+		return areItemsOfSameKind(stack1, stack2, MouseWheelie.config.general.itemKindsNbtMatchMode);
 	}
 
 	public static boolean areItemsOfSameKind(ItemStack stack1, ItemStack stack2, NbtMatchMode mode) {

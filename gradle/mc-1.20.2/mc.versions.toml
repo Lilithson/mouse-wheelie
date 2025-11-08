@@ -24,7 +24,9 @@ tweed-tailor-lang-json-descriptions = { group = "de.siphalor.tweed4", name = "tw
 tweed-tailor-screen = { group = "de.siphalor.tweed4", name = "tweed4-tailor-screen-1.20" }
 
 [bundles]
-tweed = [
+config = [
+    "coat",
+    "tweed-platform",
     "tweed-annotated",
     "tweed-base",
     "tweed-data",

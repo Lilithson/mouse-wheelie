@@ -17,46 +17,91 @@
 
 package de.siphalor.mousewheelie;
 
-import com.google.common.base.CaseFormat;
-import de.siphalor.mousewheelie.client.MWClient;
+//- import com.google.common.base.CaseFormat;
+//- import de.siphalor.mousewheelie.client.MWClient;
+
 import de.siphalor.mousewheelie.client.inventory.sort.SortMode;
-import de.siphalor.mousewheelie.client.network.InteractionManager;
-import de.siphalor.mousewheelie.client.util.CreativeSearchOrder;
 import de.siphalor.mousewheelie.client.util.ItemStackUtils;
-import de.siphalor.tweed4.annotated.*;
-import de.siphalor.tweed4.config.ConfigEnvironment;
-import de.siphalor.tweed4.config.ConfigScope;
-import de.siphalor.tweed4.config.constraints.RangeConstraint;
-import de.siphalor.tweed4.data.DataList;
-import de.siphalor.tweed4.data.DataObject;
-import de.siphalor.tweed4.data.DataValue;
+import de.siphalor.tweed5.coat.bridge.api.TweedCoatAttributes;
+import de.siphalor.tweed5.coat.bridge.api.TweedCoatBridgeExtension;
+import de.siphalor.tweed5.commentloaderextension.api.CommentLoaderExtension;
+import de.siphalor.tweed5.defaultextensions.presets.api.PresetsExtension;
+import de.siphalor.tweed5.fabric.helper.api.DefaultTweedMinecraftWeaving;
+import de.siphalor.tweed5.weaver.pojo.api.annotation.CompoundWeaving;
+import de.siphalor.tweed5.weaver.pojo.api.annotation.TweedExtension;
+import de.siphalor.tweed5.weaver.pojoext.attributes.api.Attribute;
+import de.siphalor.tweed5.weaver.pojoext.presets.api.Preset;
+import de.siphalor.tweed5.weaver.pojoext.validation.api.Validator;
+import de.siphalor.tweed5.weaver.pojoext.validation.api.validators.WeavableNumberRangeValidator;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
-@ATweedConfig(environment = ConfigEnvironment.CLIENT, scope = ConfigScope.SMALLEST, tailors = {"tweed4:lang_json_descriptions", "tweed4:coat"}, casing = CaseFormat.LOWER_HYPHEN)
-@AConfigBackground("textures/block/green_concrete_powder.png")
+//# if CONFIG == "TWEED_5"
+@DefaultTweedMinecraftWeaving
+@TweedExtension(CommentLoaderExtension.class)
+@TweedExtension(TweedCoatBridgeExtension.class)
+@CompoundWeaving(namingFormat = "kebab_case")
+@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, values = "textures/block/green_concrete_powder.png")
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
+//# else
+//- @ATweedConfig(environment = ConfigEnvironment.CLIENT, scope = ConfigScope.SMALLEST, tailors = {"tweed4:lang_json_descriptions", "tweed4:coat"}, casing = CaseFormat.LOWER_HYPHEN)
+//- @AConfigBackground("textures/block/green_concrete_powder.png")
+//# end
 public class MWConfig {
-	@AConfigEntry(comment = "General settings")
-	public static General general = new General();
+	@Preset(PresetsExtension.DEFAULT_PRESET_NAME)
+	public static final MWConfig DEFAULT = new MWConfig(new General(), new Scrolling(), new Sort(), new Refill(), new ToolPicking());
 
-	@AConfigBackground("textures/block/acacia_log.png")
+	//# if CONFIG == "TWEED_5"
+	public General general;
+	public Scrolling scrolling;
+	public Sort sort;
+	public Refill refill;
+	public ToolPicking toolPicking;
+	//# elif CONFIG == "TWEED_4"
+	//- public static General general = new General();
+	//- public static Scrolling scrolling = new Scrolling();
+	//- public static Sort sort = new Sort();
+	//- public static Refill refill = new Refill();
+	//- public static ToolPicking toolPicking = new ToolPicking();
+	//# end
+
+	//# if CONFIG == "TWEED_5"
+	@CompoundWeaving
+	@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, values = "textures/block/acacia_log.png")
+	//# elif CONFIG == "TWEED_4"
+	//- @AConfigBackground("textures/block/acacia_log.png")
+	//# end
 	public static class General {
-		@AConfigEntry(
-				constraints = @AConfigConstraint(value = RangeConstraint.class, param = "1..")
-		)
+		//# if CONFIG == "TWEED_5"
+		@Validator(value = WeavableNumberRangeValidator.class, config = "1=..")
+		//# elif CONFIG == "TWEED_4"
+		//- @AConfigEntry(
+		//- 		constraints = @AConfigConstraint(value = RangeConstraint.class, param = "1..")
+		//- )
+		//# end
 		public int interactionRate = 10;
-		@AConfigEntry(
-				constraints = @AConfigConstraint(value = RangeConstraint.class, param = "1..")
-		)
+		//# if CONFIG == "TWEED_5"
+		@Validator(value = WeavableNumberRangeValidator.class, config = "1=..")
+		//# elif CONFIG == "TWEED_4"
+		//- @AConfigEntry(
+		//- 		constraints = @AConfigConstraint(value = RangeConstraint.class, param = "1..")
+		//- )
+		//# end
 		public int integratedInteractionRate = 1;
 
-		@AConfigEntry(environment = ConfigEnvironment.UNIVERSAL)
-		public boolean enableQuickArmorSwapping = true;
+		//# if MC_VERSION_NUMBER < 11904
+		//- @AConfigEntry(environment = ConfigEnvironment.UNIVERSAL)
+		//- public boolean enableQuickArmorSwapping = true;
+		//# end
 
 		public boolean enableDropModifier = true;
 
 		public boolean enableQuickCraft = true;
 
-		@AConfigEntry(comment = "Whether item types should check nbt data.\nThis is for example used by scrolling and drop-clicking.\nNONE disables this, ALL checks for exactly the same nbt and SOME allows for differences in damage and enchantments.")
 		public ItemStackUtils.NbtMatchMode itemKindsNbtMatchMode = ItemStackUtils.NbtMatchMode.SOME;
 
 		public enum HotbarScoping {HARD, SOFT, NONE}
@@ -65,27 +110,31 @@ public class MWConfig {
 
 		public boolean betterFastDragging = false;
 
-		@AConfigEntry(comment = "Enables dragging bundles while holding right-click to pick up or put out multiple stacks in a single swipe.")
 		public boolean enableBundleDragging = true;
 
-		@AConfigListener("interaction-rate")
-		public void onReloadInteractionRate() {
-			if (!MWClient.isOnLocalServer()) {
-				InteractionManager.setTickRate(interactionRate);
-			}
-		}
+		//# if CONFIG == "TWEED_4"
+		//- @AConfigListener("interaction-rate")
+		//- public void onReloadInteractionRate() {
+		//- 	if (!MWClient.isOnLocalServer()) {
+		//- 		InteractionManager.setTickRate(interactionRate);
+		//- 	}
+		//- }
 
-		@AConfigListener("integrated-interaction-rate")
-		public void onReloadIntegratedInteractionRate() {
-			if (MWClient.isOnLocalServer()) {
-				InteractionManager.setTickRate(integratedInteractionRate);
-			}
-		}
+		//- @AConfigListener("integrated-interaction-rate")
+		//- public void onReloadIntegratedInteractionRate() {
+		//- 	if (MWClient.isOnLocalServer()) {
+		//- 		InteractionManager.setTickRate(integratedInteractionRate);
+		//- 	}
+		//- }
+		//# end
 	}
 
-	public static Scrolling scrolling = new Scrolling();
-
-	@AConfigBackground("textures/block/dark_prismarine.png")
+	//# if CONFIG == "TWEED_5"
+	@CompoundWeaving
+	@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, values = "textures/block/dark_prismarine.png")
+	//# elif CONFIG == "TWEED_4"
+	//- @AConfigBackground("textures/block/dark_prismarine.png")
+	//# end
 	public static class Scrolling {
 		public boolean enable = true;
 		public boolean invert = false;
@@ -94,27 +143,37 @@ public class MWConfig {
 		public boolean scrollCreativeMenuTabs = true;
 	}
 
-	public static Sort sort = new Sort();
-
-	@AConfigBackground("textures/block/barrel_top.png")
+	//# if CONFIG == "TWEED_5"
+	@CompoundWeaving
+	@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, values = "textures/block/barrel_top.png")
+	//# elif CONFIG == "TWEED_4"
+	//- @AConfigBackground("textures/block/barrel_top.png")
+	//# end
 	public static class Sort {
 		public SortMode primarySort = SortMode.CREATIVE;
 		public SortMode shiftSort = SortMode.QUANTITY;
 		public SortMode controlSort = SortMode.ALPHABET;
 		public boolean serverAcceleratedSorting = true;
 
-		@AConfigEntry(scope = ConfigScope.SMALLEST)
+		//# if CONFIG == "TWEED_4"
+		//- @AConfigEntry(scope = ConfigScope.SMALLEST)
+		//# end
 		public boolean optimizeCreativeSearchSort = true;
 
-		@AConfigListener("optimize-creative-search-sort")
-		public void onReloadOptimizeCreativeSearchSort() {
-			CreativeSearchOrder.refreshItemSearchPositionLookup();
-		}
+		//# if CONFIG == "TWEED_4"
+		//- @AConfigListener("optimize-creative-search-sort")
+		//- public void onReloadOptimizeCreativeSearchSort() {
+		//- 	CreativeSearchOrder.refreshItemSearchPositionLookup();
+		//- }
+		//# end
 	}
 
-	public static Refill refill = new Refill();
-
-	@AConfigBackground("textures/block/horn_coral_block.png")
+	//# if CONFIG == "TWEED_5"
+	@CompoundWeaving
+	@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, values = "textures/block/horn_coral_block.png")
+	//# elif CONFIG == "TWEED_4"
+	//- @AConfigBackground("textures/block/horn_coral_block.png")
+	//# end
 	public static class Refill {
 		public boolean enable = true;
 
@@ -132,7 +191,12 @@ public class MWConfig {
 
 		public Rules rules = new Rules();
 
-		@AConfigBackground("textures/block/yellow_terracotta.png")
+		//# if CONFIG == "TWEED_5"
+		@CompoundWeaving
+		@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, values = "textures/block/yellow_terracotta.png")
+		//# elif CONFIG == "TWEED_4"
+		//- @AConfigBackground("textures/block/yellow_terracotta.png")
+		//# end
 		public static class Rules {
 			public boolean anyBlock = false;
 			public boolean itemgroup = false;
@@ -144,80 +208,85 @@ public class MWConfig {
 		}
 	}
 
-	public static ToolPicking toolPicking = new ToolPicking();
-
-	@AConfigBackground("textures/block/coarse_dirt.png")
+	//# if CONFIG == "TWEED_5"
+	@CompoundWeaving
+	@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, values = "textures/block/coarse_dirt.png")
+	//# elif CONFIG == "TWEED_4"
+	//- @AConfigBackground("textures/block/coarse_dirt.png")
+	//# end
 	public static class ToolPicking {
 		public boolean holdTool = true;
 		public boolean holdBlock = false;
 		public boolean pickFromInventory = true;
 	}
 
-	@AConfigFixer
-	public <V extends DataValue<V, L, O>, L extends DataList<V, L, O>, O extends DataObject<V, L, O>>
-	void fixConfig(O dataObject, O rootObject) {
-		if (dataObject.has("general") && dataObject.get("general").isObject()) {
-			O general = dataObject.get("general").asObject();
+	//# if CONFIG == "TWEED_4"
+	//- @AConfigFixer
+	//- public <V extends DataValue<V, L, O>, L extends DataList<V, L, O>, O extends DataObject<V, L, O>>
+	//- void fixConfig(O dataObject, O rootObject) {
+	//- 	if (dataObject.has("general") && dataObject.get("general").isObject()) {
+	//- 		O general = dataObject.get("general").asObject();
 
-			moveConfigEntry(dataObject, general, "enable-item-scrolling", "scrolling");
-			moveConfigEntry(dataObject, general, "scroll-factor", "scrolling");
-			moveConfigEntry(dataObject, general, "directional-scrolling", "scrolling");
+	//- 		moveConfigEntry(dataObject, general, "enable-item-scrolling", "scrolling");
+	//- 		moveConfigEntry(dataObject, general, "scroll-factor", "scrolling");
+	//- 		moveConfigEntry(dataObject, general, "directional-scrolling", "scrolling");
 
-			if (dataObject.has("scrolling") && dataObject.get("scrolling").isObject()) {
-				O scrolling = dataObject.get("scrolling").asObject();
+	//- 		if (dataObject.has("scrolling") && dataObject.get("scrolling").isObject()) {
+	//- 			O scrolling = dataObject.get("scrolling").asObject();
 
-				if (scrolling.has("scroll-creative-menu") && scrolling.get("scroll-creative-menu").isBoolean()) {
-					scrolling.set("scroll-creative-menu-items", !scrolling.get("scroll-creative-menu").asBoolean());
-					scrolling.remove("scroll-creative-menu");
-				}
-				if (scrolling.has("scroll-factor") && scrolling.get("scroll-factor").isNumber()) {
-					scrolling.set("invert", scrolling.get("scroll-factor").asFloat() < 0);
-					scrolling.remove("scroll-factor");
-				}
-			}
+	//- 			if (scrolling.has("scroll-creative-menu") && scrolling.get("scroll-creative-menu").isBoolean()) {
+	//- 				scrolling.set("scroll-creative-menu-items", !scrolling.get("scroll-creative-menu").asBoolean());
+	//- 				scrolling.remove("scroll-creative-menu");
+	//- 			}
+	//- 			if (scrolling.has("scroll-factor") && scrolling.get("scroll-factor").isNumber()) {
+	//- 				scrolling.set("invert", scrolling.get("scroll-factor").asFloat() < 0);
+	//- 				scrolling.remove("scroll-factor");
+	//- 			}
+	//- 		}
 
-			moveConfigEntry(dataObject, general, "hold-tool-pick", "tool-picking", "hold-tool");
-			moveConfigEntry(dataObject, general, "hold-block-tool-pick", "tool-picking", "hold-block");
+	//- 		moveConfigEntry(dataObject, general, "hold-tool-pick", "tool-picking", "hold-tool");
+	//- 		moveConfigEntry(dataObject, general, "hold-block-tool-pick", "tool-picking", "hold-block");
 
-			moveConfigEntry(dataObject, general, "enable-alt-dropping", "general", "enable-drop-modifier");
+	//- 		moveConfigEntry(dataObject, general, "enable-alt-dropping", "general", "enable-drop-modifier");
 
-			general.remove("hotbar-scope");
-		}
-	}
+	//- 		general.remove("hotbar-scope");
+	//- 	}
+	//- }
 
-	@AConfigFixer("sort")
-	public <V extends DataValue<V, L, O>, L extends DataList<V, L, O>, O extends DataObject<V, L, O>>
-	void fixSortModes(O sort, O mainConfig) {
-		if (!sort.has("optimize-creative-search-sort")) {
-			if (sort.getString("primary-sort", "").equalsIgnoreCase("raw_id")) {
-				sort.set("primary-sort", "creative");
-			}
-			if (sort.getString("shift-sort", "").equalsIgnoreCase("raw_id")) {
-				sort.set("shift-sort", "creative");
-			}
-			if (sort.getString("control-sort", "").equalsIgnoreCase("raw_id")) {
-				sort.set("control-sort", "creative");
-			}
-		}
-	}
+	//- @AConfigFixer("sort")
+	//- public <V extends DataValue<V, L, O>, L extends DataList<V, L, O>, O extends DataObject<V, L, O>>
+	//- void fixSortModes(O sort, O mainConfig) {
+	//- 	if (!sort.has("optimize-creative-search-sort")) {
+	//- 		if (sort.getString("primary-sort", "").equalsIgnoreCase("raw_id")) {
+	//- 			sort.set("primary-sort", "creative");
+	//- 		}
+	//- 		if (sort.getString("shift-sort", "").equalsIgnoreCase("raw_id")) {
+	//- 			sort.set("shift-sort", "creative");
+	//- 		}
+	//- 		if (sort.getString("control-sort", "").equalsIgnoreCase("raw_id")) {
+	//- 			sort.set("control-sort", "creative");
+	//- 		}
+	//- 	}
+	//- }
 
-	@SuppressWarnings("SameParameterValue")
-	private <V extends DataValue<V, L, O>, L extends DataList<V, L, O>, O extends DataObject<V, L, O>>
-	void moveConfigEntry(O root, O origin, String name, String destCat) {
-		moveConfigEntry(root, origin, name, destCat, name);
-	}
+	//- @SuppressWarnings("SameParameterValue")
+	//- private <V extends DataValue<V, L, O>, L extends DataList<V, L, O>, O extends DataObject<V, L, O>>
+	//- void moveConfigEntry(O root, O origin, String name, String destCat) {
+	//- 	moveConfigEntry(root, origin, name, destCat, name);
+	//- }
 
-	private <V extends DataValue<V, L, O>, L extends DataList<V, L, O>, O extends DataObject<V, L, O>>
-	void moveConfigEntry(O root, O origin, String name, String destCat, String newName) {
-		if (origin.has(name)) {
-			O dest;
-			if (root.has(destCat) && root.get(destCat).isObject()) {
-				dest = root.get(destCat).asObject();
-			} else {
-				dest = root.addObject(destCat);
-			}
-			dest.set(newName, origin.get(name));
-			origin.remove(name);
-		}
-	}
+	//- private <V extends DataValue<V, L, O>, L extends DataList<V, L, O>, O extends DataObject<V, L, O>>
+	//- void moveConfigEntry(O root, O origin, String name, String destCat, String newName) {
+	//- 	if (origin.has(name)) {
+	//- 		O dest;
+	//- 		if (root.has(destCat) && root.get(destCat).isObject()) {
+	//- 			dest = root.get(destCat).asObject();
+	//- 		} else {
+	//- 			dest = root.addObject(destCat);
+	//- 		}
+	//- 		dest.set(newName, origin.get(name));
+	//- 		origin.remove(name);
+	//- 	}
+	//- }
+	//# end
 }

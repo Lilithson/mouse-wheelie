@@ -17,7 +17,7 @@
 
 package de.siphalor.mousewheelie.client.inventory;
 
-import de.siphalor.mousewheelie.MWConfig;
+import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.network.InteractionManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -75,7 +75,7 @@ public class SlotRefiller {
 			return false;
 		}
 
-		if (!oldStack.isEmpty() && (newStack.isEmpty() || (MWConfig.refill.itemChanges && oldStack.getItem() != newStack.getItem()))) {
+		if (!oldStack.isEmpty() && (newStack.isEmpty() || (MouseWheelie.config.refill.itemChanges && oldStack.getItem() != newStack.getItem()))) {
 			scheduleRefillUnchecked(hand, inventory, oldStack.copy());
 			return true;
 		}
@@ -98,7 +98,7 @@ public class SlotRefiller {
 
 		Hand hand = refillHand;
 		refillHand = null;
-		if (hand == Hand.OFF_HAND && !MWConfig.refill.offHand) {
+		if (hand == Hand.OFF_HAND && !MouseWheelie.config.refill.offHand) {
 			return false;
 		}
 		refill(hand);
@@ -163,13 +163,13 @@ public class SlotRefiller {
 	}
 
 	private static void scheduleRefillSound() {
-		if (MWConfig.refill.playSound) {
+		if (MouseWheelie.config.refill.playSound) {
 			InteractionManager.delay(SlotRefiller::playRefillSound, Duration.of(200, ChronoUnit.MILLIS));
 		}
 	}
 
 	private static void playRefillSound() {
-		if (MWConfig.refill.playSound) {
+		if (MouseWheelie.config.refill.playSound) {
 			MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.ENTITY_ITEM_PICKUP, 0.2F, 1F));
 		}
 	}
@@ -189,7 +189,7 @@ public class SlotRefiller {
 	}
 
 	private static void refillFromHotbar(Hand hand, int hotbarSlot) {
-		if (MWConfig.refill.restoreSelectedSlot) {
+		if (MouseWheelie.config.refill.restoreSelectedSlot) {
 			if (hand == Hand.MAIN_HAND && !playerInventory.offHand.get(0).isEmpty()) {
 				InteractionManager.push(InteractionManager.SWAP_WITH_OFFHAND_EVENT);
 			}
@@ -291,7 +291,7 @@ public class SlotRefiller {
 	public static class BlockRule extends Rule {
 		@Override
 		boolean matches(ItemStack oldStack) {
-			return MWConfig.refill.rules.anyBlock && oldStack.getItem() instanceof BlockItem;
+			return MouseWheelie.config.refill.rules.anyBlock && oldStack.getItem() instanceof BlockItem;
 		}
 
 		@Override
@@ -308,7 +308,7 @@ public class SlotRefiller {
 
 		@Override
 		boolean matches(ItemStack oldStack) {
-			if (!MWConfig.refill.rules.itemgroup) {
+			if (!MouseWheelie.config.refill.rules.itemgroup) {
 				return false;
 			}
 			for (ItemGroup group : ItemGroups.getGroups()) {
@@ -344,7 +344,7 @@ public class SlotRefiller {
 	public static class ItemHierarchyRule extends Rule {
 		@Override
 		boolean matches(ItemStack oldStack) {
-			return MWConfig.refill.rules.itemHierarchy && oldStack.getItem().getClass() != Item.class && !(oldStack.getItem() instanceof BlockItem);
+			return MouseWheelie.config.refill.rules.itemHierarchy && oldStack.getItem().getClass() != Item.class && !(oldStack.getItem() instanceof BlockItem);
 		}
 
 		@Override
@@ -356,7 +356,7 @@ public class SlotRefiller {
 	public static class BlockHierarchyRule extends Rule {
 		@Override
 		boolean matches(ItemStack oldStack) {
-			return MWConfig.refill.rules.blockHierarchy && oldStack.getItem() instanceof BlockItem;
+			return MouseWheelie.config.refill.rules.blockHierarchy && oldStack.getItem() instanceof BlockItem;
 		}
 
 		@Override
@@ -412,7 +412,7 @@ public class SlotRefiller {
 	public static class FoodRule extends Rule {
 		@Override
 		boolean matches(ItemStack oldStack) {
-			return MWConfig.refill.rules.food && oldStack.isFood();
+			return MouseWheelie.config.refill.rules.food && oldStack.isFood();
 		}
 
 		@Override
@@ -424,7 +424,7 @@ public class SlotRefiller {
 	public static class EqualItemRule extends Rule {
 		@Override
 		boolean matches(ItemStack oldStack) {
-			return MWConfig.refill.rules.equalItems;
+			return MouseWheelie.config.refill.rules.equalItems;
 		}
 
 		@Override
@@ -437,7 +437,7 @@ public class SlotRefiller {
 	public static class EqualStackRule extends Rule {
 		@Override
 		boolean matches(ItemStack oldStack) {
-			return MWConfig.refill.rules.equalStacks;
+			return MouseWheelie.config.refill.rules.equalStacks;
 		}
 
 		@Override

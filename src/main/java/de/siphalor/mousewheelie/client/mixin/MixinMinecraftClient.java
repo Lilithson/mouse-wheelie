@@ -17,7 +17,7 @@
 
 package de.siphalor.mousewheelie.client.mixin;
 
-import de.siphalor.mousewheelie.MWConfig;
+import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.inventory.SlotRefiller;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -45,7 +45,7 @@ public abstract class MixinMinecraftClient {
 
 	@Inject(method = "doItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Hand;values()[Lnet/minecraft/util/Hand;"))
 	public void onItemUse(CallbackInfo callbackInfo) {
-		if (MWConfig.refill.enable && MWConfig.refill.use) {
+		if (MouseWheelie.config.refill.enable && MouseWheelie.config.refill.use) {
 			mainHandStack = player.getMainHandStack();
 			mainHandStack = mainHandStack.isEmpty() ? null : mainHandStack.copy();
 			offHandStack = player.getOffHandStack();

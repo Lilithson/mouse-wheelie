@@ -30,6 +30,13 @@ repositories {
 		url = uri("https://maven.terraformersmc.com/releases")
 	}
 	maven {
+		name = "Nucleoid"
+		url = uri("https://maven.nucleoid.xyz")
+		mavenContent {
+			includeGroupAndSubgroups("eu.pb4")
+		}
+	}
+	maven {
 		name = "Siphalor"
 		url = uri("https://maven.siphalor.de/")
 		mavenContent {
@@ -81,12 +88,10 @@ dependencies {
 
 	modApi(mcLibs.modmenu)
 
-	include(platform(mcLibs.tweed.platform))
-	modApi(platform(mcLibs.tweed.platform))
-	include(mcLibs.bundles.tweed)
-	modApi(mcLibs.bundles.tweed)
-	include(mcLibs.coat)
-	modApi(mcLibs.coat)
+	//include(platform(mcLibs.bundles.platform))
+	//modApi(platform(mcLibs.bundles.platform))
+	include(mcLibs.bundles.config)
+	modApi(mcLibs.bundles.config)
 
 	include(mcLibs.amecs.api)
 	modImplementation(mcLibs.amecs.api)
@@ -119,7 +124,7 @@ val jcyoVars = mcProps.stringPropertyNames()
 	.associate { (key, value) -> key.substring("preprocessor.".length) to value }
 val jcyo = tasks.register<JcyoTask>("jcyo") {
 	inputDirectory = file("src/main/java")
-	//variables = jcyoVars
+	variables = jcyoVars
 }
 
 tasks.compileJava {

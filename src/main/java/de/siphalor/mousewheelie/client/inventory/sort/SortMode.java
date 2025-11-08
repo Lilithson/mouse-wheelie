@@ -17,11 +17,14 @@
 
 package de.siphalor.mousewheelie.client.inventory.sort;
 
-import de.siphalor.mousewheelie.MWConfig;
+//- import de.siphalor.mousewheelie.MWConfig;
+//- import de.siphalor.coat.util.EnumeratedMaterial;
+
+import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.util.CreativeSearchOrder;
 import de.siphalor.mousewheelie.client.util.ItemStackUtils;
 import de.siphalor.mousewheelie.client.util.StackMatcher;
-import de.siphalor.tweed4.tailor.DropdownMaterial;
+import de.siphalor.tweed5.weaver.pojoext.serde.api.EntryReadWriteConfig;
 import it.unimi.dsi.fastutil.ints.IntArrays;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -33,7 +36,14 @@ import net.minecraft.registry.Registries;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 
-public abstract class SortMode implements DropdownMaterial<SortMode> {
+//# if CONFIG == "TWEED_5"
+@EntryReadWriteConfig("de.siphalor.mousewheelie.client.inventory.sort.SortModeReaderWriter")
+//# end
+public abstract class SortMode
+		//# if CONFIG == "TWEED_4"
+		//- implements DropdownMaterial<SortMode>
+		//# end
+{
 	private static final Map<String, SortMode> SORT_MODES = new HashMap<>();
 	private final String name;
 
@@ -43,13 +53,27 @@ public abstract class SortMode implements DropdownMaterial<SortMode> {
 	public static final SortMode QUANTITY;
 	public static final SortMode RAW_ID;
 
+	@Deprecated
 	public static <T extends SortMode> T register(String name, T sortMode) {
 		SORT_MODES.put(name, sortMode);
 		return sortMode;
 	}
 
+	public static <T extends SortMode> T register(T sortMode) {
+		SORT_MODES.put(sortMode.name(), sortMode);
+		return sortMode;
+	}
+
 	public static void unregister(String name) {
 		SORT_MODES.remove(name);
+	}
+
+	public static SortMode getByName(String name) {
+		return SORT_MODES.get(name);
+	}
+
+	public static Collection<SortMode> getAll() {
+		return SORT_MODES.values();
 	}
 
 	protected SortMode(String name) {
@@ -67,25 +91,26 @@ public abstract class SortMode implements DropdownMaterial<SortMode> {
 		return sortIds;
 	}
 
-	@Override
-	public DropdownMaterial<SortMode> valueOf(String s) {
-		return SORT_MODES.get(s);
-	}
-
-	@Override
-	public Collection<SortMode> values() {
-		return SORT_MODES.values();
-	}
-
-	@Override
 	public String name() {
 		return name;
 	}
 
-	@Override
-	public String getTranslationKey() {
-		return "mousewheelie.sortmode." + name.toLowerCase(Locale.ENGLISH);
-	}
+	//# if CONFIG == "TWEED_4"
+	//- @Override
+	//- public DropdownMaterial<SortMode> valueOf(String s) {
+	//- 	return SORT_MODES.get(s);
+	//- }
+
+	//- @Override
+	//- public Collection<SortMode> values() {
+	//- 	return SORT_MODES.values();
+	//- }
+
+	//- @Override
+	//- public String getTranslationKey() {
+	//- 	return "mousewheelie.sortmode." + name.toLowerCase(Locale.ENGLISH);
+	//- }
+	//# end
 
 	private static void sortByValues(int[] sortIds, ItemStack[] stacks, int[] values) {
 		IntArrays.quickSort(sortIds, (a, b) -> {
@@ -98,8 +123,8 @@ public abstract class SortMode implements DropdownMaterial<SortMode> {
 	}
 
 	static {
-		NONE = register("none", new SortMode("none") {});
-		ALPHABET = register("alphabet", new SortMode("alphabet") {
+		NONE = register(new SortMode("none") {});
+		ALPHABET = register(new SortMode("alphabet") {
 			@Override
 			public int[] sort(int[] sortIds, ItemStack[] stacks, SortContext context) {
 				String[] strings = new String[sortIds.length];
@@ -125,11 +150,11 @@ public abstract class SortMode implements DropdownMaterial<SortMode> {
 				return sortIds;
 			}
 		});
-		CREATIVE = register("creative", new SortMode("creative") {
+		CREATIVE = register(new SortMode("creative") {
 			@Override
 			public int[] sort(int[] sortIds, ItemStack[] stacks, SortContext context) {
 				int[] sortValues = new int[sortIds.length];
-				if (MWConfig.sort.optimizeCreativeSearchSort) {
+				if (MouseWheelie.config.sort.optimizeCreativeSearchSort) {
 					Lock lock = CreativeSearchOrder.getReadLock();
 					lock.lock();
 					for (int i = 0; i < stacks.length; i++) {
@@ -166,7 +191,7 @@ public abstract class SortMode implements DropdownMaterial<SortMode> {
 				return sortIds;
 			}
 		});
-		QUANTITY = register("quantity", new SortMode("quantity") {
+		QUANTITY = register(new SortMode("quantity") {
 			@Override
 			public int[] sort(int[] sortIds, ItemStack[] stacks, SortContext context) {
 				HashMap<Item, Integer> itemToAmountMap = new HashMap<>();
@@ -201,7 +226,7 @@ public abstract class SortMode implements DropdownMaterial<SortMode> {
 				return sortIds;
 			}
 		});
-		RAW_ID = register("raw_id", new SortMode("raw_id") {
+		RAW_ID = register(new SortMode("raw_id") {
 			@Override
 			public int[] sort(int[] sortIds, ItemStack[] stacks, SortContext context) {
 				int[] rawIds = Arrays.stream(stacks).mapToInt(stack -> stack.isEmpty() ? Integer.MAX_VALUE : Registries.ITEM.getRawId(stack.getItem())).toArray();

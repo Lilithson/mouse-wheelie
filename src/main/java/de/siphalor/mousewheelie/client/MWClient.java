@@ -18,15 +18,23 @@
 package de.siphalor.mousewheelie.client;
 
 import de.siphalor.amecs.api.KeyModifiers;
+import de.siphalor.coat.screen.ConfigScreen;
+import de.siphalor.coat.util.EnumeratedMaterial;
 import de.siphalor.mousewheelie.MWConfig;
 import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.inventory.ToolPicker;
+import de.siphalor.mousewheelie.client.inventory.sort.SortMode;
 import de.siphalor.mousewheelie.client.keybinding.*;
+import de.siphalor.mousewheelie.client.network.InteractionManager;
 import de.siphalor.mousewheelie.client.util.CreativeSearchOrder;
 import de.siphalor.mousewheelie.client.util.ScrollAction;
 import de.siphalor.mousewheelie.client.util.inject.IContainerScreen;
 import de.siphalor.mousewheelie.client.util.inject.IScrollableRecipeBook;
 import de.siphalor.mousewheelie.client.util.inject.ISpecialScrollableScreen;
+import de.siphalor.tweed5.coat.bridge.api.ConfigScreenCreateParams;
+import de.siphalor.tweed5.coat.bridge.api.TweedCoatBridgeExtension;
+import de.siphalor.tweed5.coat.bridge.api.TweedCoatMappers;
+import de.siphalor.tweed5.defaultextensions.presets.api.PresetsExtension;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -38,10 +46,16 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.item.*;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.Arrays;
+import java.util.Locale;
+
+import static de.siphalor.tweed5.defaultextensions.presets.api.PresetsExtension.presetValue;
 
 @Environment(EnvType.CLIENT)
 @SuppressWarnings("WeakerAccess")
@@ -80,7 +94,7 @@ public class MWClient implements ClientModInitializer {
 		ClientPickBlockGatherCallback.EVENT.register((player, result) -> {
 			Item item = player.getMainHandStack().getItem();
 			int index = -1;
-			if (MWConfig.toolPicking.holdTool && (isTool(item) || isWeapon(item))) {
+			if (MouseWheelie.config.toolPicking.holdTool && (isTool(item) || isWeapon(item))) {
 				ToolPicker toolPicker = new ToolPicker(player.getInventory());
 				if (result.getType() == HitResult.Type.BLOCK && result instanceof BlockHitResult) {
 					index = toolPicker.findToolFor(player.getWorld().getBlockState(((BlockHitResult) result).getBlockPos()));
@@ -88,7 +102,7 @@ public class MWClient implements ClientModInitializer {
 					index = toolPicker.findWeapon();
 				}
 			}
-			if (MWConfig.toolPicking.holdBlock && item instanceof BlockItem && result.getType() == HitResult.Type.BLOCK && result instanceof BlockHitResult) {
+			if (MouseWheelie.config.toolPicking.holdBlock && item instanceof BlockItem && result.getType() == HitResult.Type.BLOCK && result instanceof BlockHitResult) {
 				BlockState blockState = player.getWorld().getBlockState(((BlockHitResult) result).getBlockPos());
 				if (blockState.getBlock() == ((BlockItem) item).getBlock()) {
 					ToolPicker toolPicker = new ToolPicker(player.getInventory());
@@ -100,6 +114,9 @@ public class MWClient implements ClientModInitializer {
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
 			CreativeSearchOrder.refreshItemSearchPositionLookup();
+			//# if CONFIG == "TWEED_5"
+			updateTickRate();
+			//# end
 		});
 	}
 
@@ -119,6 +136,20 @@ public class MWClient implements ClientModInitializer {
 	public static double getMouseY() {
 		return CLIENT.mouse.getY() * (double) CLIENT.getWindow().getScaledHeight() / (double) CLIENT.getWindow().getHeight();
 	}
+
+	//# if CONFIG == "TWEED_5"
+	public static void onConfigChanged() {
+		updateTickRate();
+	}
+
+	private static void updateTickRate() {
+		if (isOnLocalServer()) {
+			InteractionManager.setTickRate(MouseWheelie.config.general.integratedInteractionRate);
+		} else {
+			InteractionManager.setTickRate(MouseWheelie.config.general.interactionRate);
+		}
+	}
+	//# end
 
 	public static boolean isOnLocalServer() {
 		return CLIENT.getServer() != null;
@@ -147,4 +178,44 @@ public class MWClient implements ClientModInitializer {
 		}
 		return false;
 	}
+
+	//# if CONFIG == "TWEED_5"
+	public static ConfigScreen createConfigScreen() {
+		TweedCoatBridgeExtension coatBridge = MouseWheelie.configContainerHelper.configContainer().extension(TweedCoatBridgeExtension.class)
+				.orElseThrow(() -> new IllegalStateException("Failed to get TweedCoatBridgeExtension"));
+
+		Arrays.asList(
+				TweedCoatMappers.booleanCheckboxMapper(),
+				TweedCoatMappers.integerTextMapper(),
+				TweedCoatMappers.enumCycleButtonMapper(),
+				TweedCoatMappers.enumeratedMaterialCycleButtonMapper(SortMode.class, new EnumeratedMaterial<>() {
+					@Override
+					public SortMode[] values() {
+						return SortMode.getAll().toArray(new SortMode[0]);
+					}
+
+					@Override
+					public Text asText(SortMode sortMode) {
+						return Text.translatable("mousewheelie.sortmode." + sortMode.name().toLowerCase(Locale.ROOT));
+					}
+				}),
+				TweedCoatMappers.compoundCategoryMapper()
+		).forEach(coatBridge::addMapper);
+
+		MWConfig defaultValue = MouseWheelie.configContainerHelper.configContainer().rootEntry()
+				.call(presetValue(PresetsExtension.DEFAULT_PRESET_NAME));
+
+		return coatBridge.createConfigScreen(ConfigScreenCreateParams.<MWConfig>builder()
+				.rootEntry(MouseWheelie.configContainerHelper.configContainer().rootEntry())
+				.currentValue(MouseWheelie.config)
+				.defaultValue(defaultValue)
+				.title(Text.translatable("tweed4_tailor_screen.screen.mousewheelie"))
+				.translationKeyPrefix("tweed4_tailor_screen.screen.mousewheelie")
+				.saveHandler(value -> {
+					MouseWheelie.config = value;
+					MouseWheelie.configContainerHelper.writeConfigInConfigDirectory(value);
+				})
+				.build());
+	}
+	//# end
 }
