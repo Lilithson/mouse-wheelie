@@ -97,8 +97,6 @@ dependencies {
 
 	modApi(mcLibs.modmenu)
 
-	//include(platform(mcLibs.bundles.platform))
-	//modApi(platform(mcLibs.bundles.platform))
 	include(mcLibs.bundles.config)
 	modApi(mcLibs.bundles.config)
 
