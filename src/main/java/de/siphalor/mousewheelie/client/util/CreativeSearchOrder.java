@@ -20,10 +20,10 @@ package de.siphalor.mousewheelie.client.util;
 import de.siphalor.mousewheelie.MouseWheelie;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.ItemStack;
-import net.minecraft.resource.featuretoggle.FeatureSet;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,7 +33,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class CreativeSearchOrder {
-	private static FeatureSet lastFeatureSet = null;
+	private static FeatureFlagSet lastFeatureSet = null;
 	private static final Object2IntMap<StackMatcher> stackToSearchPositionLookup = new Object2IntOpenHashMap<>();
 	static {
 		stackToSearchPositionLookup.defaultReturnValue(Integer.MAX_VALUE);
@@ -55,15 +55,15 @@ public class CreativeSearchOrder {
 	// Called on config change and when the feature set changes (on world join)
 	public static void refreshItemSearchPositionLookup() {
 		if (MouseWheelie.config.sort.optimizeCreativeSearchSort) {
-			MinecraftClient client = MinecraftClient.getInstance();
-			if (client.world == null) {
+			Minecraft client = Minecraft.getInstance();
+			if (client.level == null) {
 				return;
 			}
-			FeatureSet enabledFeatures = client.world.getEnabledFeatures();
+			FeatureFlagSet enabledFeatures = client.level.enabledFeatures();
 
 			if (stackToSearchPositionLookup.isEmpty() || !Objects.equals(enabledFeatures, lastFeatureSet)) {
-				ItemGroups.updateDisplayContext(enabledFeatures, true, client.world.getRegistryManager());
-				Collection<ItemStack> displayStacks = new ArrayList<>(ItemGroups.getSearchGroup().getDisplayStacks());
+				CreativeModeTabs.tryRebuildTabContents(enabledFeatures, true, client.level.registryAccess());
+				Collection<ItemStack> displayStacks = new ArrayList<>(CreativeModeTabs.searchTab().getDisplayItems());
 				new Thread(() -> {
 					Lock lock = stackToSearchPositionLookupLock.writeLock();
 					lock.lock();
@@ -76,7 +76,7 @@ public class CreativeSearchOrder {
 					int i = 0;
 					for (ItemStack stack : displayStacks) {
 						StackMatcher plainMatcher = StackMatcher.ignoreNbt(stack);
-						if (!stack.hasNbt() || !stackToSearchPositionLookup.containsKey(plainMatcher)) {
+						if (!stack.hasTag() || !stackToSearchPositionLookup.containsKey(plainMatcher)) {
 							stackToSearchPositionLookup.put(plainMatcher, i);
 							i++;
 						}

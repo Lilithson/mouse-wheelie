@@ -30,11 +30,11 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.world.World;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 public class MouseWheelie implements ModInitializer {
 	public static final String MOD_ID = "mousewheelie";
@@ -77,8 +77,8 @@ public class MouseWheelie implements ModInitializer {
 		);
 	}
 
-	private TypedActionResult<ItemStack> onPlayerUseItem(PlayerEntity player, World world, Hand hand) {
-		ItemStack stack = player.getStackInHand(hand);
+	private InteractionResultHolder<ItemStack> onPlayerUseItem(Player player, Level world, InteractionHand hand) {
+		ItemStack stack = player.getItemInHand(hand);
 		//# if MC_VERSION_NUMBER < 11904
 		//- if (MWConfig.general.enableQuickArmorSwapping && !world.isClient()) {
 		//- 	EquipmentSlot equipmentSlot = MobEntity.getPreferredEquipmentSlot(stack);
@@ -93,6 +93,6 @@ public class MouseWheelie implements ModInitializer {
 		//- 	}
 		//- }
 		//# end
-		return TypedActionResult.pass(stack);
+		return InteractionResultHolder.pass(stack);
 	}
 }

@@ -21,38 +21,38 @@ import com.mojang.authlib.GameProfile;
 import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.inventory.SlotRefiller;
 import de.siphalor.mousewheelie.client.network.InteractionManager;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.util.Hand;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.item.ItemEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ClientPlayerEntity.class)
-public abstract class MixinClientPlayerEntity extends AbstractClientPlayerEntity {
-	public MixinClientPlayerEntity(ClientWorld world, GameProfile profile) {
+@Mixin(LocalPlayer.class)
+public abstract class MixinClientPlayerEntity extends AbstractClientPlayer {
+	public MixinClientPlayerEntity(ClientLevel world, GameProfile profile) {
 		super(world, profile);
 	}
 
-	@Inject(method = "closeScreen", at = @At("HEAD"))
+	@Inject(method = "clientSideCloseContainer", at = @At("HEAD"))
 	public void onScreenClosed(CallbackInfo callbackInfo) {
 		InteractionManager.clear();
 	}
 
-	@Inject(method = "dropSelectedItem", at = @At("HEAD"))
+	@Inject(method = "drop", at = @At("HEAD"))
 	public void onDropSelectedItem(boolean all, CallbackInfoReturnable<ItemEntity> callbackInfoReturnable) {
 		if (MouseWheelie.config.refill.enable && MouseWheelie.config.refill.drop) {
-			if (!getMainHandStack().isEmpty()) {
-				SlotRefiller.scheduleRefillUnchecked(Hand.MAIN_HAND, getInventory(), getMainHandStack().copy());
+			if (!getMainHandItem().isEmpty()) {
+				SlotRefiller.scheduleRefillUnchecked(InteractionHand.MAIN_HAND, getInventory(), getMainHandItem().copy());
 			}
 		}
 	}
 
-	@Inject(method = "dropSelectedItem", at = @At("RETURN"))
+	@Inject(method = "drop", at = @At("RETURN"))
 	public void onSelectedItemDropped(boolean all, CallbackInfoReturnable<ItemEntity> callbackInfoReturnable) {
 		SlotRefiller.performRefill();
 	}

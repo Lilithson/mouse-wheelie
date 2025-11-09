@@ -20,28 +20,28 @@ package de.siphalor.mousewheelie.client.mixin.gui.screen;
 import de.siphalor.mousewheelie.client.util.ScrollAction;
 import de.siphalor.mousewheelie.client.util.inject.IRecipeBookWidget;
 import de.siphalor.mousewheelie.client.util.inject.IScrollableRecipeBook;
-import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
-import net.minecraft.client.gui.screen.ingame.InventoryScreen;
-import net.minecraft.client.gui.screen.recipebook.RecipeBookWidget;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.screen.PlayerScreenHandler;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.InventoryMenu;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(InventoryScreen.class)
-public abstract class MixinInventoryScreen extends AbstractInventoryScreen<PlayerScreenHandler> implements IScrollableRecipeBook {
+public abstract class MixinInventoryScreen extends EffectRenderingInventoryScreen<InventoryMenu> implements IScrollableRecipeBook {
 	@Shadow
 	@Final
-	private RecipeBookWidget recipeBook;
+	private RecipeBookComponent recipeBookComponent;
 
-	public MixinInventoryScreen(PlayerScreenHandler container, PlayerInventory playerInventory, Text text) {
+	public MixinInventoryScreen(InventoryMenu container, Inventory playerInventory, Component text) {
 		super(container, playerInventory, text);
 	}
 
 	@Override
 	public ScrollAction mouseWheelie_onMouseScrollRecipeBook(double mouseX, double mouseY, double scrollAmount) {
-		return ((IRecipeBookWidget) recipeBook).mouseWheelie_scrollRecipeBook(mouseX, mouseY, scrollAmount);
+		return ((IRecipeBookWidget) recipeBookComponent).mouseWheelie_scrollRecipeBook(mouseX, mouseY, scrollAmount);
 	}
 }

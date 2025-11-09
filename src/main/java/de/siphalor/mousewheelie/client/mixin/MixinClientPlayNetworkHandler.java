@@ -24,24 +24,24 @@ import de.siphalor.mousewheelie.client.network.InteractionManager;
 import de.siphalor.mousewheelie.client.network.MWClientNetworking;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientCommonNetworkHandler;
-import net.minecraft.client.network.ClientConnectionState;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.UpdateSelectedSlotS2CPacket;
-import net.minecraft.util.Hand;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.CommonListenerCookie;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Inventory;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
-@Mixin(ClientPlayNetworkHandler.class)
-public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkHandler {
-	protected MixinClientPlayNetworkHandler(MinecraftClient client, ClientConnection connection, ClientConnectionState connectionState) {
+@Mixin(ClientPacketListener.class)
+public abstract class MixinClientPlayNetworkHandler extends ClientCommonPacketListenerImpl {
+	protected MixinClientPlayNetworkHandler(Minecraft client, Connection connection, CommonListenerCookie connectionState) {
 		super(client, connection, connectionState);
 	}
 
@@ -51,47 +51,47 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonNetworkH
 		InteractionManager.triggerSend(InteractionManager.TriggerType.GUI_CONFIRM);
 	}*/
 
-	@Inject(method = "onUpdateSelectedSlot", at = @At("HEAD"))
-	public void onHeldItemChangeBegin(UpdateSelectedSlotS2CPacket packet, CallbackInfo callbackInfo) {
+	@Inject(method = "handleSetCarriedItem", at = @At("HEAD"))
+	public void onHeldItemChangeBegin(ClientboundSetCarriedItemPacket packet, CallbackInfo callbackInfo) {
 		InteractionManager.triggerSend(InteractionManager.TriggerType.HELD_ITEM_CHANGE);
 	}
 
-	@Inject(method = "onScreenHandlerSlotUpdate", at = @At("RETURN"))
-	public void onGuiSlotUpdateBegin(ScreenHandlerSlotUpdateS2CPacket packet, CallbackInfo callbackInfo) {
+	@Inject(method = "handleContainerSetSlot", at = @At("RETURN"))
+	public void onGuiSlotUpdateBegin(ClientboundContainerSetSlotPacket packet, CallbackInfo callbackInfo) {
 		MWClient.lastUpdatedSlot = packet.getSlot();
 		InteractionManager.triggerSend(InteractionManager.TriggerType.CONTAINER_SLOT_UPDATE);
 	}
 
-	@Inject(method = "onScreenHandlerSlotUpdate", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/PlayerScreenHandler;setStackInSlot(IILnet/minecraft/item/ItemStack;)V", shift = At.Shift.BEFORE))
-	public void onGuiSlotUpdateHotbar(ScreenHandlerSlotUpdateS2CPacket packet, CallbackInfo callbackInfo) {
+	@Inject(method = "handleContainerSetSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/InventoryMenu;setItem(IILnet/minecraft/world/item/ItemStack;)V", shift = At.Shift.BEFORE))
+	public void onGuiSlotUpdateHotbar(ClientboundContainerSetSlotPacket packet, CallbackInfo callbackInfo) {
 		if (MouseWheelie.config.refill.enable && MouseWheelie.config.refill.other) {
 			//noinspection ConstantConditions
-			PlayerInventory inventory = client.player.getInventory();
-			if (packet.getSlot() - 36 == inventory.selectedSlot) { // MAIN_HAND
-				SlotRefiller.scheduleRefillChecked(Hand.MAIN_HAND, inventory, inventory.getStack(inventory.selectedSlot), packet.getStack());
+			Inventory inventory = minecraft.player.getInventory();
+			if (packet.getSlot() - 36 == inventory.selected) { // MAIN_HAND
+				SlotRefiller.scheduleRefillChecked(InteractionHand.MAIN_HAND, inventory, inventory.getItem(inventory.selected), packet.getItem());
 			}
 		}
 	}
 
-	@Inject(method = "onScreenHandlerSlotUpdate", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/ScreenHandler;setStackInSlot(IILnet/minecraft/item/ItemStack;)V", shift = At.Shift.BEFORE))
-	public void onGuiSlotUpdateOther(ScreenHandlerSlotUpdateS2CPacket packet, CallbackInfo callbackInfo) {
+	@Inject(method = "handleContainerSetSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;setItem(IILnet/minecraft/world/item/ItemStack;)V", shift = At.Shift.BEFORE))
+	public void onGuiSlotUpdateOther(ClientboundContainerSetSlotPacket packet, CallbackInfo callbackInfo) {
 		//noinspection ConstantConditions
-		if (MouseWheelie.config.refill.enable && MouseWheelie.config.refill.other && client.player.currentScreenHandler == client.player.playerScreenHandler && packet.getSlot() == 45) {
-			PlayerInventory inventory = client.player.getInventory();
+		if (MouseWheelie.config.refill.enable && MouseWheelie.config.refill.other && minecraft.player.containerMenu == minecraft.player.inventoryMenu && packet.getSlot() == 45) {
+			Inventory inventory = minecraft.player.getInventory();
 			if (packet.getSlot() == 45) { // OFF_HAND
-				SlotRefiller.scheduleRefillChecked(Hand.OFF_HAND, inventory, inventory.offHand.get(0), packet.getStack());
+				SlotRefiller.scheduleRefillChecked(InteractionHand.OFF_HAND, inventory, inventory.offhand.get(0), packet.getItem());
 			}
 		}
 	}
 
-	@Inject(method = "onScreenHandlerSlotUpdate", require = 2,
+	@Inject(method = "handleContainerSetSlot", require = 2,
 			at = {
-				@At(value = "INVOKE", target = "Lnet/minecraft/screen/PlayerScreenHandler;setStackInSlot(IILnet/minecraft/item/ItemStack;)V", shift = At.Shift.AFTER),
-				@At(value = "INVOKE", target = "Lnet/minecraft/screen/ScreenHandler;setStackInSlot(IILnet/minecraft/item/ItemStack;)V", shift = At.Shift.AFTER),
+				@At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/InventoryMenu;setItem(IILnet/minecraft/world/item/ItemStack;)V", shift = At.Shift.AFTER),
+				@At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;setItem(IILnet/minecraft/world/item/ItemStack;)V", shift = At.Shift.AFTER),
 			}
 	)
-	public void onGuiSlotUpdated(ScreenHandlerSlotUpdateS2CPacket packet, CallbackInfo callbackInfo) {
-		if (packet.getSyncId() == 0) {
+	public void onGuiSlotUpdated(ClientboundContainerSetSlotPacket packet, CallbackInfo callbackInfo) {
+		if (packet.getContainerId() == 0) {
 			if (MWClientNetworking.areGuiUpdateRefillTriggersBlocked()) {
 				MWClientNetworking.decrementGuiUpdateRefillTriggerBlocks();
 				return;

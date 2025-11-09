@@ -6,7 +6,6 @@ plugins {
 	java
 	`maven-publish`
 	alias(libs.plugins.jcyo)
-	alias(libs.plugins.licenser)
 }
 
 val minecraftVersionDescriptor = project.properties["minecraft.version.descriptor"] as String
@@ -34,6 +33,13 @@ repositories {
 		url = uri("https://maven.nucleoid.xyz")
 		mavenContent {
 			includeGroupAndSubgroups("eu.pb4")
+		}
+	}
+	maven {
+		name = "ParchmentMC"
+		url = uri("https://maven.parchmentmc.org")
+		mavenContent {
+			includeGroup("org.parchmentmc.data")
 		}
 	}
 	maven {
@@ -68,7 +74,10 @@ dependencies {
 	compileOnly(libs.lombok)
 
 	minecraft(mcLibs.minecraft)
-	mappings(variantOf(mcLibs.minecraft.mappings) { classifier("v2") })
+	mappings(loom.layered {
+		officialMojangMappings()
+		parchment("org.parchmentmc.data:parchment-${mcLibs.versions.minecraft.get()}:${mcLibs.versions.parchment.get()}@zip")
+	})
 	"modImplementation"(libs.fabric.loader)
 
 	for (mod in listOf(
@@ -97,11 +106,6 @@ dependencies {
 	modImplementation(mcLibs.amecs.api)
 }
 
-license {
-	header = project.resources.text.fromFile(file("LICENSE_HEADER"))
-	include("**/*.java")
-}
-
 tasks.processResources {
     inputs.property("version", project.version)
 
@@ -121,7 +125,7 @@ java {
 val jcyoVars = mcProps.stringPropertyNames()
 	.filter { it.startsWith("preprocessor.") }
 	.map { it to mcProps[it] }
-	.associate { (key, value) -> key.substring("preprocessor.".length) to value }
+	.associate { (key, value) -> key.substring("preprocessor.".length) to value.toString() }
 val jcyo = tasks.register<JcyoTask>("jcyo") {
 	inputDirectory = file("src/main/java")
 	variables = jcyoVars

@@ -19,13 +19,13 @@ package de.siphalor.mousewheelie.client.compat;
 
 import net.fabricmc.fabric.impl.client.itemgroup.CreativeGuiExtensions;
 import net.fabricmc.fabric.impl.client.itemgroup.FabricCreativeGuiComponents;
-import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 
 @SuppressWarnings("UnstableApiUsage")
 public final class FabricCreativeGuiHelper {
 	private final CreativeGuiExtensions fabricExtensions;
 
-	public FabricCreativeGuiHelper(CreativeInventoryScreen screen) {
+	public FabricCreativeGuiHelper(CreativeModeInventoryScreen screen) {
 		fabricExtensions = (CreativeGuiExtensions) screen;
 	}
 

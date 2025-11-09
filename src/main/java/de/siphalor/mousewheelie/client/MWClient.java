@@ -17,6 +17,7 @@
 
 package de.siphalor.mousewheelie.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.coat.screen.ConfigScreen;
 import de.siphalor.coat.util.EnumeratedMaterial;
@@ -41,15 +42,14 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.event.client.player.ClientPickBlockGatherCallback;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.item.*;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Arrays;
@@ -60,20 +60,20 @@ import static de.siphalor.tweed5.defaultextensions.presets.api.PresetsExtension.
 @Environment(EnvType.CLIENT)
 @SuppressWarnings("WeakerAccess")
 public class MWClient implements ClientModInitializer {
-	private static final MinecraftClient CLIENT = MinecraftClient.getInstance();
+	private static final Minecraft CLIENT = Minecraft.getInstance();
 
 	public static final String KEY_BINDING_CATEGORY = "key.categories." + MouseWheelie.MOD_ID;
 
-	public static final KeyBinding OPEN_CONFIG_SCREEN = new OpenConfigScreenKeybinding(new Identifier(MouseWheelie.MOD_ID, "open_config_screen"), InputUtil.Type.KEYSYM, -1, KEY_BINDING_CATEGORY, new KeyModifiers());
-	public static final KeyBinding SORT_KEY_BINDING = new SortKeyBinding(new Identifier(MouseWheelie.MOD_ID, "sort_inventory"), InputUtil.Type.MOUSE, 2, KEY_BINDING_CATEGORY, new KeyModifiers());
-	public static final KeyBinding SCROLL_UP_KEY_BINDING = new ScrollKeyBinding(new Identifier(MouseWheelie.MOD_ID, "scroll_up"), KEY_BINDING_CATEGORY, false);
-	public static final KeyBinding SCROLL_DOWN_KEY_BINDING = new ScrollKeyBinding(new Identifier(MouseWheelie.MOD_ID, "scroll_down"), KEY_BINDING_CATEGORY, true);
-	public static final KeyBinding PICK_TOOL_KEY_BINDING = new PickToolKeyBinding(new Identifier(MouseWheelie.MOD_ID, "pick_tool"), InputUtil.Type.KEYSYM, -1, KEY_BINDING_CATEGORY, new KeyModifiers());
-	public static final ActionModifierKeybinding WHOLE_STACK_MODIFIER = new ActionModifierKeybinding(new Identifier(MouseWheelie.MOD_ID, "whole_stack_modifier"), InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_SHIFT, KEY_BINDING_CATEGORY, new KeyModifiers());
-	public static final ActionModifierKeybinding ALL_OF_KIND_MODIFIER = new ActionModifierKeybinding(new Identifier(MouseWheelie.MOD_ID, "all_of_kind_modifier"), InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_CONTROL, KEY_BINDING_CATEGORY, new KeyModifiers());
-	public static final ActionModifierKeybinding DROP_MODIFIER = new ActionModifierKeybinding(new Identifier(MouseWheelie.MOD_ID, "drop_modifier"), InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, KEY_BINDING_CATEGORY, new KeyModifiers());
-	public static final ActionModifierKeybinding DEPOSIT_MODIFIER = new ActionModifierKeybinding(new Identifier(MouseWheelie.MOD_ID, "deposit_modifier"), InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_SPACE, KEY_BINDING_CATEGORY, new KeyModifiers());
-	public static final ActionModifierKeybinding RESTOCK_MODIFIER = new ActionModifierKeybinding(new Identifier(MouseWheelie.MOD_ID, "restock_modifier"), InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_SPACE, KEY_BINDING_CATEGORY, new KeyModifiers());
+	public static final KeyMapping OPEN_CONFIG_SCREEN = new OpenConfigScreenKeybinding(new ResourceLocation(MouseWheelie.MOD_ID, "open_config_screen"), InputConstants.Type.KEYSYM, -1, KEY_BINDING_CATEGORY, new KeyModifiers());
+	public static final KeyMapping SORT_KEY_BINDING = new SortKeyBinding(new ResourceLocation(MouseWheelie.MOD_ID, "sort_inventory"), InputConstants.Type.MOUSE, 2, KEY_BINDING_CATEGORY, new KeyModifiers());
+	public static final KeyMapping SCROLL_UP_KEY_BINDING = new ScrollKeyBinding(new ResourceLocation(MouseWheelie.MOD_ID, "scroll_up"), KEY_BINDING_CATEGORY, false);
+	public static final KeyMapping SCROLL_DOWN_KEY_BINDING = new ScrollKeyBinding(new ResourceLocation(MouseWheelie.MOD_ID, "scroll_down"), KEY_BINDING_CATEGORY, true);
+	public static final KeyMapping PICK_TOOL_KEY_BINDING = new PickToolKeyBinding(new ResourceLocation(MouseWheelie.MOD_ID, "pick_tool"), InputConstants.Type.KEYSYM, -1, KEY_BINDING_CATEGORY, new KeyModifiers());
+	public static final ActionModifierKeybinding WHOLE_STACK_MODIFIER = new ActionModifierKeybinding(new ResourceLocation(MouseWheelie.MOD_ID, "whole_stack_modifier"), InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_SHIFT, KEY_BINDING_CATEGORY, new KeyModifiers());
+	public static final ActionModifierKeybinding ALL_OF_KIND_MODIFIER = new ActionModifierKeybinding(new ResourceLocation(MouseWheelie.MOD_ID, "all_of_kind_modifier"), InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_CONTROL, KEY_BINDING_CATEGORY, new KeyModifiers());
+	public static final ActionModifierKeybinding DROP_MODIFIER = new ActionModifierKeybinding(new ResourceLocation(MouseWheelie.MOD_ID, "drop_modifier"), InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, KEY_BINDING_CATEGORY, new KeyModifiers());
+	public static final ActionModifierKeybinding DEPOSIT_MODIFIER = new ActionModifierKeybinding(new ResourceLocation(MouseWheelie.MOD_ID, "deposit_modifier"), InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_SPACE, KEY_BINDING_CATEGORY, new KeyModifiers());
+	public static final ActionModifierKeybinding RESTOCK_MODIFIER = new ActionModifierKeybinding(new ResourceLocation(MouseWheelie.MOD_ID, "restock_modifier"), InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_SPACE, KEY_BINDING_CATEGORY, new KeyModifiers());
 
 	public static int lastUpdatedSlot = -1;
 
@@ -92,24 +92,24 @@ public class MWClient implements ClientModInitializer {
 		KeyBindingHelper.registerKeyBinding(RESTOCK_MODIFIER);
 
 		ClientPickBlockGatherCallback.EVENT.register((player, result) -> {
-			Item item = player.getMainHandStack().getItem();
+			Item item = player.getMainHandItem().getItem();
 			int index = -1;
 			if (MouseWheelie.config.toolPicking.holdTool && (isTool(item) || isWeapon(item))) {
 				ToolPicker toolPicker = new ToolPicker(player.getInventory());
 				if (result.getType() == HitResult.Type.BLOCK && result instanceof BlockHitResult) {
-					index = toolPicker.findToolFor(player.getWorld().getBlockState(((BlockHitResult) result).getBlockPos()));
+					index = toolPicker.findToolFor(player.level().getBlockState(((BlockHitResult) result).getBlockPos()));
 				} else {
 					index = toolPicker.findWeapon();
 				}
 			}
 			if (MouseWheelie.config.toolPicking.holdBlock && item instanceof BlockItem && result.getType() == HitResult.Type.BLOCK && result instanceof BlockHitResult) {
-				BlockState blockState = player.getWorld().getBlockState(((BlockHitResult) result).getBlockPos());
+				BlockState blockState = player.level().getBlockState(((BlockHitResult) result).getBlockPos());
 				if (blockState.getBlock() == ((BlockItem) item).getBlock()) {
 					ToolPicker toolPicker = new ToolPicker(player.getInventory());
 					index = toolPicker.findToolFor(blockState);
 				}
 			}
-			return index == -1 || index == player.getInventory().selectedSlot ? ItemStack.EMPTY : player.getInventory().getStack(index);
+			return index == -1 || index == player.getInventory().selected ? ItemStack.EMPTY : player.getInventory().getItem(index);
 		});
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
@@ -120,19 +120,19 @@ public class MWClient implements ClientModInitializer {
 
 	public static boolean isTool(Item item) {
 		// TODO: reimplement Fapi tool tags
-		return item instanceof ToolItem || item instanceof ShearsItem;
+		return item instanceof TieredItem || item instanceof ShearsItem;
 	}
 
 	public static boolean isWeapon(Item item) {
-		return item instanceof RangedWeaponItem || item instanceof TridentItem || item instanceof SwordItem;
+		return item instanceof ProjectileWeaponItem || item instanceof TridentItem || item instanceof SwordItem;
 	}
 
 	public static double getMouseX() {
-		return CLIENT.mouse.getX() * (double) CLIENT.getWindow().getScaledWidth() / (double) CLIENT.getWindow().getWidth();
+		return CLIENT.mouseHandler.xpos() * (double) CLIENT.getWindow().getGuiScaledWidth() / (double) CLIENT.getWindow().getScreenWidth();
 	}
 
 	public static double getMouseY() {
-		return CLIENT.mouse.getY() * (double) CLIENT.getWindow().getScaledHeight() / (double) CLIENT.getWindow().getHeight();
+		return CLIENT.mouseHandler.ypos() * (double) CLIENT.getWindow().getGuiScaledHeight() / (double) CLIENT.getWindow().getScreenHeight();
 	}
 
 	public static void onConfigChanged() {
@@ -149,26 +149,26 @@ public class MWClient implements ClientModInitializer {
 	}
 
 	public static boolean isOnLocalServer() {
-		return CLIENT.getServer() != null;
+		return CLIENT.getSingleplayerServer() != null;
 	}
 
 	public static boolean triggerScroll(double mouseX, double mouseY, double scrollY) {
-		double scrollAmount = scrollY * CLIENT.options.getMouseWheelSensitivity().getValue();
+		double scrollAmount = scrollY * CLIENT.options.mouseWheelSensitivity().get();
 		ScrollAction result;
-		if (CLIENT.currentScreen instanceof ISpecialScrollableScreen) {
-			result = ((ISpecialScrollableScreen) CLIENT.currentScreen).mouseWheelie_onMouseScrolledSpecial(mouseX, mouseY, scrollAmount);
+		if (CLIENT.screen instanceof ISpecialScrollableScreen) {
+			result = ((ISpecialScrollableScreen) CLIENT.screen).mouseWheelie_onMouseScrolledSpecial(mouseX, mouseY, scrollAmount);
 			if (result.cancelsCustomActions()) {
 				return result.cancelsAllActions();
 			}
 		}
-		if (CLIENT.currentScreen instanceof IContainerScreen) {
-			result = ((IContainerScreen) CLIENT.currentScreen).mouseWheelie_onMouseScroll(mouseX, mouseY, scrollY);
+		if (CLIENT.screen instanceof IContainerScreen) {
+			result = ((IContainerScreen) CLIENT.screen).mouseWheelie_onMouseScroll(mouseX, mouseY, scrollY);
 			if (result.cancelsCustomActions()) {
 				return result.cancelsAllActions();
 			}
 		}
-		if (CLIENT.currentScreen instanceof IScrollableRecipeBook) {
-			result = ((IScrollableRecipeBook) CLIENT.currentScreen).mouseWheelie_onMouseScrollRecipeBook(mouseX, mouseY, scrollY);
+		if (CLIENT.screen instanceof IScrollableRecipeBook) {
+			result = ((IScrollableRecipeBook) CLIENT.screen).mouseWheelie_onMouseScrollRecipeBook(mouseX, mouseY, scrollY);
 			if (result.cancelsCustomActions()) {
 				return result.cancelsAllActions();
 			}
@@ -191,8 +191,8 @@ public class MWClient implements ClientModInitializer {
 					}
 
 					@Override
-					public Text asText(SortMode sortMode) {
-						return Text.translatable("mousewheelie.sortmode." + sortMode.name().toLowerCase(Locale.ROOT));
+					public Component asText(SortMode sortMode) {
+						return Component.translatable("mousewheelie.sortmode." + sortMode.name().toLowerCase(Locale.ROOT));
 					}
 				}),
 				TweedCoatMappers.compoundCategoryMapper()
@@ -205,7 +205,7 @@ public class MWClient implements ClientModInitializer {
 				.rootEntry(MouseWheelie.configContainerHelper.configContainer().rootEntry())
 				.currentValue(MouseWheelie.config)
 				.defaultValue(defaultValue)
-				.title(Text.translatable("tweed4_tailor_screen.screen.mousewheelie"))
+				.title(Component.translatable("tweed4_tailor_screen.screen.mousewheelie"))
 				.translationKeyPrefix("tweed4_tailor_screen.screen.mousewheelie")
 				.saveHandler(value -> {
 					MouseWheelie.config = value;

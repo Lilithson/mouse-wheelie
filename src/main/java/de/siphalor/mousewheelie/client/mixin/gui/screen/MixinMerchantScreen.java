@@ -18,32 +18,32 @@
 package de.siphalor.mousewheelie.client.mixin.gui.screen;
 
 import de.siphalor.mousewheelie.client.util.inject.IMerchantScreen;
-import net.minecraft.client.gui.screen.ingame.MerchantScreen;
+import net.minecraft.client.gui.screens.inventory.MerchantScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(MerchantScreen.class)
 public abstract class MixinMerchantScreen implements IMerchantScreen {
 
-	@Shadow private int selectedIndex;
+	@Shadow private int shopItem;
 
-	@Shadow protected abstract void syncRecipeIndex();
+	@Shadow protected abstract void postButtonClick();
 
 	@Shadow
-	int indexStartOffset;
+	int scrollOff;
 
 	@Override
 	public void mouseWheelie_setRecipeId(int id) {
-		selectedIndex = id;
+		shopItem = id;
 	}
 
 	@Override
 	public void mouseWheelie_syncRecipeId() {
-		syncRecipeIndex();
+		postButtonClick();
 	}
 
 	@Override
 	public int mouseWheelie_getRecipeIdOffset() {
-		return indexStartOffset;
+		return scrollOff;
 	}
 }

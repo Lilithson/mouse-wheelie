@@ -22,39 +22,39 @@ import de.siphalor.mousewheelie.client.network.InteractionManager;
 import de.siphalor.mousewheelie.client.util.ItemStackUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 @Environment(EnvType.CLIENT)
-public class CreativeContainerScreenHelper<T extends CreativeInventoryScreen> extends ContainerScreenHelper<T> {
+public class CreativeContainerScreenHelper<T extends CreativeModeInventoryScreen> extends ContainerScreenHelper<T> {
 	public CreativeContainerScreenHelper(T screen, ClickEventFactory clickEventFactory) {
 		super(screen, clickEventFactory);
 	}
 
 	@Override
 	public void sendSingleItem(Slot slot) {
-		if (slot.inventory instanceof PlayerInventory) {
+		if (slot.container instanceof Inventory) {
 			super.sendSingleItem(slot);
 		} else {
 			int scope = getScope(slot);
-			for (Slot testSlot : screen.getScreenHandler().slots) {
+			for (Slot testSlot : screen.getMenu().slots) {
 				if (getScope(testSlot) != scope) {
-					ItemStack itemStack = testSlot.getStack();
-					if (ItemStackUtils.canCombine(slot.getStack(), itemStack) && itemStack.getCount() < itemStack.getMaxCount()) {
-						InteractionManager.push(clickEventFactory.create(slot, 0, SlotActionType.PICKUP));
-						InteractionManager.push(clickEventFactory.create(testSlot, 0, SlotActionType.PICKUP));
+					ItemStack itemStack = testSlot.getItem();
+					if (ItemStackUtils.canCombine(slot.getItem(), itemStack) && itemStack.getCount() < itemStack.getMaxStackSize()) {
+						InteractionManager.push(clickEventFactory.create(slot, 0, ClickType.PICKUP));
+						InteractionManager.push(clickEventFactory.create(testSlot, 0, ClickType.PICKUP));
 						return;
 					}
 				}
 			}
-			for (Slot testSlot : screen.getScreenHandler().slots) {
+			for (Slot testSlot : screen.getMenu().slots) {
 				if (getScope(testSlot) != scope) {
-					if (!testSlot.hasStack()) {
-						InteractionManager.push(clickEventFactory.create(slot, 0, SlotActionType.PICKUP));
-						InteractionManager.push(clickEventFactory.create(testSlot, 0, SlotActionType.PICKUP));
+					if (!testSlot.hasItem()) {
+						InteractionManager.push(clickEventFactory.create(slot, 0, ClickType.PICKUP));
+						InteractionManager.push(clickEventFactory.create(testSlot, 0, ClickType.PICKUP));
 						return;
 					}
 				}
@@ -64,10 +64,10 @@ public class CreativeContainerScreenHelper<T extends CreativeInventoryScreen> ex
 
 	@Override
 	public int getScope(Slot slot, boolean preferSmallerScopes) {
-		if (screen.isInventoryTabSelected()) {
+		if (screen.isInventoryOpen()) {
 			return super.getScope(slot, preferSmallerScopes);
 		}
-		if (slot.inventory instanceof PlayerInventory) {
+		if (slot.container instanceof Inventory) {
 			if (isHotbarSlot(slot)) {
 				return 0;
 			}
@@ -77,29 +77,29 @@ public class CreativeContainerScreenHelper<T extends CreativeInventoryScreen> ex
 
 	@Override
 	public void sendStack(Slot slot) {
-		if (slot.inventory instanceof PlayerInventory) {
+		if (slot.container instanceof Inventory) {
 			super.sendStack(slot);
 		} else {
-			int count = slot.getStack().getMaxCount();
-			InteractionManager.push(clickEventFactory.create(slot, 0, SlotActionType.CLONE));
-			for (Slot testSlot : screen.getScreenHandler().slots) {
-				ItemStack itemStack = testSlot.getStack();
+			int count = slot.getItem().getMaxStackSize();
+			InteractionManager.push(clickEventFactory.create(slot, 0, ClickType.CLONE));
+			for (Slot testSlot : screen.getMenu().slots) {
+				ItemStack itemStack = testSlot.getItem();
 				if (itemStack.isEmpty()) {
-					InteractionManager.push(clickEventFactory.create(testSlot, 0, SlotActionType.PICKUP));
+					InteractionManager.push(clickEventFactory.create(testSlot, 0, ClickType.PICKUP));
 					return;
-				} else if (ItemStackUtils.canCombine(itemStack, slot.getStack()) && itemStack.getCount() < itemStack.getMaxCount()) {
+				} else if (ItemStackUtils.canCombine(itemStack, slot.getItem()) && itemStack.getCount() < itemStack.getMaxStackSize()) {
 					count -= itemStack.getCount();
-					InteractionManager.push(clickEventFactory.create(testSlot, 0, SlotActionType.PICKUP));
+					InteractionManager.push(clickEventFactory.create(testSlot, 0, ClickType.PICKUP));
 					if (count <= 0) return;
 				}
 			}
-			InteractionManager.push(clickEventFactory.create(getDelSlot(slot.getStack()), 0, SlotActionType.PICKUP));
+			InteractionManager.push(clickEventFactory.create(getDelSlot(slot.getItem()), 0, ClickType.PICKUP));
 		}
 	}
 
 	@Override
 	public void sendAllOfAKind(Slot referenceSlot) {
-		if (referenceSlot.inventory instanceof PlayerInventory) {
+		if (referenceSlot.container instanceof Inventory) {
 			super.sendAllOfAKind(referenceSlot);
 		} else {
 			sendStack(referenceSlot);
@@ -108,17 +108,17 @@ public class CreativeContainerScreenHelper<T extends CreativeInventoryScreen> ex
 
 	@Override
 	public void sendAllFrom(Slot referenceSlot) {
-		if (referenceSlot.inventory instanceof PlayerInventory) {
+		if (referenceSlot.container instanceof Inventory) {
 			super.sendAllFrom(referenceSlot);
 		}
 	}
 
 	private Slot getDelSlot(ItemStack delStack) {
-		for (Slot slot : screen.getScreenHandler().slots) {
-			if (slot.getStack().getItem() != delStack.getItem()) {
+		for (Slot slot : screen.getMenu().slots) {
+			if (slot.getItem().getItem() != delStack.getItem()) {
 				return slot;
 			}
 		}
-		return screen.getScreenHandler().slots.get(0);
+		return screen.getMenu().slots.get(0);
 	}
 }

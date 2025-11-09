@@ -25,10 +25,10 @@ import de.siphalor.mousewheelie.client.util.inject.ISlot;
 import de.siphalor.mousewheelie.common.network.ReorderInventoryPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -37,21 +37,21 @@ import java.util.BitSet;
 
 @Environment(EnvType.CLIENT)
 public class InventorySorter {
-	private final ContainerScreenHelper<? extends HandledScreen<?>> screenHelper;
-	private final HandledScreen<?> containerScreen;
+	private final ContainerScreenHelper<? extends AbstractContainerScreen<?>> screenHelper;
+	private final AbstractContainerScreen<?> containerScreen;
 	private Slot[] inventorySlots;
 	private final ItemStack[] stacks;
 
 	/**
-	 * @deprecated Use {@link #InventorySorter(ContainerScreenHelper, HandledScreen, Slot)} instead
+	 * @deprecated Use {@link #InventorySorter(ContainerScreenHelper, AbstractContainerScreen, Slot)} instead
 	 */
 	@Deprecated
-	public InventorySorter(HandledScreen<?> containerScreen, Slot originSlot) {
+	public InventorySorter(AbstractContainerScreen<?> containerScreen, Slot originSlot) {
 		this(
 				ContainerScreenHelper.of(
 						containerScreen,
 						(slot, action, slotActionType) -> new InteractionManager.ClickEvent(
-								containerScreen.getScreenHandler().syncId,
+								containerScreen.getMenu().containerId,
 								((ISlot) slot).mouseWheelie_getIdInContainer(), action, slotActionType
 						)
 				),
@@ -60,7 +60,7 @@ public class InventorySorter {
 		);
 	}
 
-	public InventorySorter(ContainerScreenHelper<? extends HandledScreen<?>> screenHelper, HandledScreen<?> containerScreen, Slot originSlot) {
+	public InventorySorter(ContainerScreenHelper<? extends AbstractContainerScreen<?>> screenHelper, AbstractContainerScreen<?> containerScreen, Slot originSlot) {
 		this.screenHelper = screenHelper;
 		this.containerScreen = containerScreen;
 
@@ -68,7 +68,7 @@ public class InventorySorter {
 
 		this.stacks = new ItemStack[inventorySlots.length];
 		for (int i = 0; i < inventorySlots.length; i++) {
-			stacks[i] = inventorySlots[i].getStack();
+			stacks[i] = inventorySlots[i].getItem();
 		}
 	}
 
@@ -79,7 +79,7 @@ public class InventorySorter {
 			return;
 		}
 		ArrayList<Slot> slotsInScope = new ArrayList<>();
-		for (Slot slot : containerScreen.getScreenHandler().slots) {
+		for (Slot slot : containerScreen.getMenu().slots) {
 			if (originScope == screenHelper.getScope(slot, true)) {
 				slotsInScope.add(slot);
 			}
@@ -94,18 +94,18 @@ public class InventorySorter {
 			stack = stacks[i];
 			if (stack.isEmpty()) continue;
 			int stackSize = stack.getCount();
-			if (stackSize >= stack.getItem().getMaxCount()) continue;
-			clickEvents.add(screenHelper.createClickEvent(inventorySlots[i], 0, SlotActionType.PICKUP));
+			if (stackSize >= stack.getItem().getMaxStackSize()) continue;
+			clickEvents.add(screenHelper.createClickEvent(inventorySlots[i], 0, ClickType.PICKUP));
 			for (int j = 0; j < i; j++) {
 				ItemStack targetStack = stacks[j];
 				if (targetStack.isEmpty()) continue;
-				if (targetStack.getCount() >= targetStack.getItem().getMaxCount()) continue;
-				if (ItemStack.canCombine(stack, targetStack)) {
-					int delta = targetStack.getItem().getMaxCount() - targetStack.getCount();
+				if (targetStack.getCount() >= targetStack.getItem().getMaxStackSize()) continue;
+				if (ItemStack.isSameItemSameTags(stack, targetStack)) {
+					int delta = targetStack.getItem().getMaxStackSize() - targetStack.getCount();
 					delta = Math.min(delta, stackSize);
 					stackSize -= delta;
 					targetStack.setCount(targetStack.getCount() + delta);
-					clickEvents.add(screenHelper.createClickEvent(inventorySlots[j], 0, SlotActionType.PICKUP));
+					clickEvents.add(screenHelper.createClickEvent(inventorySlots[j], 0, ClickType.PICKUP));
 					if (stackSize <= 0) break;
 				}
 			}
@@ -117,7 +117,7 @@ public class InventorySorter {
 			InteractionManager.triggerSend(InteractionManager.TriggerType.GUI_CONFIRM);
 			clickEvents.clear();
 			if (stackSize > 0) {
-				InteractionManager.push(screenHelper.createClickEvent(inventorySlots[i], 0, SlotActionType.PICKUP));
+				InteractionManager.push(screenHelper.createClickEvent(inventorySlots[i], 0, ClickType.PICKUP));
 				stack.setCount(stackSize);
 			} else {
 				stacks[i] = ItemStack.EMPTY;
@@ -154,7 +154,7 @@ public class InventorySorter {
 			slotMappings[i * 2 + 1] = ((ISlot) to).mouseWheelie_getIdInContainer();
 		}
 		InteractionManager.push(() -> {
-			MWClientNetworking.send(new ReorderInventoryPacket(containerScreen.getScreenHandler().syncId, slotMappings));
+			MWClientNetworking.send(new ReorderInventoryPacket(containerScreen.getMenu().containerId, slotMappings));
 			return InteractionManager.TICK_WAITER;
 		});
 	}
@@ -192,7 +192,7 @@ public class InventorySorter {
 
 			// This is where the action happens.
 			// Pick up the stack at the origin slot.
-			InteractionManager.push(screenHelper.createClickEvent(inventorySlots[sortedIds[i]], 0, SlotActionType.PICKUP));
+			InteractionManager.push(screenHelper.createClickEvent(inventorySlots[sortedIds[i]], 0, ClickType.PICKUP));
 			doneSlashEmpty.set(slotCount + sortedIds[i]); // Mark the origin slot as empty (because we picked the stack up, duh)
 			currentStack = stacks[sortedIds[i]]; // Save the stack we're currently working with
 			Slot workingSlot = inventorySlots[sortedIds[i]]; // A slot that we can use when fiddling around with swapping stacks
@@ -202,7 +202,7 @@ public class InventorySorter {
 						stacks[id].getItem() == currentStack.getItem()
 								//&& stacks[id].getCount() == currentStack.getCount()
 								&& !doneSlashEmpty.get(slotCount + id)
-								&& ItemStack.canCombine(stacks[id], currentStack)
+								&& ItemStack.isSameItemSameTags(stacks[id], currentStack)
 				) {
 					// If the current stack and the target stack are completely equal, then we can skip this step in the chain
 					if (stacks[id].getCount() == currentStack.getCount()) {
@@ -213,11 +213,11 @@ public class InventorySorter {
 					if (currentStack.getCount() < stacks[id].getCount()) { // Clicking with a low stack on a full stack does nothing
 						// The workaround is: click working slot, click target slot, click working slot, click target slot, click working slot
 						Slot targetSlot = inventorySlots[id];
-						InteractionManager.push(screenHelper.createClickEvent(workingSlot, 0, SlotActionType.PICKUP));
-						InteractionManager.push(screenHelper.createClickEvent(targetSlot, 0, SlotActionType.PICKUP));
-						InteractionManager.push(screenHelper.createClickEvent(workingSlot, 0, SlotActionType.PICKUP));
-						InteractionManager.push(screenHelper.createClickEvent(targetSlot, 0, SlotActionType.PICKUP));
-						InteractionManager.push(screenHelper.createClickEvent(workingSlot, 0, SlotActionType.PICKUP));
+						InteractionManager.push(screenHelper.createClickEvent(workingSlot, 0, ClickType.PICKUP));
+						InteractionManager.push(screenHelper.createClickEvent(targetSlot, 0, ClickType.PICKUP));
+						InteractionManager.push(screenHelper.createClickEvent(workingSlot, 0, ClickType.PICKUP));
+						InteractionManager.push(screenHelper.createClickEvent(targetSlot, 0, ClickType.PICKUP));
+						InteractionManager.push(screenHelper.createClickEvent(workingSlot, 0, ClickType.PICKUP));
 
 						currentStack = stacks[id];
 						doneSlashEmpty.set(id); // mark the current target as done
@@ -227,7 +227,7 @@ public class InventorySorter {
 				}
 
 				// swap the current stack with the target stack
-				InteractionManager.push(screenHelper.createClickEvent(inventorySlots[id], 0, SlotActionType.PICKUP));
+				InteractionManager.push(screenHelper.createClickEvent(inventorySlots[id], 0, ClickType.PICKUP));
 				currentStack = stacks[id];
 				doneSlashEmpty.set(id); // mark the current target as done
 				// If the target that we just swapped with was empty before, then this breaks the chain.

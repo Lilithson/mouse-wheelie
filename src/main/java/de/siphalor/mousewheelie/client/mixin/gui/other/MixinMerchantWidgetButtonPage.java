@@ -24,16 +24,16 @@ import de.siphalor.mousewheelie.client.util.inject.IMerchantScreen;
 import de.siphalor.mousewheelie.client.util.inject.ISpecialClickableButtonWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.world.inventory.ClickType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Environment(EnvType.CLIENT)
-@Mixin(targets = "net/minecraft/client/gui/screen/ingame/MerchantScreen$WidgetButtonPage")
+@Mixin(targets = "net/minecraft/client/gui/screens/inventory/MerchantScreen$TradeOfferButton")
 public class MixinMerchantWidgetButtonPage implements ISpecialClickableButtonWidget {
 	@Shadow
 	@Final
@@ -42,16 +42,16 @@ public class MixinMerchantWidgetButtonPage implements ISpecialClickableButtonWid
 	@Override
 	public boolean mouseWheelie_mouseClickedSpecial(int mouseButton) {
 		if (mouseButton != 1 || !MouseWheelie.config.general.enableQuickCraft) return false;
-		MinecraftClient minecraft = MinecraftClient.getInstance();
-		Screen screen = minecraft.currentScreen;
+		Minecraft minecraft = Minecraft.getInstance();
+		Screen screen = minecraft.screen;
 		if (screen instanceof IMerchantScreen) {
 			((IMerchantScreen) screen).mouseWheelie_setRecipeId(this.index + ((IMerchantScreen) screen).mouseWheelie_getRecipeIdOffset());
 			((IMerchantScreen) screen).mouseWheelie_syncRecipeId();
-			if (screen instanceof HandledScreen) {
-				if (MWClient.WHOLE_STACK_MODIFIER.isPressed())
-					InteractionManager.pushClickEvent(((HandledScreen<?>) screen).getScreenHandler().syncId, 2, 1, SlotActionType.QUICK_MOVE);
+			if (screen instanceof AbstractContainerScreen) {
+				if (MWClient.WHOLE_STACK_MODIFIER.isDown())
+					InteractionManager.pushClickEvent(((AbstractContainerScreen<?>) screen).getMenu().containerId, 2, 1, ClickType.QUICK_MOVE);
 				else
-					InteractionManager.pushClickEvent(((HandledScreen<?>) screen).getScreenHandler().syncId, 2, 1, SlotActionType.PICKUP);
+					InteractionManager.pushClickEvent(((AbstractContainerScreen<?>) screen).getMenu().containerId, 2, 1, ClickType.PICKUP);
 			}
 		}
 

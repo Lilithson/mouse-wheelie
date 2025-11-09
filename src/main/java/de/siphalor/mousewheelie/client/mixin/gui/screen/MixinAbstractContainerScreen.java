@@ -28,20 +28,20 @@ import de.siphalor.mousewheelie.client.network.InteractionManager;
 import de.siphalor.mousewheelie.client.util.ScrollAction;
 import de.siphalor.mousewheelie.client.util.inject.IContainerScreen;
 import de.siphalor.mousewheelie.client.util.inject.ISlot;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.gui.screen.ingame.InventoryScreen;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BundleItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.BundleItem;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
@@ -58,34 +58,34 @@ import java.util.Collections;
 import java.util.function.Supplier;
 
 @SuppressWarnings("WeakerAccess")
-@Mixin(HandledScreen.class)
+@Mixin(AbstractContainerScreen.class)
 public abstract class MixinAbstractContainerScreen extends Screen implements IContainerScreen {
-	protected MixinAbstractContainerScreen(Text textComponent_1) {
+	protected MixinAbstractContainerScreen(Component textComponent_1) {
 		super(textComponent_1);
 	}
 
 	@Shadow
-	protected abstract Slot getSlotAt(double double_1, double double_2);
+	protected abstract Slot findSlot(double double_1, double double_2);
 
 	@Shadow
-	protected abstract void onMouseClick(Slot slot_1, int int_1, int int_2, SlotActionType slotActionType_1);
+	protected abstract void slotClicked(Slot slot_1, int int_1, int int_2, ClickType slotActionType_1);
 
 	@Shadow
 	@Final
-	protected ScreenHandler handler;
+	protected AbstractContainerMenu menu;
 
 	@Shadow
-	protected Slot focusedSlot;
+	protected Slot hoveredSlot;
 
 	@Shadow
-	private @Nullable Slot touchDragSlotStart;
+	private @Nullable Slot clickedSlot;
 	@Shadow
-	protected boolean cursorDragging;
+	protected boolean isQuickCrafting;
 	@SuppressWarnings({"ConstantConditions", "unchecked"})
 	@Unique
-	private final Supplier<ContainerScreenHelper<HandledScreen<ScreenHandler>>> screenHelper = Suppliers.memoize(
-			() -> ContainerScreenHelper.of((HandledScreen<ScreenHandler>) (Object) this, (slot, data, slotActionType) -> new InteractionManager.CallbackEvent(() -> {
-				onMouseClick(slot, ((ISlot) slot).mouseWheelie_getIdInContainer(), data, slotActionType);
+	private final Supplier<ContainerScreenHelper<AbstractContainerScreen<AbstractContainerMenu>>> screenHelper = Suppliers.memoize(
+			() -> ContainerScreenHelper.of((AbstractContainerScreen<AbstractContainerMenu>) (Object) this, (slot, data, slotActionType) -> new InteractionManager.CallbackEvent(() -> {
+				slotClicked(slot, ((ISlot) slot).mouseWheelie_getIdInContainer(), data, slotActionType);
 				return InteractionManager.TICK_WAITER;
 			}, true))
 	);
@@ -98,7 +98,7 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 	@Inject(method = "mouseDragged", at = @At("RETURN"))
 	public void onMouseDragged(double x, double y, int button, double deltaX, double deltaY, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
 		Collection<Slot> slots = Collections.emptyList();
-		Slot hoveredSlot = getSlotAt(x, y);
+		Slot hoveredSlot = findSlot(x, y);
 
 		if (MouseWheelie.config.general.betterFastDragging) {
 			double dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
@@ -108,10 +108,10 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 					slots.add(hoveredSlot);
 				}
 
-				for (int i = 0; i < MathHelper.floor(dist / 16.0); i++) {
+				for (int i = 0; i < Mth.floor(dist / 16.0); i++) {
 					double curX = x + deltaX - deltaX / dist * 16.0 * i;
 					double curY = y + deltaY - deltaY / dist * 16.0 * i;
-					Slot curSlot = getSlotAt(curX, curY);
+					Slot curSlot = findSlot(curX, curY);
 					if (curSlot != null) {
 						slots.add(curSlot);
 					}
@@ -119,7 +119,7 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 			}
 		}
 		if (slots.isEmpty()) {
-			if (hoveredSlot != null && !hoveredSlot.getStack().isEmpty()) {
+			if (hoveredSlot != null && !hoveredSlot.getItem().isEmpty()) {
 				slots = Collections.singletonList(hoveredSlot);
 			} else {
 				return;
@@ -128,21 +128,21 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 
 		ContainerScreenHelper<?> screenHelper = this.screenHelper.get();
 		if (button == 0) { // Left mouse button
-			if (MouseWheelie.config.general.enableDropModifier && MWClient.DROP_MODIFIER.isPressed()) {
+			if (MouseWheelie.config.general.enableDropModifier && MWClient.DROP_MODIFIER.isDown()) {
 				for (Slot slot : slots) {
 					screenHelper.dropStackLocked(slot);
 				}
-			} else if (MWClient.WHOLE_STACK_MODIFIER.isPressed()) {
+			} else if (MWClient.WHOLE_STACK_MODIFIER.isDown()) {
 				for (Slot slot : slots) {
 					screenHelper.sendStackLocked(slot);
 				}
-			} else if (MWClient.ALL_OF_KIND_MODIFIER.isPressed()) {
+			} else if (MWClient.ALL_OF_KIND_MODIFIER.isDown()) {
 				for (Slot slot : slots) {
 					screenHelper.sendAllOfAKind(slot);
 				}
 			}
 		} else if (button == 1) { // Right mouse button
-			ItemStack cursorStack = handler.getCursorStack();
+			ItemStack cursorStack = menu.getCarried();
 
 			if (!cursorStack.isEmpty() && bundleDragMode != null && cursorStack.getItem() instanceof BundleItem item) {
 				Slot lastSlot = null;
@@ -151,22 +151,22 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 						continue;
 					}
 					if (bundleDragMode == BundleDragMode.AUTO) {
-						if (slot.getStack().isEmpty()) {
-							if (item.isItemBarVisible(cursorStack)) {
+						if (slot.getItem().isEmpty()) {
+							if (item.isBarVisible(cursorStack)) {
 								bundleDragMode = BundleDragMode.PUTTING_OUT;
 							}
 						} else {
 							bundleDragMode = BundleDragMode.PICKING_UP;
 						}
 					}
-					if (bundleDragMode == BundleDragMode.PICKING_UP && slot.getStack().isEmpty()) {
+					if (bundleDragMode == BundleDragMode.PICKING_UP && slot.getItem().isEmpty()) {
 						continue;
 					}
-					if (bundleDragMode == BundleDragMode.PUTTING_OUT && !slot.getStack().isEmpty()) {
+					if (bundleDragMode == BundleDragMode.PUTTING_OUT && !slot.getItem().isEmpty()) {
 						continue;
 					}
 
-					onMouseClick(slot, slot.id, 1, SlotActionType.PICKUP);
+					slotClicked(slot, slot.index, 1, ClickType.PICKUP);
 
 					lastSlot = slot;
 				}
@@ -181,32 +181,32 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 	@Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
 	public void onMouseClick(double x, double y, int button, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
 		if (button == 0) {
-			Slot hoveredSlot = getSlotAt(x, y);
+			Slot hoveredSlot = findSlot(x, y);
 			if (hoveredSlot == null) {
 				return;
 			}
 
 			boolean success = true;
-			if (MouseWheelie.config.general.enableDropModifier && MWClient.DROP_MODIFIER.isPressed()) {
-				if (MWClient.ALL_OF_KIND_MODIFIER.isPressed()) {
-					if (MWClient.WHOLE_STACK_MODIFIER.isPressed()) {
+			if (MouseWheelie.config.general.enableDropModifier && MWClient.DROP_MODIFIER.isDown()) {
+				if (MWClient.ALL_OF_KIND_MODIFIER.isDown()) {
+					if (MWClient.WHOLE_STACK_MODIFIER.isDown()) {
 						screenHelper.get().dropAllFrom(hoveredSlot);
 					} else {
 						screenHelper.get().dropAllOfAKind(hoveredSlot);
 					}
 				} else {
-					onMouseClick(hoveredSlot, ((ISlot) hoveredSlot).mouseWheelie_getIdInContainer(), 1, SlotActionType.THROW);
+					slotClicked(hoveredSlot, ((ISlot) hoveredSlot).mouseWheelie_getIdInContainer(), 1, ClickType.THROW);
 				}
-			} else if (MWClient.ALL_OF_KIND_MODIFIER.isPressed()) {
-				if (MWClient.WHOLE_STACK_MODIFIER.isPressed()) {
+			} else if (MWClient.ALL_OF_KIND_MODIFIER.isDown()) {
+				if (MWClient.WHOLE_STACK_MODIFIER.isDown()) {
 					screenHelper.get().sendAllFrom(hoveredSlot);
 				} else {
 					screenHelper.get().sendAllOfAKind(hoveredSlot);
 				}
-			} else if (MWClient.DEPOSIT_MODIFIER.isPressed()) {
+			} else if (MWClient.DEPOSIT_MODIFIER.isDown()) {
 				screenHelper.get().depositAllFrom(hoveredSlot);
-			} else if (MWClient.RESTOCK_MODIFIER.isPressed()) {
-				if (MWClient.WHOLE_STACK_MODIFIER.isPressed()) {
+			} else if (MWClient.RESTOCK_MODIFIER.isDown()) {
+				if (MWClient.WHOLE_STACK_MODIFIER.isDown()) {
 					screenHelper.get().restockAll(hoveredSlot);
 				} else {
 					screenHelper.get().restockAllOfAKind(hoveredSlot);
@@ -218,13 +218,13 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 				callbackInfoReturnable.setReturnValue(true);
 			}
 		} else if (button == 1) {
-			ItemStack cursorStack = handler.getCursorStack();
+			ItemStack cursorStack = menu.getCarried();
 			if (!cursorStack.isEmpty() && MouseWheelie.config.general.enableBundleDragging && cursorStack.getItem() instanceof BundleItem item) {
-				Slot hoveredSlot = getSlotAt(x, y);
+				Slot hoveredSlot = findSlot(x, y);
 				if (hoveredSlot == null) {
 					bundleDragMode = BundleDragMode.AUTO;
-				} else if (hoveredSlot.getStack().isEmpty()) {
-					if (item.isItemBarVisible(cursorStack)) {
+				} else if (hoveredSlot.getItem().isEmpty()) {
+					if (item.isBarVisible(cursorStack)) {
 						bundleDragMode = BundleDragMode.PUTTING_OUT;
 					} else {
 						bundleDragMode = BundleDragMode.AUTO;
@@ -233,7 +233,7 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 					bundleDragMode = BundleDragMode.PICKING_UP;
 				}
 				if (hoveredSlot != null) {
-					onMouseClick(hoveredSlot, hoveredSlot.id, 1, SlotActionType.PICKUP);
+					slotClicked(hoveredSlot, hoveredSlot.index, 1, ClickType.PICKUP);
 				}
 			}
 		}
@@ -243,8 +243,8 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 	@Inject(method = "mouseReleased", at = @At("HEAD"), cancellable = true)
 	public void onMouseRelease(double x, double y, int button, CallbackInfoReturnable<Boolean> cir) {
 		if (bundleDragMode != null) {
-			touchDragSlotStart = null;
-			cursorDragging = false;
+			clickedSlot = null;
+			isQuickCrafting = false;
 			cir.setReturnValue(true);
 		}
 		lastBundleInteractionSlot = null;
@@ -253,27 +253,27 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 
 	@Override
 	public Slot mouseWheelie_getSlotAt(double mouseX, double mouseY) {
-		return getSlotAt(mouseX, mouseY);
+		return findSlot(mouseX, mouseY);
 	}
 
 	@Override
 	public ScrollAction mouseWheelie_onMouseScroll(double mouseX, double mouseY, double scrollAmount) {
 		if (MouseWheelie.config.scrolling.enable) {
 			if (hasAltDown()) return ScrollAction.FAILURE;
-			Slot hoveredSlot = getSlotAt(mouseX, mouseY);
+			Slot hoveredSlot = findSlot(mouseX, mouseY);
 			if (hoveredSlot == null)
 				return ScrollAction.PASS;
-			if (hoveredSlot.getStack().isEmpty())
+			if (hoveredSlot.getItem().isEmpty())
 				return ScrollAction.PASS;
 
 			//noinspection ConstantConditions
 			if (scrollAmount < 0 && (Object) this instanceof InventoryScreen) {
-				EquipmentSlot equipmentSlot = MobEntity.getPreferredEquipmentSlot(hoveredSlot.getStack());
+				EquipmentSlot equipmentSlot = Mob.getEquipmentSlotForItem(hoveredSlot.getItem());
 				if (equipmentSlot.getType() == EquipmentSlot.Type.ARMOR) {
 					int hoveredSlotId = ((ISlot) hoveredSlot).mouseWheelie_getIdInContainer();
-					InteractionManager.pushClickEvent(handler.syncId, hoveredSlotId, 0, SlotActionType.PICKUP);
-					InteractionManager.pushClickEvent(handler.syncId, 8 - equipmentSlot.getEntitySlotId(), 0, SlotActionType.PICKUP);
-					InteractionManager.pushClickEvent(handler.syncId, hoveredSlotId, 0, SlotActionType.PICKUP);
+					InteractionManager.pushClickEvent(menu.containerId, hoveredSlotId, 0, ClickType.PICKUP);
+					InteractionManager.pushClickEvent(menu.containerId, 8 - equipmentSlot.getIndex(), 0, ClickType.PICKUP);
+					InteractionManager.pushClickEvent(menu.containerId, hoveredSlotId, 0, ClickType.PICKUP);
 					return ScrollAction.SUCCESS;
 				}
 			}
@@ -287,14 +287,14 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 	@SuppressWarnings("ConstantConditions")
 	@Override
 	public boolean mouseWheelie_triggerSort() {
-		if (focusedSlot == null)
+		if (hoveredSlot == null)
 			return false;
-		PlayerEntity player = MinecraftClient.getInstance().player;
-		if (player.getAbilities().creativeMode
-				&& GLFW.glfwGetMouseButton(client.getWindow().getHandle(), GLFW.GLFW_MOUSE_BUTTON_MIDDLE) != 0
-				&& (!focusedSlot.getStack().isEmpty() == handler.getCursorStack().isEmpty()))
+		Player player = Minecraft.getInstance().player;
+		if (player.getAbilities().instabuild
+				&& GLFW.glfwGetMouseButton(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_MIDDLE) != 0
+				&& (!hoveredSlot.getItem().isEmpty() == menu.getCarried().isEmpty()))
 			return false;
-		InventorySorter sorter = new InventorySorter(screenHelper.get(), (HandledScreen<?>) (Object) this, focusedSlot);
+		InventorySorter sorter = new InventorySorter(screenHelper.get(), (AbstractContainerScreen<?>) (Object) this, hoveredSlot);
 		SortMode sortMode;
 		if (hasShiftDown()) {
 			sortMode = MouseWheelie.config.sort.shiftSort;

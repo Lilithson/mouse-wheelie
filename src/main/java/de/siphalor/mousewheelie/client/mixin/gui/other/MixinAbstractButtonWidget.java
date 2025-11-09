@@ -18,19 +18,19 @@
 package de.siphalor.mousewheelie.client.mixin.gui.other;
 
 import de.siphalor.mousewheelie.client.util.inject.ISpecialClickableButtonWidget;
-import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.components.AbstractWidget;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ClickableWidget.class)
+@Mixin(AbstractWidget.class)
 public abstract class MixinAbstractButtonWidget {
 	@Shadow
 	protected abstract boolean clicked(double double_1, double double_2);
 
-	@Inject(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/widget/ClickableWidget;isValidClickButton(I)Z"), cancellable = true)
+	@Inject(method = "mouseClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/AbstractWidget;isValidClickButton(I)Z"), cancellable = true)
 	public void mouseClicked(double x, double y, int button, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
 		if (this.clicked(x, y)) {
 			if (this instanceof ISpecialClickableButtonWidget) {

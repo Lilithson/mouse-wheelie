@@ -21,12 +21,12 @@ import de.siphalor.mousewheelie.client.MWClient;
 import lombok.CustomLog;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+import net.minecraft.world.inventory.ClickType;
 
 import java.time.Duration;
 import java.util.ArrayDeque;
@@ -49,8 +49,8 @@ public class InteractionManager {
 	public static final Waiter TICK_WAITER = (TriggerType triggerType) -> triggerType == TriggerType.TICK;
 
 	public static final PacketEvent SWAP_WITH_OFFHAND_EVENT = new PacketEvent(
-			new PlayerActionC2SPacket(PlayerActionC2SPacket.Action.SWAP_ITEM_WITH_OFFHAND, BlockPos.ORIGIN, Direction.DOWN),
-			triggerType -> triggerType == InteractionManager.TriggerType.CONTAINER_SLOT_UPDATE && MWClient.lastUpdatedSlot == 45
+			new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND, BlockPos.ZERO, Direction.DOWN),
+			triggerType -> triggerType == TriggerType.CONTAINER_SLOT_UPDATE && MWClient.lastUpdatedSlot == 45
 	);
 
 	private static Waiter waiter = null;
@@ -82,7 +82,7 @@ public class InteractionManager {
 		}
 	}
 
-	public static void pushClickEvent(int containerSyncId, int slotId, int buttonId, SlotActionType slotAction) {
+	public static void pushClickEvent(int containerSyncId, int slotId, int buttonId, ClickType slotAction) {
 		push(new ClickEvent(containerSyncId, slotId, buttonId, slotAction));
 	}
 
@@ -113,7 +113,7 @@ public class InteractionManager {
 	private static void runOnMainThread(InteractionEvent event) {
 		Waiter blockingWaiter = tt -> false;
 		waiter = blockingWaiter;
-		MinecraftClient.getInstance().execute(() -> {
+		Minecraft.getInstance().execute(() -> {
 			synchronized (interactionEventQueue) {
 				if (waiter == blockingWaiter) {
 					waiter = event.send();
@@ -214,13 +214,13 @@ public class InteractionManager {
 		private final int containerSyncId;
 		private final int slotId;
 		private final int buttonId;
-		private final SlotActionType slotAction;
+		private final ClickType slotAction;
 
-		public ClickEvent(int containerSyncId, int slotId, int buttonId, SlotActionType slotAction) {
+		public ClickEvent(int containerSyncId, int slotId, int buttonId, ClickType slotAction) {
 			this(containerSyncId, slotId, buttonId, slotAction, TICK_WAITER);
 		}
 
-		public ClickEvent(int containerSyncId, int slotId, int buttonId, SlotActionType slotAction, Waiter waiter) {
+		public ClickEvent(int containerSyncId, int slotId, int buttonId, ClickType slotAction, Waiter waiter) {
 			this.containerSyncId = containerSyncId;
 			this.slotId = slotId;
 			this.buttonId = buttonId;
@@ -230,7 +230,7 @@ public class InteractionManager {
 
 		@Override
 		public Waiter send() {
-			MinecraftClient.getInstance().interactionManager.clickSlot(containerSyncId, slotId, buttonId, slotAction, MinecraftClient.getInstance().player);
+			Minecraft.getInstance().gameMode.handleInventoryMouseClick(containerSyncId, slotId, buttonId, slotAction, Minecraft.getInstance().player);
 			return waiter;
 		}
 
@@ -283,7 +283,7 @@ public class InteractionManager {
 
 		@Override
 		public Waiter send() {
-			MinecraftClient.getInstance().getNetworkHandler().sendPacket(packet);
+			Minecraft.getInstance().getConnection().send(packet);
 			return waiter;
 		}
 	}

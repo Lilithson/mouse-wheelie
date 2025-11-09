@@ -26,77 +26,77 @@ import de.siphalor.mousewheelie.client.util.inject.IContainerScreen;
 import de.siphalor.mousewheelie.client.util.inject.ISlot;
 import de.siphalor.mousewheelie.client.util.inject.ISpecialScrollableScreen;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.gui.screen.ingame.AbstractInventoryScreen;
-import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.List;
 
-@Mixin(CreativeInventoryScreen.class)
-public abstract class MixinCreativeInventoryScreen extends AbstractInventoryScreen<CreativeInventoryScreen.CreativeScreenHandler> implements ISpecialScrollableScreen, IContainerScreen {
+@Mixin(CreativeModeInventoryScreen.class)
+public abstract class MixinCreativeInventoryScreen extends EffectRenderingInventoryScreen<CreativeModeInventoryScreen.ItemPickerMenu> implements ISpecialScrollableScreen, IContainerScreen {
 
 	@Shadow
-	private static ItemGroup selectedTab;
+	private static CreativeModeTab selectedTab;
 
 	@Shadow
-	protected abstract void setSelectedTab(ItemGroup itemGroup_1);
+	protected abstract void selectTab(CreativeModeTab itemGroup_1);
 
 	@Shadow
-	protected abstract void onMouseClick(Slot slot, int invSlot, int button, SlotActionType slotActionType);
+	protected abstract void slotClicked(Slot slot, int invSlot, int button, ClickType slotActionType);
 
-	@Shadow public abstract boolean isInventoryTabSelected();
+	@Shadow public abstract boolean isInventoryOpen();
 
-	public MixinCreativeInventoryScreen(CreativeInventoryScreen.CreativeScreenHandler container_1, PlayerInventory playerInventory_1, Text textComponent_1) {
+	public MixinCreativeInventoryScreen(CreativeModeInventoryScreen.ItemPickerMenu container_1, Inventory playerInventory_1, Component textComponent_1) {
 		super(container_1, playerInventory_1, textComponent_1);
 	}
 
 	@Override
 	public ScrollAction mouseWheelie_onMouseScrolledSpecial(double mouseX, double mouseY, double scrollAmount) {
 		if (MouseWheelie.config.scrolling.scrollCreativeMenuTabs) {
-			double relMouseY = mouseY - this.y;
-			double relMouseX = mouseX - this.x;
+			double relMouseY = mouseY - this.topPos;
+			double relMouseX = mouseX - this.leftPos;
 			boolean yOverTopTabs = (-32 <= relMouseY && relMouseY <= 0);
-			boolean yOverBottomTabs = (this.backgroundHeight <= relMouseY && relMouseY <= this.backgroundHeight + 32);
-			boolean overTabs = (0 <= relMouseX && relMouseX <= this.backgroundWidth) && (yOverTopTabs || yOverBottomTabs);
+			boolean yOverBottomTabs = (this.imageHeight <= relMouseY && relMouseY <= this.imageHeight + 32);
+			boolean overTabs = (0 <= relMouseX && relMouseX <= this.imageWidth) && (yOverTopTabs || yOverBottomTabs);
 
 			if (overTabs) {
-				List<ItemGroup> groupsToDisplay = ItemGroups.getGroupsToDisplay();
+				List<CreativeModeTab> groupsToDisplay = CreativeModeTabs.tabs();
 				int selectedTabIndex = groupsToDisplay.indexOf(selectedTab);
 				if (selectedTabIndex < 0) {
 					return ScrollAction.FAILURE;
 				}
 				if (FabricLoader.getInstance().isModLoaded("fabric-item-group-api-v1")) {
-					FabricCreativeGuiHelper helper = new FabricCreativeGuiHelper((CreativeInventoryScreen) (Object) this);
-					int newIndex = MathHelper.clamp(selectedTabIndex + (int) Math.round(scrollAmount), 0, groupsToDisplay.size() - 1);
+					FabricCreativeGuiHelper helper = new FabricCreativeGuiHelper((CreativeModeInventoryScreen) (Object) this);
+					int newIndex = Mth.clamp(selectedTabIndex + (int) Math.round(scrollAmount), 0, groupsToDisplay.size() - 1);
 					int newPage = helper.getPageForTabIndex(newIndex);
 					if (newPage < helper.getCurrentPage())
 						helper.previousPage();
 					if (newPage > helper.getCurrentPage())
 						helper.nextPage();
-					setSelectedTab(groupsToDisplay.get(newIndex));
+					selectTab(groupsToDisplay.get(newIndex));
 				} else {
-					setSelectedTab(groupsToDisplay.get(MathHelper.clamp((int) (selectedTabIndex + Math.round(scrollAmount)), 0, groupsToDisplay.size() - 1)));
+					selectTab(groupsToDisplay.get(Mth.clamp((int) (selectedTabIndex + Math.round(scrollAmount)), 0, groupsToDisplay.size() - 1)));
 				}
 				return ScrollAction.SUCCESS;
 			}
 		}
 
-		if (MouseWheelie.config.scrolling.enable && !isInventoryTabSelected()) {
+		if (MouseWheelie.config.scrolling.enable && !isInventoryOpen()) {
 			if (MouseWheelie.config.scrolling.scrollCreativeMenuItems == hasAltDown())
 				return ScrollAction.ABORT;
 			Slot hoverSlot = this.mouseWheelie_getSlotAt(mouseX, mouseY);
 			if (hoverSlot != null) {
 				ContainerScreenHelper.of(this, (slot, data, slotActionType) ->
 						new InteractionManager.CallbackEvent(() -> {
-							onMouseClick(slot, ((ISlot) slot).mouseWheelie_getIdInContainer(), data, slotActionType);
+							slotClicked(slot, ((ISlot) slot).mouseWheelie_getIdInContainer(), data, slotActionType);
 							return InteractionManager.TICK_WAITER;
 						}, true)
 				).scroll(hoverSlot, scrollAmount < 0);

@@ -17,26 +17,26 @@
 
 package de.siphalor.mousewheelie.client.keybinding;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import de.siphalor.amecs.api.AmecsKeyBinding;
 import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.api.PriorityKeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class ActionModifierKeybinding extends AmecsKeyBinding implements PriorityKeyBinding {
-	public ActionModifierKeybinding(Identifier id, InputUtil.Type type, int code, String category, KeyModifiers defaultModifiers) {
+	public ActionModifierKeybinding(ResourceLocation id, InputConstants.Type type, int code, String category, KeyModifiers defaultModifiers) {
 		super(id, type, code, category, defaultModifiers);
 	}
 
 	@Override
 	public boolean onPressedPriority() {
-		setPressed(true);
+		setDown(true);
 		return false;
 	}
 
 	@Override
 	public boolean onReleasedPriority() {
-		setPressed(false);
+		setDown(false);
 		return false;
 	}
 }

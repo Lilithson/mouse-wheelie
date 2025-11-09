@@ -18,8 +18,8 @@
 package de.siphalor.mousewheelie.client.inventory.sort;
 
 import lombok.Value;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.screen.slot.Slot;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.world.inventory.Slot;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ public class SortContext {
 	/**
 	 * The screen that is currently sorted on.
 	 */
-	HandledScreen<?> screen;
+	AbstractContainerScreen<?> screen;
 	/**
 	 * The slots that are the target of the current sort action.
 	 * These slots are usually in the same scope (see {@link de.siphalor.mousewheelie.client.inventory.ContainerScreenHelper#getScope(Slot)}).

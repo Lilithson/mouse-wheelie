@@ -21,10 +21,10 @@ import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.util.inject.IRecipeBookResults;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.screen.recipebook.AnimatedResultButton;
-import net.minecraft.client.gui.screen.recipebook.RecipeBookResults;
-import net.minecraft.client.gui.screen.recipebook.RecipeResultCollection;
-import net.minecraft.recipe.RecipeEntry;
+import net.minecraft.client.gui.screens.recipebook.RecipeBookPage;
+import net.minecraft.client.gui.screens.recipebook.RecipeButton;
+import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -35,22 +35,22 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import java.util.Iterator;
 
 @Environment(EnvType.CLIENT)
-@Mixin(RecipeBookResults.class)
+@Mixin(RecipeBookPage.class)
 public abstract class MixinRecipeBookResults implements IRecipeBookResults {
 	@Shadow
 	private int currentPage;
 
 	@Shadow
-	private int pageCount;
+	private int totalPages;
 
 	@Shadow
-	protected abstract void refreshResultButtons();
+	protected abstract void updateButtonsForPage();
 
 	@Shadow
-	private RecipeEntry<?> lastClickedRecipe;
+	private RecipeHolder<?> lastClickedRecipe;
 
 	@Shadow
-	private RecipeResultCollection resultCollection;
+	private RecipeCollection lastClickedRecipeCollection;
 
 	@Override
 	public void mouseWheelie_setCurrentPage(int page) {
@@ -64,19 +64,19 @@ public abstract class MixinRecipeBookResults implements IRecipeBookResults {
 
 	@Override
 	public int mouseWheelie_getPageCount() {
-		return pageCount;
+		return totalPages;
 	}
 
 	@Override
 	public void mouseWheelie_refreshResultButtons() {
-		refreshResultButtons();
+		updateButtonsForPage();
 	}
 
 	@Inject(method = "mouseClicked", at = @At(value = "JUMP", opcode = 154), locals = LocalCapture.CAPTURE_FAILSOFT)
-	public void mouseClicked(double mouseX, double mouseY, int button, int areaLeft, int areaTop, int areaWidth, int areaHeight, CallbackInfoReturnable<Boolean> cir, Iterator<?> iterator, AnimatedResultButton animatedResultButton) {
-		if (MouseWheelie.config.general.enableQuickCraft && button == 1 && animatedResultButton.hasResults()) {
-			lastClickedRecipe = animatedResultButton.currentRecipe();
-			resultCollection = animatedResultButton.getResultCollection();
+	public void mouseClicked(double mouseX, double mouseY, int button, int areaLeft, int areaTop, int areaWidth, int areaHeight, CallbackInfoReturnable<Boolean> cir, Iterator<?> iterator, RecipeButton animatedResultButton) {
+		if (MouseWheelie.config.general.enableQuickCraft && button == 1 && animatedResultButton.isOnlyOption()) {
+			lastClickedRecipe = animatedResultButton.getRecipe();
+			lastClickedRecipeCollection = animatedResultButton.getCollection();
 		}
 	}
 }

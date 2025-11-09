@@ -25,10 +25,10 @@ import de.siphalor.tweed5.weaver.pojoext.serde.api.EntryReadWriteConfig;
 import it.unimi.dsi.fastutil.ints.IntArrays;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
 import java.util.concurrent.locks.Lock;
@@ -104,7 +104,7 @@ public abstract class SortMode {
 				String[] strings = new String[sortIds.length];
 				for (int i = 0; i < sortIds.length; i++) {
 					ItemStack stack = stacks[i];
-					strings[i] = stack.isEmpty() ? "" : stack.getName().getString();
+					strings[i] = stack.isEmpty() ? "" : stack.getHoverName().getString();
 				}
 
 				IntArrays.quickSort(sortIds, (a, b) -> {
@@ -136,7 +136,7 @@ public abstract class SortMode {
 					}
 					lock.unlock();
 				} else {
-					Collection<ItemStack> displayStacks = ItemGroups.getSearchGroup().getDisplayStacks();
+					Collection<ItemStack> displayStacks = CreativeModeTabs.searchTab().getDisplayItems();
 					List<ItemStack> displayStackList;
 					if (displayStacks instanceof List) {
 						displayStackList = (List<ItemStack>) displayStacks;
@@ -203,7 +203,7 @@ public abstract class SortMode {
 		RAW_ID = register(new SortMode("raw_id") {
 			@Override
 			public int[] sort(int[] sortIds, ItemStack[] stacks, SortContext context) {
-				int[] rawIds = Arrays.stream(stacks).mapToInt(stack -> stack.isEmpty() ? Integer.MAX_VALUE : Registries.ITEM.getRawId(stack.getItem())).toArray();
+				int[] rawIds = Arrays.stream(stacks).mapToInt(stack -> stack.isEmpty() ? Integer.MAX_VALUE : BuiltInRegistries.ITEM.getId(stack.getItem())).toArray();
 				sortByValues(sortIds, stacks, rawIds);
 				return sortIds;
 			}

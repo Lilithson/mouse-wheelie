@@ -17,23 +17,23 @@
 
 package de.siphalor.mousewheelie.client.keybinding;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import de.siphalor.amecs.api.AmecsKeyBinding;
 import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.api.PriorityKeyBinding;
 import de.siphalor.mousewheelie.client.util.inject.IContainerScreen;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.resources.ResourceLocation;
 
 public class SortKeyBinding extends AmecsKeyBinding implements PriorityKeyBinding {
-	public SortKeyBinding(Identifier id, InputUtil.Type type, int code, String category, KeyModifiers defaultModifiers) {
+	public SortKeyBinding(ResourceLocation id, InputConstants.Type type, int code, String category, KeyModifiers defaultModifiers) {
 		super(id, type, code, category, defaultModifiers);
 	}
 
 	@Override
 	public boolean onPressedPriority() {
-		Screen currentScreen = MinecraftClient.getInstance().currentScreen;
+		Screen currentScreen = Minecraft.getInstance().screen;
 		if (currentScreen instanceof IContainerScreen)
 			return ((IContainerScreen) currentScreen).mouseWheelie_triggerSort();
 		return false;

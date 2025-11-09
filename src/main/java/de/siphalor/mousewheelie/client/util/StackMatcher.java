@@ -18,17 +18,17 @@
 package de.siphalor.mousewheelie.client.util;
 
 import com.google.common.base.Objects;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class StackMatcher {
 	private final @NotNull Item item;
-	private final @Nullable NbtCompound nbt;
+	private final @Nullable CompoundTag nbt;
 
-	private StackMatcher(@NotNull Item item, @Nullable NbtCompound nbt) {
+	private StackMatcher(@NotNull Item item, @Nullable CompoundTag nbt) {
 		this.item = item;
 		this.nbt = nbt;
 	}
@@ -38,7 +38,7 @@ public class StackMatcher {
 	}
 
 	public static StackMatcher of(@NotNull ItemStack stack) {
-		return new StackMatcher(stack.getItem(), stack.getNbt());
+		return new StackMatcher(stack.getItem(), stack.getTag());
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class StackMatcher {
 			return item == other.item && Objects.equal(nbt, other.nbt);
 		}
 		if (obj instanceof ItemStack stack) {
-			return item == stack.getItem() && Objects.equal(nbt, stack.getNbt());
+			return item == stack.getItem() && Objects.equal(nbt, stack.getTag());
 		}
 		if (obj instanceof Item objItem) {
 			return item == objItem;

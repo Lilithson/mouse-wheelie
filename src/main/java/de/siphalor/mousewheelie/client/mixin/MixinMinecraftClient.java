@@ -21,10 +21,10 @@ import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.inventory.SlotRefiller;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -33,34 +33,34 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
-@Mixin(MinecraftClient.class)
+@Mixin(Minecraft.class)
 public abstract class MixinMinecraftClient {
 	@Shadow
-	public ClientPlayerEntity player;
+	public LocalPlayer player;
 
 	@Unique
 	private ItemStack mainHandStack;
 	@Unique
 	private ItemStack offHandStack;
 
-	@Inject(method = "doItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Hand;values()[Lnet/minecraft/util/Hand;"))
+	@Inject(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/InteractionHand;values()[Lnet/minecraft/world/InteractionHand;"))
 	public void onItemUse(CallbackInfo callbackInfo) {
 		if (MouseWheelie.config.refill.enable && MouseWheelie.config.refill.use) {
-			mainHandStack = player.getMainHandStack();
+			mainHandStack = player.getMainHandItem();
 			mainHandStack = mainHandStack.isEmpty() ? null : mainHandStack.copy();
-			offHandStack = player.getOffHandStack();
+			offHandStack = player.getOffhandItem();
 			offHandStack = offHandStack.isEmpty() ? null : offHandStack.copy();
 		}
 	}
 
-	@Inject(method = "doItemUse", at = @At("RETURN"))
+	@Inject(method = "startUseItem", at = @At("RETURN"))
 	public void onItemUsed(CallbackInfo callbackInfo) {
 		boolean refillScheduled = false;
 		if (mainHandStack != null) {
-			refillScheduled = SlotRefiller.scheduleRefillChecked(Hand.MAIN_HAND, player.getInventory(), mainHandStack, player.getMainHandStack());
+			refillScheduled = SlotRefiller.scheduleRefillChecked(InteractionHand.MAIN_HAND, player.getInventory(), mainHandStack, player.getMainHandItem());
 		}
 		if (!refillScheduled && offHandStack != null) {
-			SlotRefiller.scheduleRefillChecked(Hand.OFF_HAND, player.getInventory(), offHandStack, player.getOffHandStack());
+			SlotRefiller.scheduleRefillChecked(InteractionHand.OFF_HAND, player.getInventory(), offHandStack, player.getOffhandItem());
 		}
 		SlotRefiller.performRefill();
 		mainHandStack = null;

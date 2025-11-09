@@ -19,12 +19,12 @@ package de.siphalor.mousewheelie.client.util;
 
 import com.google.common.collect.Sets;
 import de.siphalor.mousewheelie.MouseWheelie;
-import net.minecraft.client.item.TooltipContext;
-import net.minecraft.item.DyeableItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.text.Text;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.DyeableLeatherItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.awt.*;
@@ -32,10 +32,10 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class ItemStackUtils {
-	private static final NbtCompound EMPTY_COMPOUND = new NbtCompound();
+	private static final CompoundTag EMPTY_COMPOUND = new CompoundTag();
 
 	public static boolean canCombine(ItemStack a, ItemStack b) {
-		return ItemStack.canCombine(a, b);
+		return ItemStack.isSameItemSameTags(a, b);
 	}
 
 	public static int compareEqualItems(ItemStack a, ItemStack b) {
@@ -49,13 +49,13 @@ public class ItemStackUtils {
 
 	private static int compareEqualItems2(ItemStack a, ItemStack b) {
 		// compare names
-		if (a.hasCustomName()) {
-			if (!b.hasCustomName()) {
+		if (a.hasCustomHoverName()) {
+			if (!b.hasCustomHoverName()) {
 				return -1;
 			}
 			return compareEqualItems3(a, b);
 		}
-		if (b.hasCustomName()) {
+		if (b.hasCustomHoverName()) {
 			return 1;
 		}
 		return compareEqualItems3(a, b);
@@ -63,8 +63,8 @@ public class ItemStackUtils {
 
 	private static int compareEqualItems3(ItemStack a, ItemStack b) {
 		// compare tooltips
-		Iterator<Text> tooltipsA = a.getTooltip(null, TooltipContext.Default.BASIC).iterator();
-		Iterator<Text> tooltipsB = b.getTooltip(null, TooltipContext.Default.BASIC).iterator();
+		Iterator<Component> tooltipsA = a.getTooltipLines(null, TooltipFlag.Default.NORMAL).iterator();
+		Iterator<Component> tooltipsB = b.getTooltipLines(null, TooltipFlag.Default.NORMAL).iterator();
 
 		while (tooltipsA.hasNext()) {
 			if (!tooltipsB.hasNext()) {
@@ -85,9 +85,9 @@ public class ItemStackUtils {
 	private static int compareEqualItems4(ItemStack a, ItemStack b) {
 		// compare special item properties
 		Item item = a.getItem();
-		if (item instanceof DyeableItem) {
-			int colorA = ((DyeableItem) item).getColor(a);
-			int colorB = ((DyeableItem) item).getColor(b);
+		if (item instanceof DyeableLeatherItem) {
+			int colorA = ((DyeableLeatherItem) item).getColor(a);
+			int colorB = ((DyeableLeatherItem) item).getColor(b);
 			float[] hsbA = Color.RGBtoHSB(colorA >> 16 & 0xFF, colorA >> 8 & 0xFF, colorA & 0xFF, null);
 			float[] hsbB = Color.RGBtoHSB(colorB >> 16 & 0xFF, colorB >> 8 & 0xFF, colorB & 0xFF, null);
 			int cmp = Float.compare(hsbA[0], hsbB[0]);
@@ -108,19 +108,19 @@ public class ItemStackUtils {
 
 	private static int compareEqualItems5(ItemStack a, ItemStack b) {
 		// compare damage
-		return Integer.compare(a.getDamage(), b.getDamage());
+		return Integer.compare(a.getDamageValue(), b.getDamageValue());
 	}
 
-	public static NbtCompound getTagOrEmpty(ItemStack stack) {
-		if (stack.hasNbt()) {
-			return stack.getNbt();
+	public static CompoundTag getTagOrEmpty(ItemStack stack) {
+		if (stack.hasTag()) {
+			return stack.getTag();
 		}
 		return EMPTY_COMPOUND;
 	}
 
 	public static boolean areTagsEqualExcept(ItemStack a, ItemStack b, String... keys) {
-		NbtCompound tagA = getTagOrEmpty(a);
-		NbtCompound tagB = getTagOrEmpty(b);
+		CompoundTag tagA = getTagOrEmpty(a);
+		CompoundTag tagB = getTagOrEmpty(b);
 		Set<String> checkedKeys = Sets.newHashSet(keys);
 		if (!areTagsEqualExceptOneSided(tagA, tagB, checkedKeys)) {
 			return false;
@@ -128,8 +128,8 @@ public class ItemStackUtils {
 		return areTagsEqualExceptOneSided(tagB, tagA, checkedKeys);
 	}
 
-	private static boolean areTagsEqualExceptOneSided(NbtCompound tagA, NbtCompound tagB, Set<String> checkedKeys) {
-		for (String key : tagA.getKeys()) {
+	private static boolean areTagsEqualExceptOneSided(CompoundTag tagA, CompoundTag tagB, Set<String> checkedKeys) {
+		for (String key : tagA.getAllKeys()) {
 			if (checkedKeys.contains(key)) {
 				continue;
 			}
@@ -155,10 +155,10 @@ public class ItemStackUtils {
 				return stack1.getItem() == stack2.getItem();
 			}
 			case ALL -> {
-				return ItemStack.areEqual(stack1, stack2);
+				return ItemStack.matches(stack1, stack2);
 			}
 			case SOME -> {
-				if (!ItemStack.areItemsEqual(stack1, stack2)) {
+				if (!ItemStack.isSameItem(stack1, stack2)) {
 					return false;
 				}
 				return areTagsEqualExcept(stack1, stack2, "Damage", "Enchantments");
@@ -176,12 +176,12 @@ public class ItemStackUtils {
 			case SOME:
 				HashCodeBuilder hashCodeBuilder = new HashCodeBuilder()
 						.append(stack.getItem());
-				NbtCompound nbt = stack.getNbt();
+				CompoundTag nbt = stack.getTag();
 				if (nbt == null) {
 					return hashCodeBuilder.toHashCode();
 				}
 
-				nbt.getKeys().stream().sorted().forEachOrdered(key -> {
+				nbt.getAllKeys().stream().sorted().forEachOrdered(key -> {
 					if (key.equals("Damage") || key.equals("Enchantments")) {
 						return;
 					}

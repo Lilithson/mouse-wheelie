@@ -17,25 +17,25 @@
 
 package de.siphalor.mousewheelie.client.keybinding;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import de.siphalor.amecs.api.AmecsKeyBinding;
 import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.api.PriorityKeyBinding;
 import de.siphalor.mousewheelie.client.MWClient;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.TitleScreen;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.resources.ResourceLocation;
 
 public class OpenConfigScreenKeybinding extends AmecsKeyBinding implements PriorityKeyBinding {
-	public OpenConfigScreenKeybinding(Identifier id, InputUtil.Type type, int code, String category, KeyModifiers defaultModifiers) {
+	public OpenConfigScreenKeybinding(ResourceLocation id, InputConstants.Type type, int code, String category, KeyModifiers defaultModifiers) {
 		super(id, type, code, category, defaultModifiers);
 	}
 
 	@Override
 	public boolean onPressedPriority() {
-		MinecraftClient minecraftClient = MinecraftClient.getInstance();
-		if (minecraftClient.currentScreen == null || minecraftClient.currentScreen instanceof HandledScreen || minecraftClient.currentScreen instanceof TitleScreen) {
+		Minecraft minecraftClient = Minecraft.getInstance();
+		if (minecraftClient.screen == null || minecraftClient.screen instanceof AbstractContainerScreen || minecraftClient.screen instanceof TitleScreen) {
 			minecraftClient.setScreen(MWClient.createConfigScreen());
 			return true;
 		}

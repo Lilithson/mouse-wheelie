@@ -23,15 +23,15 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.CustomLog;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.slot.Slot;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +48,7 @@ public class MWLogicalServerNetworking extends MWNetworking {
 		ServerPlayNetworking.registerGlobalReceiver(REORDER_INVENTORY_C2S_PACKET, MWLogicalServerNetworking::onReorderInventoryPacket);
 	}
 
-	private static void onReorderInventoryPacket(MinecraftServer server, ServerPlayerEntity player, ServerPlayNetworkHandler handler, PacketByteBuf buf, PacketSender responseSender) {
+	private static void onReorderInventoryPacket(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
 		ReorderInventoryPacket packet = ReorderInventoryPacket.read(buf);
 
 		if (packet == null) {
@@ -56,45 +56,45 @@ public class MWLogicalServerNetworking extends MWNetworking {
 			return;
 		}
 
-		if (player.currentScreenHandler == null) {
+		if (player.containerMenu == null) {
 			log.warn("Player {} tried to reorder inventory without having an open container!", player);
 			return;
 		}
 
-		if (packet.getSyncId() == player.playerScreenHandler.syncId) {
-			server.execute(() -> reorder(player, player.playerScreenHandler, packet.getSlotMappings()));
-		} else if (packet.getSyncId() == player.currentScreenHandler.syncId) {
-			server.execute(() -> reorder(player, player.currentScreenHandler, packet.getSlotMappings()));
+		if (packet.getSyncId() == player.inventoryMenu.containerId) {
+			server.execute(() -> reorder(player, player.inventoryMenu, packet.getSlotMappings()));
+		} else if (packet.getSyncId() == player.containerMenu.containerId) {
+			server.execute(() -> reorder(player, player.containerMenu, packet.getSlotMappings()));
 		}
 	}
 
-	private static void reorder(PlayerEntity player, ScreenHandler screenHandler, int[] slotMapping) {
+	private static void reorder(Player player, AbstractContainerMenu screenHandler, int[] slotMapping) {
 		if (!checkReorder(player, screenHandler, slotMapping)) {
 			log.warn("Reorder inventory packet from player {} contains invalid data, ignoring!", player);
 			return;
 		}
 
-		List<ItemStack> stacks = screenHandler.slots.stream().map(Slot::getStack).collect(Collectors.toList());
+		List<ItemStack> stacks = screenHandler.slots.stream().map(Slot::getItem).collect(Collectors.toList());
 
 		for (int i = 0; i < slotMapping.length; i += 2) {
 			int originSlotId = slotMapping[i];
 			int destSlotId = slotMapping[i + 1];
 
-			screenHandler.slots.get(destSlotId).setStack(stacks.get(originSlotId));
+			screenHandler.slots.get(destSlotId).setByPlayer(stacks.get(originSlotId));
 		}
 	}
 
-	private static boolean checkReorder(PlayerEntity player, ScreenHandler screenHandler, int[] slotMappings) {
+	private static boolean checkReorder(Player player, AbstractContainerMenu screenHandler, int[] slotMappings) {
 		if (slotMappings.length < 4) {
 			log.warn("Reorder inventory packet contains too few slots!");
 			return false;
 		}
 
 		IntSet requestedSlots = new IntAVLTreeSet();
-		Inventory targetInv;
+		Container targetInv;
 
 		Slot firstSlot = screenHandler.slots.get(slotMappings[0]);
-		targetInv = firstSlot.inventory;
+		targetInv = firstSlot.container;
 
 		for (int i = 0; i < slotMappings.length; i += 2) {
 			int originSlotId = slotMappings[i];
@@ -117,12 +117,12 @@ public class MWLogicalServerNetworking extends MWNetworking {
 			}
 
 			Slot originSlot = screenHandler.getSlot(originSlotId);
-			if (!originSlot.canTakeItems(player)) {
+			if (!originSlot.mayPickup(player)) {
 				log.warn("Player {} tried to reorder slot {}, but that slot doesn't allow taking items!", player, originSlotId);
 				return false;
 			}
 			Slot destSlot = screenHandler.getSlot(destSlotId);
-			if (!destSlot.canInsert(originSlot.getStack())) {
+			if (!destSlot.mayPlace(originSlot.getItem())) {
 				log.warn("Player {} tried to reorder slot {}, but that slot doesn't allow inserting the origin stack!", player, destSlotId);
 				return false;
 			}
@@ -142,15 +142,15 @@ public class MWLogicalServerNetworking extends MWNetworking {
 		return true;
 	}
 
-	private static boolean checkReorderSlot(ScreenHandler screenHandler, int slotId, Inventory targetInv) {
+	private static boolean checkReorderSlot(AbstractContainerMenu screenHandler, int slotId, Container targetInv) {
 		Slot slot = screenHandler.getSlot(slotId);
 		if (slot == null) {
 			log.warn("Reorder inventory packet contains invalid slot id!");
 			return false;
 		}
 
-		if (targetInv != slot.inventory) {
-			log.warn("Reorder inventory packet contains slots from different inventories, first: {}, now: {}!", targetInv, slot.inventory);
+		if (targetInv != slot.container) {
+			log.warn("Reorder inventory packet contains slots from different inventories, first: {}, now: {}!", targetInv, slot.container);
 			return false;
 		}
 		return true;
