@@ -39,7 +39,7 @@ import lombok.NoArgsConstructor;
 @TweedExtension(CommentLoaderExtension.class)
 @TweedExtension(TweedCoatBridgeExtension.class)
 @CompoundWeaving(namingFormat = "kebab_case")
-@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, values = "textures/block/green_concrete_powder.png")
+@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, value = "textures/block/green_concrete_powder.png")
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
@@ -54,7 +54,7 @@ public class MWConfig {
 	public ToolPicking toolPicking;
 
 	@CompoundWeaving
-	@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, values = "textures/block/acacia_log.png")
+	@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, value = "textures/block/acacia_log.png")
 	public static class General {
 		@Validator(value = WeavableNumberRangeValidator.class, config = "1=..")
 		public int interactionRate = 10;
@@ -83,7 +83,7 @@ public class MWConfig {
 	}
 
 	@CompoundWeaving
-	@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, values = "textures/block/dark_prismarine.png")
+	@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, value = "textures/block/dark_prismarine.png")
 	public static class Scrolling {
 		public boolean enable = true;
 		public boolean invert = false;
@@ -93,7 +93,7 @@ public class MWConfig {
 	}
 
 	@CompoundWeaving
-	@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, values = "textures/block/barrel_top.png")
+	@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, value = "textures/block/barrel_top.png")
 	public static class Sort {
 		public SortMode primarySort = SortMode.CREATIVE;
 		public SortMode shiftSort = SortMode.QUANTITY;
@@ -103,7 +103,7 @@ public class MWConfig {
 	}
 
 	@CompoundWeaving
-	@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, values = "textures/block/horn_coral_block.png")
+	@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, value = "textures/block/horn_coral_block.png")
 	public static class Refill {
 		public boolean enable = true;
 
@@ -122,7 +122,7 @@ public class MWConfig {
 		public Rules rules = new Rules();
 
 		@CompoundWeaving
-		@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, values = "textures/block/yellow_terracotta.png")
+		@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, value = "textures/block/yellow_terracotta.png")
 		public static class Rules {
 			public boolean anyBlock = false;
 			public boolean itemgroup = false;
@@ -135,7 +135,7 @@ public class MWConfig {
 	}
 
 	@CompoundWeaving
-	@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, values = "textures/block/coarse_dirt.png")
+	@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, value = "textures/block/coarse_dirt.png")
 	public static class ToolPicking {
 		public boolean holdTool = true;
 		public boolean holdBlock = false;
