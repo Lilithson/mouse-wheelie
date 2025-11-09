@@ -44,8 +44,18 @@
 		"appliedenergistics2": "*"
 	},
 	"depends": {
-		"fabricloader": ">=0.4.0",
-		"minecraft": ">=1.19.2"
+		"amecsapi": "*",
+		"coat": "*",
+		"fabricloader": ">=0.17.0",
+		"fabric-api-base": "*",
+		"fabric-events-interaction-v0": "*",
+		"fabric-item-api-v1": "*",
+		"fabric-lifecycle-events-v1": "*",
+		"fabric-key-binding-api-v1": "*",
+		"fabric-networking-api-v1": "*",
+		"fabric-resource-loader-v0": "*",
+		"fabric-registry-sync-v0": "*",
+		"fabric-screen-api-v1": "*"
 	},
 	"custom": {
 		"modmenu:clientsideOnly": true
