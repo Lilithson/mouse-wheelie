@@ -80,7 +80,11 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 	private StackedContents stackedContents;
 
 	@Shadow
-	protected RecipeBookMenu<?> menu;
+	//# if MC_VERSION_NUMBER >= 12100
+	protected RecipeBookMenu<?, ?> menu;
+	//# else
+	//- protected RecipeBookMenu<?> menu;
+	//# end
 
 	@Override
 	public ScrollAction mouseWheelie_scrollRecipeBook(double mouseX, double mouseY, double scrollAmount) {

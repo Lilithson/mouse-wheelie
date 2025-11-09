@@ -31,6 +31,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -43,6 +44,14 @@ public class MouseWheelie implements ModInitializer {
 
 	public static MWConfig config;
 	public static FabricConfigContainerHelper<MWConfig> configContainerHelper;
+
+	public static ResourceLocation createId(String path) {
+		//# if MC_VERSION_NUMBER >= 12100
+		return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+		//# else
+		//- return new ResourceLocation(MOD_ID, path);
+		//# end
+	}
 
 	@Override
 	public void onInitialize() {
@@ -70,7 +79,7 @@ public class MouseWheelie implements ModInitializer {
 				.prefix("tweed4_tailor_screen.screen.mousewheelie")
 				.suffix(".description")
 				.build()
-				.loadCommentsFromLanguageFile("en.us");
+				.loadCommentsFromLanguageFile("en_us");
 		configContainer.initialize();
 		configContainerHelper = FabricConfigContainerHelper.create(
 				configContainer,

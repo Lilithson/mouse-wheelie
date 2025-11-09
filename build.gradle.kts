@@ -104,10 +104,14 @@ dependencies {
 	modApi(mcLibs.modmenu)
 
 	include(mcLibs.bundles.config)
-	modApi(mcLibs.bundles.config)
+	modApi(mcLibs.bundles.config) {
+		exclude(group = "net.fabricmc.fabric-api")
+	}
 
 	include(mcLibs.amecs.api)
-	modImplementation(mcLibs.amecs.api)
+	modImplementation(mcLibs.amecs.api) {
+		exclude(group = "net.fabricmc.fabric-api")
+	}
 }
 
 tasks.processResources {

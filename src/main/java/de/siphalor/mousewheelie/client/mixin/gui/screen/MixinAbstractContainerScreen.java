@@ -35,12 +35,13 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.Mob;
+//- import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.BundleItem;
+import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -268,8 +269,12 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 
 			//noinspection ConstantConditions
 			if (scrollAmount < 0 && (Object) this instanceof InventoryScreen) {
-				EquipmentSlot equipmentSlot = Mob.getEquipmentSlotForItem(hoveredSlot.getItem());
-				if (equipmentSlot.getType() == EquipmentSlot.Type.ARMOR) {
+				EquipmentSlot equipmentSlot = getEquipmentSlot(hoveredSlot.getItem());
+				//# if MC_VERSION_NUMBER >= 12100
+				if (equipmentSlot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
+				//# else
+				//- if (equipmentSlot.getType() == EquipmentSlot.Type.ARMOR) {
+				//# end
 					int hoveredSlotId = ((ISlot) hoveredSlot).mouseWheelie_getIdInContainer();
 					InteractionManager.pushClickEvent(menu.containerId, hoveredSlotId, 0, ClickType.PICKUP);
 					InteractionManager.pushClickEvent(menu.containerId, 8 - equipmentSlot.getIndex(), 0, ClickType.PICKUP);
@@ -282,6 +287,18 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 			return ScrollAction.SUCCESS;
 		}
 		return ScrollAction.PASS;
+	}
+
+	@Unique
+	private static EquipmentSlot getEquipmentSlot(ItemStack stack) {
+		//# if MC_VERSION_NUMBER >= 12100
+		if (stack.getItem() instanceof Equipable) {
+			return ((Equipable) stack.getItem()).getEquipmentSlot();
+		}
+		return EquipmentSlot.MAINHAND;
+		//# else
+		//- return Mob.getEquipmentSlotForItem(hoveredSlot.getItem());
+		//# end
 	}
 
 	@SuppressWarnings("ConstantConditions")

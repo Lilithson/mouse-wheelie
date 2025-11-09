@@ -31,7 +31,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
+//- import net.minecraft.world.item.enchantment.EnchantmentHelper;
+//- import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
 
 import java.time.Duration;
@@ -126,9 +128,18 @@ public class SlotRefiller {
 		if (isRefillInProgress()) {
 			return false;
 		}
-		if (stack.getItem() == Items.TRIDENT && EnchantmentHelper.getLoyalty(stack) > 0) {
+		//# if MC_VERSION_NUMBER >= 12006
+		if (!stack.getOrDefault(
+				EnchantmentEffectComponents.TRIDENT_RETURN_ACCELERATION,
+				Collections.emptyList()
+		).isEmpty()) {
 			return false;
 		}
+		//# else
+		//- if (stack.getItem() == Items.TRIDENT && EnchantmentHelper.getLoyalty(stack) > 0) {
+		//- 	return false;
+		//- }
+		//# end
 
 		Iterator<Rule> iterator = rules.descendingIterator();
 		while (iterator.hasNext()) {

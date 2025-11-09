@@ -23,6 +23,8 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 //- import net.minecraft.network.FriendlyByteBuf;
 //- import net.minecraft.resources.ResourceLocation;
 
+//- import static de.siphalor.mousewheelie.MouseWheelie.createId;
+
 public class MWNetworking {
 	protected MWNetworking() {}
 
@@ -32,7 +34,7 @@ public class MWNetworking {
 		//# end
 	}
 	//# if MC_VERSION_NUMBER < 12006
-	//- protected static final ResourceLocation REORDER_INVENTORY_C2S_PACKET = new ResourceLocation(MouseWheelie.MOD_ID, "reorder_inventory_c2s");
+	//- protected static final ResourceLocation REORDER_INVENTORY_C2S_PACKET = createId("reorder_inventory_c2s");
 
 	//- public static FriendlyByteBuf createBuffer() {
 	//- 	return new FriendlyByteBuf(Unpooled.buffer());

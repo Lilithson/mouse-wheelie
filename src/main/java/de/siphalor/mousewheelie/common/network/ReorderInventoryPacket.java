@@ -17,7 +17,6 @@
 
 package de.siphalor.mousewheelie.common.network;
 
-import de.siphalor.mousewheelie.MouseWheelie;
 import io.netty.buffer.ByteBuf;
 import lombok.CustomLog;
 import lombok.Value;
@@ -30,6 +29,8 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static de.siphalor.mousewheelie.MouseWheelie.createId;
+
 @Value
 @CustomLog
 public class ReorderInventoryPacket
@@ -38,7 +39,7 @@ public class ReorderInventoryPacket
 		//# end
 {
 	//# if MC_VERSION_NUMBER >= 12006
-	public static final ResourceLocation PAYLOAD_ID = new ResourceLocation(MouseWheelie.MOD_ID, "reorder_inventory");
+	public static final ResourceLocation PAYLOAD_ID = createId("reorder_inventory");
 	public static final Type<ReorderInventoryPacket> TYPE = new Type<>(PAYLOAD_ID);
 	private static final int MAX_SLOTS = 2048;
 	private static final StreamCodec<ByteBuf, int[]> INT_ARRAY_STREAM_CODEC = new StreamCodec<>() {
