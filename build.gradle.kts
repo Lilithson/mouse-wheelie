@@ -5,6 +5,7 @@ plugins {
 	alias(libs.plugins.loom)
 	java
 	`maven-publish`
+	alias(libs.plugins.licenser)
 	alias(libs.plugins.jcyo)
 }
 
@@ -18,6 +19,11 @@ group = "de.siphalor.${project.name}"
 val archivesBaseName = "${project.name}-mc${minecraftVersionDescriptor}"
 val shortVersion = "${properties["version"]}"
 version = "${shortVersion}+mc${mcLibs.versions.minecraft.get()}"
+
+license {
+	rule(file("LICENSE_HEADER"))
+	include("**/*.java")
+}
 
 repositories {
 	maven {
