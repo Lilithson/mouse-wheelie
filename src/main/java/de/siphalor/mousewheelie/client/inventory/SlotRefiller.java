@@ -24,6 +24,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.game.ServerboundPickItemPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
 import net.minecraft.sounds.SoundEvents;
@@ -412,12 +413,20 @@ public class SlotRefiller {
 	public static class FoodRule extends Rule {
 		@Override
 		boolean matches(ItemStack oldStack) {
-			return MouseWheelie.config.refill.rules.food && oldStack.isEdible();
+			return MouseWheelie.config.refill.rules.food && isEdible(oldStack);
 		}
 
 		@Override
 		int findMatchingStack(Inventory playerInventory, ItemStack oldStack) {
-			return iterateInventory(playerInventory, ItemStack::isEdible);
+			return iterateInventory(playerInventory, FoodRule::isEdible);
+		}
+
+		private static boolean isEdible(ItemStack stack) {
+			//# if MC_VERSION_NUMBER >= 12006
+			return stack.has(DataComponents.FOOD);
+			//# else
+			//- return stack.isEdible();
+			//# end
 		}
 	}
 

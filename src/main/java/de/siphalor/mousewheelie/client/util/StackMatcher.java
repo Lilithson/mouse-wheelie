@@ -17,37 +17,37 @@
 
 package de.siphalor.mousewheelie.client.util;
 
-import com.google.common.base.Objects;
-import net.minecraft.nbt.CompoundTag;
+import java.util.Objects;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import net.minecraft.core.component.DataComponentPatch;
+//- import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class StackMatcher {
+	//# if MC_VERSION_NUMBER >= 12006
 	private final @NotNull Item item;
-	private final @Nullable CompoundTag nbt;
+	private final @Nullable DataComponentPatch componentPatch;
 
-	private StackMatcher(@NotNull Item item, @Nullable CompoundTag nbt) {
-		this.item = item;
-		this.nbt = nbt;
-	}
-
-	public static StackMatcher ignoreNbt(@NotNull ItemStack stack) {
-		return new StackMatcher(stack.getItem(), null);
+	public static StackMatcher withoutCustomData(@NotNull ItemStack stack) {
+		return new StackMatcher(stack.getItem(), DataComponentPatch.EMPTY);
 	}
 
 	public static StackMatcher of(@NotNull ItemStack stack) {
-		return new StackMatcher(stack.getItem(), stack.getTag());
+		return new StackMatcher(stack.getItem(), stack.getComponentsPatch());
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof StackMatcher other) {
-			return item == other.item && Objects.equal(nbt, other.nbt);
+			return item == other.item && Objects.equals(componentPatch, other.componentPatch);
 		}
 		if (obj instanceof ItemStack stack) {
-			return item == stack.getItem() && Objects.equal(nbt, stack.getTag());
+			return item == stack.getItem() && Objects.equals(componentPatch, stack.getComponentsPatch());
 		}
 		if (obj instanceof Item objItem) {
 			return item == objItem;
@@ -57,6 +57,37 @@ public class StackMatcher {
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(item, nbt);
+		return Objects.hash(item, componentPatch);
 	}
+	//# else
+	//- private final @NotNull Item item;
+	//- private final @Nullable CompoundTag nbt;
+
+	//- public static StackMatcher withoutCustomData(@NotNull ItemStack stack) {
+	//- 	return new StackMatcher(stack.getItem(), null);
+	//- }
+
+	//- public static StackMatcher of(@NotNull ItemStack stack) {
+	//- 	return new StackMatcher(stack.getItem(), stack.getTag());
+	//- }
+
+	//- @Override
+	//- public boolean equals(Object obj) {
+	//- 	if (obj instanceof StackMatcher other) {
+	//- 		return item == other.item && Objects.equals(nbt, other.nbt);
+	//- 	}
+	//- 	if (obj instanceof ItemStack stack) {
+	//- 		return item == stack.getItem() && Objects.equals(nbt, stack.getTag());
+	//- 	}
+	//- 	if (obj instanceof Item objItem) {
+	//- 		return item == objItem;
+	//- 	}
+	//- 	return false;
+	//- }
+
+	//- @Override
+	//- public int hashCode() {
+	//- 	return Objects.hash(item, nbt);
+	//- }
+	//# end
 }

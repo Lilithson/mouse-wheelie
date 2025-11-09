@@ -17,35 +17,37 @@
 
 package de.siphalor.mousewheelie.client.compat;
 
-import net.fabricmc.fabric.impl.client.itemgroup.CreativeGuiExtensions;
-import net.fabricmc.fabric.impl.client.itemgroup.FabricCreativeGuiComponents;
-import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+//- import net.fabricmc.fabric.impl.client.itemgroup.CreativeGuiExtensions;
+//- import net.fabricmc.fabric.impl.client.itemgroup.FabricCreativeGuiComponents;
+//- import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 
-@SuppressWarnings("UnstableApiUsage")
-public final class FabricCreativeGuiHelper {
-	private final CreativeGuiExtensions fabricExtensions;
+//# if MC_VERSION_NUMBER < 12006
+//- @SuppressWarnings("UnstableApiUsage")
+//- public final class FabricCreativeGuiHelper {
+//- 	private final CreativeGuiExtensions fabricExtensions;
 
-	public FabricCreativeGuiHelper(CreativeModeInventoryScreen screen) {
-		fabricExtensions = (CreativeGuiExtensions) screen;
-	}
+//- 	public FabricCreativeGuiHelper(CreativeModeInventoryScreen screen) {
+//- 		fabricExtensions = (CreativeGuiExtensions) screen;
+//- 	}
 
-	public void nextPage() {
-		fabricExtensions.fabric_nextPage();
-	}
+//- 	public void nextPage() {
+//- 		fabricExtensions.fabric_nextPage();
+//- 	}
 
-	public void previousPage() {
-		fabricExtensions.fabric_previousPage();
-	}
+//- 	public void previousPage() {
+//- 		fabricExtensions.fabric_previousPage();
+//- 	}
 
-	public int getCurrentPage() {
-		return fabricExtensions.fabric_currentPage();
-	}
+//- 	public int getCurrentPage() {
+//- 		return fabricExtensions.fabric_currentPage();
+//- 	}
 
-	public int getPageForTabIndex(int index) {
-		return index < 12 ? 0 : (index - 12) / (12 - FabricCreativeGuiHelper.getCommonItemGroupsSize()) + 1;
-	}
+//- 	public int getPageForTabIndex(int index) {
+//- 		return index < 12 ? 0 : (index - 12) / (12 - FabricCreativeGuiHelper.getCommonItemGroupsSize()) + 1;
+//- 	}
 
-	public static int getCommonItemGroupsSize() {
-		return FabricCreativeGuiComponents.COMMON_GROUPS.size();
-	}
-}
+//- 	public static int getCommonItemGroupsSize() {
+//- 		return FabricCreativeGuiComponents.COMMON_GROUPS.size();
+//- 	}
+//- }
+//# end

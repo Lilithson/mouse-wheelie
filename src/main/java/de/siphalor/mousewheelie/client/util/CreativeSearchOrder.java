@@ -47,7 +47,7 @@ public class CreativeSearchOrder {
 	public static int getStackSearchPosition(ItemStack stack) {
 		int pos = stackToSearchPositionLookup.getInt(StackMatcher.of(stack));
 		if (pos == Integer.MAX_VALUE) {
-			pos = stackToSearchPositionLookup.getInt(StackMatcher.ignoreNbt(stack));
+			pos = stackToSearchPositionLookup.getInt(StackMatcher.withoutCustomData(stack));
 		}
 		return pos;
 	}
@@ -75,8 +75,9 @@ public class CreativeSearchOrder {
 
 					int i = 0;
 					for (ItemStack stack : displayStacks) {
-						StackMatcher plainMatcher = StackMatcher.ignoreNbt(stack);
-						if (!stack.hasTag() || !stackToSearchPositionLookup.containsKey(plainMatcher)) {
+						StackMatcher plainMatcher = StackMatcher.withoutCustomData(stack);
+						if (!ItemStackUtils.hasCustomData(stack)
+								|| !stackToSearchPositionLookup.containsKey(plainMatcher)) {
 							stackToSearchPositionLookup.put(plainMatcher, i);
 							i++;
 						}

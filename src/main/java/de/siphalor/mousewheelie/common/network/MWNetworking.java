@@ -17,17 +17,25 @@
 
 package de.siphalor.mousewheelie.common.network;
 
-import de.siphalor.mousewheelie.MouseWheelie;
-import io.netty.buffer.Unpooled;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+//- import de.siphalor.mousewheelie.MouseWheelie;
+//- import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+//- import net.minecraft.network.FriendlyByteBuf;
+//- import net.minecraft.resources.ResourceLocation;
 
 public class MWNetworking {
 	protected MWNetworking() {}
 
-	protected static final ResourceLocation REORDER_INVENTORY_C2S_PACKET = new ResourceLocation(MouseWheelie.MOD_ID, "reorder_inventory_c2s");
-
-	public static FriendlyByteBuf createBuffer() {
-		return new FriendlyByteBuf(Unpooled.buffer());
+	public static void setup() {
+		//# if MC_VERSION_NUMBER >= 12006
+		PayloadTypeRegistry.playC2S().register(ReorderInventoryPacket.TYPE, ReorderInventoryPacket.STREAM_CODEC);
+		//# end
 	}
+	//# if MC_VERSION_NUMBER < 12006
+	//- protected static final ResourceLocation REORDER_INVENTORY_C2S_PACKET = new ResourceLocation(MouseWheelie.MOD_ID, "reorder_inventory_c2s");
+
+	//- public static FriendlyByteBuf createBuffer() {
+	//- 	return new FriendlyByteBuf(Unpooled.buffer());
+	//- }
+	//# end
 }

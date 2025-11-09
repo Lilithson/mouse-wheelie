@@ -19,23 +19,56 @@ package de.siphalor.mousewheelie.client.util;
 
 import com.google.common.collect.Sets;
 import de.siphalor.mousewheelie.MouseWheelie;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.color.item.ItemColors;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.TypedDataComponent;
+//- import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.DyeableLeatherItem;
+//- import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.awt.*;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 
 public class ItemStackUtils {
-	private static final CompoundTag EMPTY_COMPOUND = new CompoundTag();
+	//# if MC_VERSION_NUMBER >= 12006
+	private static final Item.TooltipContext TOOLTIP_CONTEXT = Item.TooltipContext.EMPTY;
+	private static final ItemColors ITEM_COLORS = ItemColors.createDefault(Minecraft.getInstance().getBlockColors());
+	//# else
+	//- private static final CompoundTag EMPTY_COMPOUND = new CompoundTag();
+	//# end
+
+	public static boolean hasCustomData(ItemStack stack) {
+		//# if MC_VERSION_NUMBER >= 12006
+		return !stack.getComponentsPatch().isEmpty();
+		//# else
+		//- return stack.hasTag();
+		//# end
+	}
+
+	public static int getMaxStackSize(ItemStack stack) {
+		//# if MC_VERSION_NUMBER >= 12006
+		return stack.getMaxStackSize();
+		//# else
+		//- return stack.getItem().getMaxStackSize();
+		//# end
+	}
 
 	public static boolean canCombine(ItemStack a, ItemStack b) {
-		return ItemStack.isSameItemSameTags(a, b);
+		//# if MC_VERSION_NUMBER >= 12006
+		return ItemStack.isSameItemSameComponents(a, b);
+		//# else
+		//- return ItemStack.isSameItemSameTags(a, b);
+		//# end
 	}
 
 	public static int compareEqualItems(ItemStack a, ItemStack b) {
@@ -49,22 +82,35 @@ public class ItemStackUtils {
 
 	private static int compareEqualItems2(ItemStack a, ItemStack b) {
 		// compare names
-		if (a.hasCustomHoverName()) {
-			if (!b.hasCustomHoverName()) {
+		if (hasCustomName(a)) {
+			if (!hasCustomName(b)) {
 				return -1;
 			}
 			return compareEqualItems3(a, b);
 		}
-		if (b.hasCustomHoverName()) {
+		if (hasCustomName(b)) {
 			return 1;
 		}
 		return compareEqualItems3(a, b);
 	}
 
+	private static boolean hasCustomName(ItemStack stack) {
+		//# if MC_VERSION_NUMBER >= 12006
+		return stack.has(DataComponents.CUSTOM_NAME);
+		//# else
+		//- return stack.hasCustomHoverName();
+		//# end
+	}
+
 	private static int compareEqualItems3(ItemStack a, ItemStack b) {
 		// compare tooltips
-		Iterator<Component> tooltipsA = a.getTooltipLines(null, TooltipFlag.Default.NORMAL).iterator();
-		Iterator<Component> tooltipsB = b.getTooltipLines(null, TooltipFlag.Default.NORMAL).iterator();
+		//# if MC_VERSION_NUMBER >= 12006
+		Iterator<Component> tooltipsA = a.getTooltipLines(TOOLTIP_CONTEXT, null, TooltipFlag.Default.NORMAL).iterator();
+		Iterator<Component> tooltipsB = b.getTooltipLines(TOOLTIP_CONTEXT, null, TooltipFlag.Default.NORMAL).iterator();
+		//# else
+		//- Iterator<Component> tooltipsA = a.getTooltipLines(null, TooltipFlag.Default.NORMAL).iterator();
+		//- Iterator<Component> tooltipsB = b.getTooltipLines(null, TooltipFlag.Default.NORMAL).iterator();
+		//# end
 
 		while (tooltipsA.hasNext()) {
 			if (!tooltipsB.hasNext()) {
@@ -83,11 +129,17 @@ public class ItemStackUtils {
 	}
 
 	private static int compareEqualItems4(ItemStack a, ItemStack b) {
-		// compare special item properties
-		Item item = a.getItem();
-		if (item instanceof DyeableLeatherItem) {
-			int colorA = ((DyeableLeatherItem) item).getColor(a);
-			int colorB = ((DyeableLeatherItem) item).getColor(b);
+		// compare color
+		//# if MC_VERSION_NUMBER >= 12006
+		int colorA = ITEM_COLORS.getColor(a, 0);
+		int colorB = ITEM_COLORS.getColor(b, 0);
+		if (colorA != -1 && colorB != -1) {
+		//# else
+		//- Item item = a.getItem();
+		//- if (item instanceof DyeableLeatherItem) {
+		//- 	int colorA = ((DyeableLeatherItem) item).getColor(a);
+		//- 	int colorB = ((DyeableLeatherItem) item).getColor(b);
+		//# end
 			float[] hsbA = Color.RGBtoHSB(colorA >> 16 & 0xFF, colorA >> 8 & 0xFF, colorA & 0xFF, null);
 			float[] hsbB = Color.RGBtoHSB(colorB >> 16 & 0xFF, colorB >> 8 & 0xFF, colorB & 0xFF, null);
 			int cmp = Float.compare(hsbA[0], hsbB[0]);
@@ -111,40 +163,6 @@ public class ItemStackUtils {
 		return Integer.compare(a.getDamageValue(), b.getDamageValue());
 	}
 
-	public static CompoundTag getTagOrEmpty(ItemStack stack) {
-		if (stack.hasTag()) {
-			return stack.getTag();
-		}
-		return EMPTY_COMPOUND;
-	}
-
-	public static boolean areTagsEqualExcept(ItemStack a, ItemStack b, String... keys) {
-		CompoundTag tagA = getTagOrEmpty(a);
-		CompoundTag tagB = getTagOrEmpty(b);
-		Set<String> checkedKeys = Sets.newHashSet(keys);
-		if (!areTagsEqualExceptOneSided(tagA, tagB, checkedKeys)) {
-			return false;
-		}
-		return areTagsEqualExceptOneSided(tagB, tagA, checkedKeys);
-	}
-
-	private static boolean areTagsEqualExceptOneSided(CompoundTag tagA, CompoundTag tagB, Set<String> checkedKeys) {
-		for (String key : tagA.getAllKeys()) {
-			if (checkedKeys.contains(key)) {
-				continue;
-			}
-			if (!tagB.contains(key)) {
-				return false;
-			}
-			//noinspection ConstantConditions
-			if (!tagA.get(key).equals(tagB.get(key))) {
-				return false;
-			}
-			checkedKeys.add(key);
-		}
-		return true;
-	}
-
 	public static boolean areItemsOfSameKind(ItemStack stack1, ItemStack stack2) {
 		return areItemsOfSameKind(stack1, stack2, MouseWheelie.config.general.itemKindsNbtMatchMode);
 	}
@@ -155,38 +173,115 @@ public class ItemStackUtils {
 				return stack1.getItem() == stack2.getItem();
 			}
 			case ALL -> {
-				return ItemStack.matches(stack1, stack2);
+				return canCombine(stack1, stack2);
 			}
 			case SOME -> {
 				if (!ItemStack.isSameItem(stack1, stack2)) {
 					return false;
 				}
-				return areTagsEqualExcept(stack1, stack2, "Damage", "Enchantments");
+				//# if MC_VERSION_NUMBER >= 12006
+				return areComponentsEqualExcept(stack1, stack2, DataComponents.DAMAGE, DataComponents.ENCHANTMENTS);
+				//# else
+				//- return areTagsEqualExcept(stack1, stack2, "Damage", "Enchantments");
+				//# end
 			}
 		}
 		return false; // unreachable
 	}
+
+	//# if MC_VERSION_NUMBER >= 12006
+	private static boolean areComponentsEqualExcept(ItemStack a, ItemStack b, DataComponentType<?>... keys) {
+		DataComponentMap componentsA = a.getComponents();
+		DataComponentMap componentsB = b.getComponents();
+		Set<DataComponentType<?>> checkedKeys = Sets.newHashSet(keys);
+		if (!areComponentsEqualExceptOneSided(componentsA, componentsB, checkedKeys)) {
+			return false;
+		}
+		return areComponentsEqualExceptOneSided(componentsA, componentsB, checkedKeys);
+	}
+
+	private static boolean areComponentsEqualExceptOneSided(
+			DataComponentMap componentsA, DataComponentMap componentsB, Set<DataComponentType<?>> checkedKeys
+	) {
+		for (TypedDataComponent<?> componentA : componentsA) {
+			if (checkedKeys.contains(componentA.type())) {
+				continue;
+			}
+			Object valueB = componentsB.get(componentA.type());
+			if (!Objects.equals(componentA.value(), valueB)) {
+				return false;
+			}
+			checkedKeys.add(componentA.type());
+		}
+		return true;
+	}
+	//# else
+	//- private static boolean areTagsEqualExcept(ItemStack a, ItemStack b, String... keys) {
+	//- 	CompoundTag tagA = getTagOrEmpty(a);
+	//- 	CompoundTag tagB = getTagOrEmpty(b);
+	//- 	Set<String> checkedKeys = Sets.newHashSet(keys);
+	//- 	if (!areTagsEqualExceptOneSided(tagA, tagB, checkedKeys)) {
+	//- 		return false;
+	//- 	}
+	//- 	return areTagsEqualExceptOneSided(tagB, tagA, checkedKeys);
+	//- }
+
+	//- private static boolean areTagsEqualExceptOneSided(CompoundTag tagA, CompoundTag tagB, Set<String> checkedKeys) {
+	//- 	for (String key : tagA.getAllKeys()) {
+	//- 		if (checkedKeys.contains(key)) {
+	//- 			continue;
+	//- 		}
+	//- 		if (!tagB.contains(key)) {
+	//- 			return false;
+	//- 		}
+	//- 		//noinspection ConstantConditions
+	//- 		if (!tagA.get(key).equals(tagB.get(key))) {
+	//- 			return false;
+	//- 		}
+	//- 		checkedKeys.add(key);
+	//- 	}
+	//- 	return true;
+	//- }
+
+	//- private static CompoundTag getTagOrEmpty(ItemStack stack) {
+	//- 	if (stack.hasTag()) {
+	//- 		return stack.getTag();
+	//- 	}
+	//- 	return EMPTY_COMPOUND;
+	//- }
+	//# end
 
 	public static int hashByKind(ItemStack stack, NbtMatchMode mode) {
 		switch (mode) {
 			case NONE:
 				return stack.getItem().hashCode();
 			case ALL:
-				return stack.hashCode();
+				//# if MC_VERSION_NUMBER >= 12006
+				return stack.getItem().hashCode() + stack.getComponentsPatch().hashCode();
+				//# else
+				//- return stack.hashCode();
+				//# end
 			case SOME:
 				HashCodeBuilder hashCodeBuilder = new HashCodeBuilder()
 						.append(stack.getItem());
-				CompoundTag nbt = stack.getTag();
-				if (nbt == null) {
-					return hashCodeBuilder.toHashCode();
-				}
+				//# if MC_VERSION_NUMBER >= 12006
+				stack.getComponentsPatch().entrySet().stream()
+						.filter(entry -> entry.getKey() != DataComponents.DAMAGE && entry.getKey() != DataComponents.ENCHANTMENTS)
+						.sorted(Comparator.comparing(entry -> entry.getKey().hashCode()))
+						.forEachOrdered(entry -> hashCodeBuilder.append(entry.getKey()).append(entry.getValue()));
+				//# else
+				//- CompoundTag nbt = stack.getTag();
+				//- if (nbt == null) {
+				//- 	return hashCodeBuilder.toHashCode();
+				//- }
 
-				nbt.getAllKeys().stream().sorted().forEachOrdered(key -> {
-					if (key.equals("Damage") || key.equals("Enchantments")) {
-						return;
-					}
-					hashCodeBuilder.append(key).append(nbt.get(key));
-				});
+				//- nbt.getAllKeys().stream().sorted().forEachOrdered(key -> {
+				//- 	if (key.equals("Damage") || key.equals("Enchantments")) {
+				//- 		return;
+				//- 	}
+				//- 	hashCodeBuilder.append(key).append(nbt.get(key));
+				//- });
+				//# end
 				return hashCodeBuilder.toHashCode();
 		}
 		return 0; // unreachable

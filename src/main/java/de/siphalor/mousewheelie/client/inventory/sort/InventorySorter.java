@@ -21,6 +21,7 @@ import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.inventory.ContainerScreenHelper;
 import de.siphalor.mousewheelie.client.network.InteractionManager;
 import de.siphalor.mousewheelie.client.network.MWClientNetworking;
+import de.siphalor.mousewheelie.client.util.ItemStackUtils;
 import de.siphalor.mousewheelie.client.util.inject.ISlot;
 import de.siphalor.mousewheelie.common.network.ReorderInventoryPacket;
 import net.fabricmc.api.EnvType;
@@ -94,14 +95,14 @@ public class InventorySorter {
 			stack = stacks[i];
 			if (stack.isEmpty()) continue;
 			int stackSize = stack.getCount();
-			if (stackSize >= stack.getItem().getMaxStackSize()) continue;
+			if (stackSize >= ItemStackUtils.getMaxStackSize(stack)) continue;
 			clickEvents.add(screenHelper.createClickEvent(inventorySlots[i], 0, ClickType.PICKUP));
 			for (int j = 0; j < i; j++) {
 				ItemStack targetStack = stacks[j];
 				if (targetStack.isEmpty()) continue;
-				if (targetStack.getCount() >= targetStack.getItem().getMaxStackSize()) continue;
-				if (ItemStack.isSameItemSameTags(stack, targetStack)) {
-					int delta = targetStack.getItem().getMaxStackSize() - targetStack.getCount();
+				if (targetStack.getCount() >= ItemStackUtils.getMaxStackSize(targetStack)) continue;
+				if (ItemStackUtils.canCombine(stack, targetStack)) {
+					int delta = ItemStackUtils.getMaxStackSize(targetStack) - targetStack.getCount();
 					delta = Math.min(delta, stackSize);
 					stackSize -= delta;
 					targetStack.setCount(targetStack.getCount() + delta);
@@ -202,7 +203,7 @@ public class InventorySorter {
 						stacks[id].getItem() == currentStack.getItem()
 								//&& stacks[id].getCount() == currentStack.getCount()
 								&& !doneSlashEmpty.get(slotCount + id)
-								&& ItemStack.isSameItemSameTags(stacks[id], currentStack)
+								&& ItemStackUtils.canCombine(stacks[id], currentStack)
 				) {
 					// If the current stack and the target stack are completely equal, then we can skip this step in the chain
 					if (stacks[id].getCount() == currentStack.getCount()) {

@@ -17,15 +17,64 @@
 
 package de.siphalor.mousewheelie.common.network;
 
+import de.siphalor.mousewheelie.MouseWheelie;
+import io.netty.buffer.ByteBuf;
 import lombok.CustomLog;
 import lombok.Value;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.VarInt;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Value
 @CustomLog
-public class ReorderInventoryPacket {
+public class ReorderInventoryPacket
+		//# if MC_VERSION_NUMBER >= 12006
+		implements CustomPacketPayload
+		//# end
+{
+	//# if MC_VERSION_NUMBER >= 12006
+	public static final ResourceLocation PAYLOAD_ID = new ResourceLocation(MouseWheelie.MOD_ID, "reorder_inventory");
+	public static final Type<ReorderInventoryPacket> TYPE = new Type<>(PAYLOAD_ID);
+	private static final int MAX_SLOTS = 2048;
+	private static final StreamCodec<ByteBuf, int[]> INT_ARRAY_STREAM_CODEC = new StreamCodec<>() {
+		@Override
+		public void encode(ByteBuf byteBuf, int[] array) {
+			ByteBufCodecs.writeCount(byteBuf, array.length, MAX_SLOTS);
+			for (int value : array) {
+				VarInt.write(byteBuf, value);
+			}
+		}
+
+		@Override
+		public int @NotNull [] decode(ByteBuf byteBuf) {
+			int length = ByteBufCodecs.readCount(byteBuf, MAX_SLOTS);
+			int[] array = new int[length];
+			for (int i = 0; i < length; i++) {
+				array[i] = VarInt.read(byteBuf);
+			}
+			return array;
+		}
+	};
+
+	public static final StreamCodec<ByteBuf, ReorderInventoryPacket> STREAM_CODEC = StreamCodec.composite(
+			ByteBufCodecs.VAR_INT,
+			ReorderInventoryPacket::getSyncId,
+			INT_ARRAY_STREAM_CODEC,
+			ReorderInventoryPacket::getSlotMappings,
+			ReorderInventoryPacket::new
+	);
+
+	@Override
+	public Type<? extends CustomPacketPayload> type() {
+		return TYPE;
+	}
+	//# end
+
 	int syncId;
 	int[] slotMappings;
 

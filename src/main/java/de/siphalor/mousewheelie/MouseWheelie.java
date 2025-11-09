@@ -19,6 +19,7 @@ package de.siphalor.mousewheelie;
 
 import de.siphalor.mousewheelie.client.MWClient;
 import de.siphalor.mousewheelie.common.network.MWLogicalServerNetworking;
+import de.siphalor.mousewheelie.common.network.MWNetworking;
 import de.siphalor.tweed5.core.api.container.ConfigContainer;
 import de.siphalor.tweed5.data.hjson.HjsonCommentType;
 import de.siphalor.tweed5.data.hjson.HjsonSerde;
@@ -50,6 +51,7 @@ public class MouseWheelie implements ModInitializer {
 
 		UseItemCallback.EVENT.register(this::onPlayerUseItem);
 
+		MWNetworking.setup();
 		MWLogicalServerNetworking.setup();
 	}
 

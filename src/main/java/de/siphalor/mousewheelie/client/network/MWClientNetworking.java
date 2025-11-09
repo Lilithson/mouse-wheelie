@@ -20,20 +20,28 @@ package de.siphalor.mousewheelie.client.network;
 import de.siphalor.mousewheelie.common.network.MWNetworking;
 import de.siphalor.mousewheelie.common.network.ReorderInventoryPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.network.FriendlyByteBuf;
+//- import net.minecraft.network.FriendlyByteBuf;
 
 public class MWClientNetworking extends MWNetworking {
 
 	private static int blockNextGuiUpdateRefillTriggers;
 
 	public static boolean canSendReorderPacket() {
-		return ClientPlayNetworking.canSend(REORDER_INVENTORY_C2S_PACKET);
+		//# if MC_VERSION_NUMBER >= 12006
+		return ClientPlayNetworking.canSend(ReorderInventoryPacket.TYPE);
+		//# else
+		//- return ClientPlayNetworking.canSend(REORDER_INVENTORY_C2S_PACKET);
+		//# end
 	}
 
 	public static void send(ReorderInventoryPacket packet) {
-		FriendlyByteBuf buffer = createBuffer();
-		packet.write(buffer);
-		ClientPlayNetworking.send(REORDER_INVENTORY_C2S_PACKET, buffer);
+		//# if MC_VERSION_NUMBER >= 12006
+		ClientPlayNetworking.send(packet);
+		//# else
+		//- FriendlyByteBuf buffer = createBuffer();
+		//- packet.write(buffer);
+		//- ClientPlayNetworking.send(REORDER_INVENTORY_C2S_PACKET, buffer);
+		//# end
 	}
 
 	public static synchronized void blockNextGuiUpdateRefillTriggers(int amount) {

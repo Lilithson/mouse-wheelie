@@ -149,7 +149,7 @@ public abstract class SortMode {
 						sortValues[i] = lookup.computeIfAbsent(StackMatcher.of(stack), matcher -> {
 							int index = displayStackList.indexOf(matcher);
 							if (index == -1) {
-								return lookup.computeIfAbsent(StackMatcher.ignoreNbt(stack), matcher2 -> {
+								return lookup.computeIfAbsent(StackMatcher.withoutCustomData(stack), matcher2 -> {
 									int plainIndex = displayStackList.indexOf(matcher2);
 									if (plainIndex == -1) {
 										return Integer.MAX_VALUE;

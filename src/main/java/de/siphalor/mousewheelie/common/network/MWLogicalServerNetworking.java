@@ -21,12 +21,12 @@ import de.siphalor.mousewheelie.MouseWheelie;
 import it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.CustomLog;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
+//- import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.FriendlyByteBuf;
+//- import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
+//- import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -45,12 +45,24 @@ public class MWLogicalServerNetworking extends MWNetworking {
 	private MWLogicalServerNetworking() {}
 
 	public static void setup() {
-		ServerPlayNetworking.registerGlobalReceiver(REORDER_INVENTORY_C2S_PACKET, MWLogicalServerNetworking::onReorderInventoryPacket);
+		//# if MC_VERSION_NUMBER >= 12006
+		ServerPlayNetworking.registerGlobalReceiver(
+				ReorderInventoryPacket.TYPE,
+				(payload, context) -> onReorderInventoryPacket(payload, context.server(), context.player())
+		);
+		//# else
+		//- ServerPlayNetworking.registerGlobalReceiver(REORDER_INVENTORY_C2S_PACKET, MWLogicalServerNetworking::onReorderInventoryPacket);
+		//# end
 	}
 
-	private static void onReorderInventoryPacket(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
-		ReorderInventoryPacket packet = ReorderInventoryPacket.read(buf);
+	//# if MC_VERSION_NUMBER >= 12006
+	//# else
+	//- private static void onReorderInventoryPacket(MinecraftServer server, ServerPlayer player, ServerGamePacketListenerImpl handler, FriendlyByteBuf buf, PacketSender responseSender) {
+		//- onReorderInventoryPacket(ReorderInventoryPacket.read(buf), server, player);
+	//- }
+	//# end
 
+	private static void onReorderInventoryPacket(ReorderInventoryPacket packet, MinecraftServer server, ServerPlayer player) {
 		if (packet == null) {
 			log.warn("Failed to read reorder inventory packet from player {}!", player);
 			return;
