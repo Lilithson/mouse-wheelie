@@ -17,19 +17,21 @@
 
 package de.siphalor.mousewheelie.client.inventory;
 
-import de.siphalor.mousewheelie.MouseWheelie;
+//- import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.MWClient;
+import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.protocol.game.ServerboundPickItemPacket;
+//- import net.minecraft.client.Minecraft;
+//- import net.minecraft.network.protocol.game.ServerboundPickItemPacket;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
 @Environment(EnvType.CLIENT)
 @RequiredArgsConstructor
+@CustomLog
 public class ToolPicker {
 	private final Inventory inventory;
 
@@ -42,7 +44,7 @@ public class ToolPicker {
 	public int findToolFor(BlockState blockState) {
 		float bestBreakSpeed = 1.0F;
 		int bestSpeedSlot = -1;
-		int invSize = (MouseWheelie.config.toolPicking.pickFromInventory ? inventory.items.size() : 9);
+		int invSize = (canPickFromInventory() ? inventory.items.size() : 9);
 		for (int i = 1; i <= invSize; i++) {
 			int index = (i + lastToolPickSlot) % invSize;
 			if (index == inventory.selected) continue;
@@ -70,7 +72,7 @@ public class ToolPicker {
 	}
 
 	public int findWeapon() {
-		int invSize = (MouseWheelie.config.toolPicking.pickFromInventory ? inventory.items.size() : 9);
+		int invSize = (canPickFromInventory() ? inventory.items.size() : 9);
 		for (int i = 1; i <= invSize; i++) {
 			int index = (i + lastToolPickSlot) % invSize;
 			if (index == inventory.selected) continue;
@@ -84,13 +86,31 @@ public class ToolPicker {
 		return pick(findWeapon());
 	}
 
+	private boolean canPickFromInventory() {
+		//# if MC_VERSION_NUMBER >= 12104
+		return false;
+		//# else
+		//- return MouseWheelie.config.toolPicking.pickFromInventory;
+		//# end
+	}
+
 	private boolean pick(int index) {
 		setLastToolPickSlot(index);
 
 		if (index != -1 && index != inventory.selected) {
-			ServerboundPickItemPacket packet = new ServerboundPickItemPacket(index);
-			Minecraft.getInstance().getConnection().send(packet);
-			return true;
+			//# if MC_VERSION_NUMBER >= 12104
+			if (Inventory.isHotbarSlot(index)) {
+				inventory.selected = index;
+				return true;
+			} else {
+				log.warn("Tried to pick non-hotbar {}, will be ignored", index);
+				return false;
+			}
+			//# else
+			//- ServerboundPickItemPacket packet = new ServerboundPickItemPacket(index);
+			//- Minecraft.getInstance().getConnection().send(packet);
+			//- return true;
+			//# end
 		}
 		return false;
 	}

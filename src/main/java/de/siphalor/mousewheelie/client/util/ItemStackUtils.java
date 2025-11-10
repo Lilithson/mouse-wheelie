@@ -19,8 +19,8 @@ package de.siphalor.mousewheelie.client.util;
 
 import com.google.common.collect.Sets;
 import de.siphalor.mousewheelie.MouseWheelie;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.color.item.ItemColors;
+//- import net.minecraft.client.Minecraft;
+//- import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -31,6 +31,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.DyedItemColor;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.awt.*;
@@ -40,9 +41,11 @@ import java.util.Objects;
 import java.util.Set;
 
 public class ItemStackUtils {
-	//# if MC_VERSION_NUMBER >= 12006
+	//# if MC_VERSION_NUMBER >= 12104
 	private static final Item.TooltipContext TOOLTIP_CONTEXT = Item.TooltipContext.EMPTY;
-	private static final ItemColors ITEM_COLORS = ItemColors.createDefault(Minecraft.getInstance().getBlockColors());
+	//# elif MC_VERSION_NUMBER >= 12006
+	//- private static final Item.TooltipContext TOOLTIP_CONTEXT = Item.TooltipContext.EMPTY;
+	//- private static final ItemColors ITEM_COLORS = ItemColors.createDefault(Minecraft.getInstance().getBlockColors());
 	//# else
 	//- private static final CompoundTag EMPTY_COMPOUND = new CompoundTag();
 	//# end
@@ -130,10 +133,22 @@ public class ItemStackUtils {
 
 	private static int compareEqualItems4(ItemStack a, ItemStack b) {
 		// compare color
-		//# if MC_VERSION_NUMBER >= 12006
-		int colorA = ITEM_COLORS.getColor(a, 0);
-		int colorB = ITEM_COLORS.getColor(b, 0);
-		if (colorA != -1 && colorB != -1) {
+		//# if MC_VERSION_NUMBER >= 12104
+		int colorA = DyedItemColor.getOrDefault(a, 0);
+		int colorB = DyedItemColor.getOrDefault(b, 0);
+		if (colorA == 0 && colorB != 0) {
+			return -1;
+		} else if (colorA != 0 && colorB == 0) {
+			return 1;
+		} else if (colorA != 0) {
+		//# elif MC_VERSION_NUMBER >= 12006
+		//- int colorA = ITEM_COLORS.getColor(a, 0);
+		//- int colorB = ITEM_COLORS.getColor(b, 0);
+		//- if (colorA == -1 && colorB != -1) {
+		//- 	return -1;
+		//- } else if (colorA != -1 && colorB == -1) {
+		//- 	return 1;
+		//- } else if (colorA != -1) {
 		//# else
 		//- Item item = a.getItem();
 		//- if (item instanceof DyeableLeatherItem) {

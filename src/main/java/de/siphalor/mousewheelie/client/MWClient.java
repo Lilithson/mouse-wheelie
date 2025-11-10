@@ -23,7 +23,7 @@ import de.siphalor.coat.screen.ConfigScreen;
 import de.siphalor.coat.util.EnumeratedMaterial;
 import de.siphalor.mousewheelie.MWConfig;
 import de.siphalor.mousewheelie.MouseWheelie;
-import de.siphalor.mousewheelie.client.inventory.ToolPicker;
+//- import de.siphalor.mousewheelie.client.inventory.ToolPicker;
 import de.siphalor.mousewheelie.client.inventory.sort.SortMode;
 import de.siphalor.mousewheelie.client.keybinding.*;
 import de.siphalor.mousewheelie.client.network.InteractionManager;
@@ -41,16 +41,16 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.event.client.player.ClientPickBlockGatherCallback;
+//- import net.fabricmc.fabric.api.event.client.player.ClientPickBlockGatherCallback;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
+//- import net.minecraft.world.level.block.state.BlockState;
+//- import net.minecraft.world.phys.BlockHitResult;
+//- import net.minecraft.world.phys.HitResult;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Arrays;
@@ -93,27 +93,30 @@ public class MWClient implements ClientModInitializer {
 		KeyBindingHelper.registerKeyBinding(DEPOSIT_MODIFIER);
 		KeyBindingHelper.registerKeyBinding(RESTOCK_MODIFIER);
 
-		ClientPickBlockGatherCallback.EVENT.register((player, result) -> {
-			ItemStack stack = player.getMainHandItem();
-			Item item = stack.getItem();
-			int index = -1;
-			if (MouseWheelie.config.toolPicking.holdTool && (isTool(stack) || isWeapon(stack))) {
-				ToolPicker toolPicker = new ToolPicker(player.getInventory());
-				if (result.getType() == HitResult.Type.BLOCK && result instanceof BlockHitResult) {
-					index = toolPicker.findToolFor(player.level().getBlockState(((BlockHitResult) result).getBlockPos()));
-				} else {
-					index = toolPicker.findWeapon();
-				}
-			}
-			if (MouseWheelie.config.toolPicking.holdBlock && item instanceof BlockItem && result.getType() == HitResult.Type.BLOCK && result instanceof BlockHitResult) {
-				BlockState blockState = player.level().getBlockState(((BlockHitResult) result).getBlockPos());
-				if (blockState.getBlock() == ((BlockItem) item).getBlock()) {
-					ToolPicker toolPicker = new ToolPicker(player.getInventory());
-					index = toolPicker.findToolFor(blockState);
-				}
-			}
-			return index == -1 || index == player.getInventory().selected ? ItemStack.EMPTY : player.getInventory().getItem(index);
-		});
+		// TODO: move to custom mixin?
+		//# if MC_VERSION_NUMBER < 12104
+		//- ClientPickBlockGatherCallback.EVENT.register((player, result) -> {
+		//- 	ItemStack stack = player.getMainHandItem();
+		//- 	Item item = stack.getItem();
+		//- 	int index = -1;
+		//- 	if (MouseWheelie.config.toolPicking.holdTool && (isTool(stack) || isWeapon(stack))) {
+		//- 		ToolPicker toolPicker = new ToolPicker(player.getInventory());
+		//- 		if (result.getType() == HitResult.Type.BLOCK && result instanceof BlockHitResult) {
+		//- 			index = toolPicker.findToolFor(player.level().getBlockState(((BlockHitResult) result).getBlockPos()));
+		//- 		} else {
+		//- 			index = toolPicker.findWeapon();
+		//- 		}
+		//- 	}
+		//- 	if (MouseWheelie.config.toolPicking.holdBlock && item instanceof BlockItem && result.getType() == HitResult.Type.BLOCK && result instanceof BlockHitResult) {
+		//- 		BlockState blockState = player.level().getBlockState(((BlockHitResult) result).getBlockPos());
+		//- 		if (blockState.getBlock() == ((BlockItem) item).getBlock()) {
+		//- 			ToolPicker toolPicker = new ToolPicker(player.getInventory());
+		//- 			index = toolPicker.findToolFor(blockState);
+		//- 		}
+		//- 	}
+		//- 	return index == -1 || index == player.getInventory().selected ? ItemStack.EMPTY : player.getInventory().getItem(index);
+		//- });
+		//# end
 
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
 			CreativeSearchOrder.refreshItemSearchPositionLookup();

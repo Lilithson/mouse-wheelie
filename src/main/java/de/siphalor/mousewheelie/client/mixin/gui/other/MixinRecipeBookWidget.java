@@ -276,9 +276,13 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 		if (recipeEntry.craftingRequirements().isEmpty()) return false;
 		int biggestCraftingStackSize = getBiggestCraftingStackSize();
 		int maxCraftsCount = ((StackedItemContentsAccessor) stackedContents).getRaw().tryPickAll(
-				recipeEntry.craftingRequirements().get().stream()
-						.map(PlacementInfo::ingredientToContents)
-						.toList(),
+				//# if MC_VERSION_NUMBER >= 12104
+				PlacementInfo.create(recipeEntry.craftingRequirements().get()).ingredients(),
+				//# else
+				//- recipeEntry.craftingRequirements().get().stream()
+				//- 		.map(PlacementInfo::ingredientToContents)
+				//- 		.toList(),
+				//# end
 				biggestCraftingStackSize + 1,
 				null
 		);
@@ -291,9 +295,13 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 		List<ItemStack> results = recipeEntry.resultItems(SlotDisplayContext.fromLevel(minecraft.level));
 		if (results.isEmpty()) return 0;
 		return ((StackedItemContentsAccessor) stackedContents).getRaw().tryPickAll(
-				recipeEntry.craftingRequirements().get().stream()
-						.map(PlacementInfo::ingredientToContents)
-						.toList(),
+				//# if MC_VERSION_NUMBER >= 12104
+				PlacementInfo.create(recipeEntry.craftingRequirements().get()).ingredients(),
+				//# else
+				//- recipeEntry.craftingRequirements().get().stream()
+				//- .map(PlacementInfo::ingredientToContents)
+				//- .toList(),
+				//# end
 				ItemStackUtils.getMaxStackSize(results.get(0)),
 				null
 		);

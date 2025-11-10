@@ -26,7 +26,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.protocol.game.ServerboundPickItemPacket;
+//- import net.minecraft.network.protocol.game.ServerboundPickItemPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -192,7 +192,7 @@ public class SlotRefiller {
 			return;
 		}
 
-		if (slot < 9) {
+		if (Inventory.isHotbarSlot(slot)) {
 			refillFromHotbar(hand, slot);
 		} else {
 			refillFromInventory(hand, slot);
@@ -244,10 +244,14 @@ public class SlotRefiller {
 	}
 
 	private static void pickFromInventory(int inventorySlot) {
-		InteractionManager.push(new InteractionManager.PacketEvent(
-				new ServerboundPickItemPacket(inventorySlot),
-				triggerType -> triggerType == InteractionManager.TriggerType.HELD_ITEM_CHANGE
-		));
+		//# if MC_VERSION_NUMBER >= 12104
+		// TODO: custom packet?
+		//# else
+		//- InteractionManager.push(new InteractionManager.PacketEvent(
+		//- 		new ServerboundPickItemPacket(inventorySlot),
+		//- 		triggerType -> triggerType == InteractionManager.TriggerType.HELD_ITEM_CHANGE
+		//- ));
+		//# end
 	}
 
 	static {
