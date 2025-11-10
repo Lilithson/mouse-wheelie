@@ -30,7 +30,8 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.CommonListenerCookie;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
-import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
+//- import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
+import net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import org.spongepowered.asm.mixin.Mixin;
@@ -51,10 +52,17 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonPacketLi
 		InteractionManager.triggerSend(InteractionManager.TriggerType.GUI_CONFIRM);
 	}*/
 
-	@Inject(method = "handleSetCarriedItem", at = @At("HEAD"))
-	public void onHeldItemChangeBegin(ClientboundSetCarriedItemPacket packet, CallbackInfo callbackInfo) {
+	//# if MC_VERSION_NUMBER >= 12103
+	@Inject(method = "handleSetHeldSlot", at = @At("HEAD"))
+	public void onHeldItemChangeBegin(ClientboundSetHeldSlotPacket packet, CallbackInfo callbackInfo) {
 		InteractionManager.triggerSend(InteractionManager.TriggerType.HELD_ITEM_CHANGE);
 	}
+	//# else
+	//- @Inject(method = "handleSetCarriedItem", at = @At("HEAD"))
+	//- public void onHeldItemChangeBegin(ClientboundSetCarriedItemPacket packet, CallbackInfo callbackInfo) {
+	//- 	InteractionManager.triggerSend(InteractionManager.TriggerType.HELD_ITEM_CHANGE);
+	//- }
+	//# end
 
 	@Inject(method = "handleContainerSetSlot", at = @At("RETURN"))
 	public void onGuiSlotUpdateBegin(ClientboundContainerSetSlotPacket packet, CallbackInfo callbackInfo) {

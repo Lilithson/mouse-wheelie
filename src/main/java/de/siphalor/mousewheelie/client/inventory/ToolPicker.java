@@ -74,7 +74,7 @@ public class ToolPicker {
 		for (int i = 1; i <= invSize; i++) {
 			int index = (i + lastToolPickSlot) % invSize;
 			if (index == inventory.selected) continue;
-			if (MWClient.isWeapon(inventory.items.get(index).getItem()))
+			if (MWClient.isWeapon(inventory.items.get(index)))
 				return index;
 		}
 		return -1;

@@ -19,6 +19,7 @@ package de.siphalor.mousewheelie.client.inventory;
 
 import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.network.InteractionManager;
+import de.siphalor.mousewheelie.client.util.ItemStackUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -462,7 +463,7 @@ public class SlotRefiller {
 
 		@Override
 		int findMatchingStack(Inventory playerInventory, ItemStack oldStack) {
-			return playerInventory.findSlotMatchingUnusedItem(oldStack);
+			return iterateInventory(playerInventory, stack -> ItemStackUtils.canCombine(stack, oldStack));
 		}
 	}
 }

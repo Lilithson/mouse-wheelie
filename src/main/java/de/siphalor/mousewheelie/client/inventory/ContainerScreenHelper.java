@@ -33,7 +33,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
-import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
@@ -51,6 +51,7 @@ import java.util.function.Consumer;
 @SuppressWarnings("WeakerAccess")
 public class ContainerScreenHelper<T extends AbstractContainerScreen<?>> {
 	protected final T screen;
+	protected final boolean hasOtherInventory;
 	protected final ClickEventFactory clickEventFactory;
 	protected final ReadWriteLock slotStatesLock = new ReentrantReadWriteLock();
 	protected final Int2ObjectMap<SlotInteractionState> slotStates;
@@ -59,6 +60,7 @@ public class ContainerScreenHelper<T extends AbstractContainerScreen<?>> {
 
 	protected ContainerScreenHelper(T screen, ClickEventFactory clickEventFactory) {
 		this.screen = screen;
+		this.hasOtherInventory = determineHasOtherInventory();
 		this.clickEventFactory = clickEventFactory;
 		this.slotStates = new Int2ObjectArrayMap<>(10);
 	}
@@ -66,9 +68,20 @@ public class ContainerScreenHelper<T extends AbstractContainerScreen<?>> {
 	@SuppressWarnings("unchecked")
 	public static <T extends AbstractContainerScreen<?>> ContainerScreenHelper<T> of(T screen, ClickEventFactory clickEventFactory) {
 		if (screen instanceof CreativeModeInventoryScreen) {
-			return (ContainerScreenHelper<T>) new CreativeContainerScreenHelper<>((CreativeModeInventoryScreen) screen, clickEventFactory);
+			return (ContainerScreenHelper<T>) new CreativeInventoryContainerScreenHelper<>((CreativeModeInventoryScreen) screen, clickEventFactory);
+		} else if (screen instanceof InventoryScreen) {
+			return new PlayerInventoryFocusedContainerScreenHelper<>(screen, clickEventFactory);
 		}
 		return new ContainerScreenHelper<>(screen, clickEventFactory);
+	}
+
+	private boolean determineHasOtherInventory() {
+		for (Slot slot : screen.getMenu().slots) {
+			if (!(slot.container instanceof Inventory)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public InteractionManager.InteractionEvent createClickEvent(Slot slot, int action, ClickType actionType) {
@@ -138,88 +151,102 @@ public class ContainerScreenHelper<T extends AbstractContainerScreen<?>> {
 		// Shall send determines whether items from the referenceSlot shall be moved to another scope. Otherwise the referenceSlot will receive items.
 		boolean shallSend;
 		if (MouseWheelie.config.scrolling.directionalScrolling) {
-			shallSend = shallChangeInventory(referenceSlot, scrollUp);
+			shallSend = shallSendFromSlot(referenceSlot, scrollUp);
 		} else {
+			// scroll by amount, up => more (receive); down => less (send)
 			shallSend = !scrollUp;
 			scrollUp = false;
 		}
 
 		if (shallSend) {
-			// If deposit modifier and restock modifier are equal, deposit modifier takes precedence
-			if (MWClient.DEPOSIT_MODIFIER.isDown()) {
-				depositAllFrom(referenceSlot);
-				return;
-			}
-			if (MWClient.RESTOCK_MODIFIER.isDown()) {
-				restockAll(getComplementaryScope(getScope(referenceSlot)));
-				return;
-			}
-
-			if (!referenceSlot.mayPlace(ItemStack.EMPTY)) {
-				sendStack(referenceSlot);
-			}
-			if (MWClient.ALL_OF_KIND_MODIFIER.isDown()) {
-				sendAllOfAKind(referenceSlot);
-			} else if (MWClient.WHOLE_STACK_MODIFIER.isDown()) {
-				sendStack(referenceSlot);
-			} else {
-				sendSingleItem(referenceSlot);
-			}
+			scrollSend(referenceSlot);
 		} else {
-			// If deposit modifier and restock modifier are equal, restock modifier takes precedence
-			if (MWClient.RESTOCK_MODIFIER.isDown()) {
-				if (MWClient.WHOLE_STACK_MODIFIER.isDown()) {
-					restockAll(referenceSlot);
-				} else {
-					restockAllOfAKind(referenceSlot);
-				}
-				return;
-			}
-			if (MWClient.DEPOSIT_MODIFIER.isDown()) {
-				depositAllFrom(getComplementaryScope(getScope(referenceSlot)));
-				return;
-			}
+			scrollReceive(referenceSlot, scrollUp);
+		}
+	}
 
-			ItemStack referenceStack = referenceSlot.getItem().copy();
-			int referenceScope = getScope(referenceSlot);
-			boolean wholeStackModifier = MWClient.WHOLE_STACK_MODIFIER.isDown();
-			boolean allOfKindModifier = MWClient.ALL_OF_KIND_MODIFIER.isDown();
-			if (wholeStackModifier || allOfKindModifier) {
-				for (Slot slot : screen.getMenu().slots) {
-					if (getScope(slot) == referenceScope) continue;
-					if (ItemStackUtils.areItemsOfSameKind(slot.getItem(), referenceStack)) {
-						sendStack(slot);
-						if (!allOfKindModifier) {
-							break;
-						}
+	public boolean shallSendFromSlot(Slot slot, boolean scrollUp) {
+		return isInLowerRegion(getScope(slot)) == scrollUp;
+	}
+
+	private void scrollSend(Slot referenceSlot) {
+		// If deposit modifier and restock modifier are equal, deposit modifier takes precedence
+		if (MWClient.DEPOSIT_MODIFIER.isDown()) {
+			depositAllFrom(referenceSlot);
+			return;
+		}
+		if (MWClient.RESTOCK_MODIFIER.isDown()) {
+			restockAll(getComplementaryScope(getScope(referenceSlot)));
+			return;
+		}
+
+		if (!referenceSlot.mayPlace(ItemStack.EMPTY)) {
+			sendStack(referenceSlot);
+		}
+		if (MWClient.ALL_OF_KIND_MODIFIER.isDown()) {
+			sendAllOfAKind(referenceSlot);
+		} else if (MWClient.WHOLE_STACK_MODIFIER.isDown()) {
+			sendStack(referenceSlot);
+		} else {
+			sendSingleItem(referenceSlot);
+		}
+	}
+
+	private void scrollReceive(Slot referenceSlot, boolean scrollUp) {
+		// If deposit modifier and restock modifier are equal, restock modifier takes precedence
+		if (MWClient.RESTOCK_MODIFIER.isDown()) {
+			if (MWClient.WHOLE_STACK_MODIFIER.isDown()) {
+				restockAll(referenceSlot);
+			} else {
+				restockAllOfAKind(referenceSlot);
+			}
+			return;
+		}
+		if (MWClient.DEPOSIT_MODIFIER.isDown()) {
+			depositAllFrom(getComplementaryScope(getScope(referenceSlot)));
+			return;
+		}
+
+		ItemStack referenceStack = referenceSlot.getItem().copy();
+		int referenceScope = getScope(referenceSlot);
+		boolean wholeStackModifier = MWClient.WHOLE_STACK_MODIFIER.isDown();
+		boolean allOfKindModifier = MWClient.ALL_OF_KIND_MODIFIER.isDown();
+		if (wholeStackModifier || allOfKindModifier) {
+			for (Slot slot : screen.getMenu().slots) {
+				if (getScope(slot) == referenceScope) continue;
+				if (ItemStackUtils.areItemsOfSameKind(slot.getItem(), referenceStack)) {
+					sendStack(slot);
+					if (!allOfKindModifier) {
+						break;
 					}
 				}
-			} else {
-				Slot moveSlot = null;
-				int stackSize = Integer.MAX_VALUE;
-				for (Slot slot : screen.getMenu().slots) {
-					if (getScope(slot) == referenceScope) continue;
-					if (getScope(slot) <= 0 == scrollUp) {
-						if (ItemStackUtils.areItemsOfSameKind(slot.getItem(), referenceStack)) {
-							if (slot.getItem().getCount() < stackSize) {
-								stackSize = slot.getItem().getCount();
-								moveSlot = slot;
-								if (stackSize == 1) {
-									break;
-								}
+			}
+		} else {
+			Slot moveSlot = null;
+			int stackSize = Integer.MAX_VALUE;
+			for (Slot slot : screen.getMenu().slots) {
+				int slotScope = getScope(slot);
+				if (slotScope == referenceScope) continue;
+				if (isInLowerRegion(slotScope) == scrollUp) {
+					if (ItemStackUtils.areItemsOfSameKind(slot.getItem(), referenceStack)) {
+						if (slot.getItem().getCount() < stackSize) {
+							stackSize = slot.getItem().getCount();
+							moveSlot = slot;
+							if (stackSize == 1) {
+								break;
 							}
 						}
 					}
 				}
-				if (moveSlot != null) {
-					sendSingleItem(moveSlot);
-				}
+			}
+			if (moveSlot != null) {
+				sendSingleItem(moveSlot);
 			}
 		}
 	}
 
-	public boolean shallChangeInventory(Slot slot, boolean scrollUp) {
-		return (getScope(slot) <= 0) == scrollUp;
+	private boolean isInLowerRegion(int scope) {
+		return scope <= 0;
 	}
 
 	public boolean isHotbarSlot(Slot slot) {
@@ -234,30 +261,16 @@ public class ContainerScreenHelper<T extends AbstractContainerScreen<?>> {
 		if (slot.container == null || ((ISlot) slot).mouseWheelie_getIndexInInv() >= slot.container.getContainerSize() || !slot.mayPlace(ItemStack.EMPTY)) {
 			return INVALID_SCOPE;
 		}
-		if (screen instanceof EffectRenderingInventoryScreen) {
-			if (slot.container instanceof Inventory) {
-				if (isHotbarSlot(slot)) {
-					return 0;
-				} else if (((ISlot) slot).mouseWheelie_getIndexInInv() >= 40) {
+		if (slot.container instanceof Inventory) {
+			if (isHotbarSlot(slot)) {
+				if (MouseWheelie.config.general.hotbarScoping == MWConfig.General.HotbarScoping.HARD
+						|| MouseWheelie.config.general.hotbarScoping == MWConfig.General.HotbarScoping.SOFT && preferSmallerScopes) {
 					return -1;
-				} else {
-					return 1;
 				}
-			} else {
-				return 2;
 			}
-		} else {
-			if (slot.container instanceof Inventory) {
-				if (isHotbarSlot(slot)) {
-					if (MouseWheelie.config.general.hotbarScoping == MWConfig.General.HotbarScoping.HARD
-							|| MouseWheelie.config.general.hotbarScoping == MWConfig.General.HotbarScoping.SOFT && preferSmallerScopes) {
-						return -1;
-					}
-				}
-				return 0;
-			}
-			return 1;
+			return 0;
 		}
+		return 1;
 	}
 
 	public void runInScope(int scope, Consumer<Slot> slotConsumer) {

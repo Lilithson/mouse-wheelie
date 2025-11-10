@@ -29,8 +29,9 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 @Environment(EnvType.CLIENT)
-public class CreativeContainerScreenHelper<T extends CreativeModeInventoryScreen> extends ContainerScreenHelper<T> {
-	public CreativeContainerScreenHelper(T screen, ClickEventFactory clickEventFactory) {
+public class CreativeInventoryContainerScreenHelper<T extends CreativeModeInventoryScreen>
+		extends PlayerInventoryFocusedContainerScreenHelper<T> {
+	public CreativeInventoryContainerScreenHelper(T screen, ClickEventFactory clickEventFactory) {
 		super(screen, clickEventFactory);
 	}
 

@@ -17,31 +17,33 @@
 
 package de.siphalor.mousewheelie.client.mixin.gui.screen;
 
-import de.siphalor.mousewheelie.client.util.ScrollAction;
-import de.siphalor.mousewheelie.client.util.inject.IRecipeBookWidget;
-import de.siphalor.mousewheelie.client.util.inject.IScrollableRecipeBook;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.CraftingScreen;
-import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.CraftingMenu;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+//- import de.siphalor.mousewheelie.client.util.ScrollAction;
+//- import de.siphalor.mousewheelie.client.util.inject.IRecipeBookWidget;
+//- import de.siphalor.mousewheelie.client.util.inject.IScrollableRecipeBook;
+//- import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+//- import net.minecraft.client.gui.screens.inventory.CraftingScreen;
+//- import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
+//- import net.minecraft.network.chat.Component;
+//- import net.minecraft.world.entity.player.Inventory;
+//- import net.minecraft.world.inventory.CraftingMenu;
+//- import org.spongepowered.asm.mixin.Final;
+//- import org.spongepowered.asm.mixin.Mixin;
+//- import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(CraftingScreen.class)
-public abstract class MixinCraftingTableScreen extends AbstractContainerScreen<CraftingMenu> implements IScrollableRecipeBook {
-	@Shadow
-	@Final
-	private RecipeBookComponent recipeBookComponent;
+//# if MC_VERSION_NUMBER < 12103
+//- @Mixin(CraftingScreen.class)
+//- public abstract class MixinCraftingTableScreen extends AbstractContainerScreen<CraftingMenu> implements IScrollableRecipeBook {
+//- 	@Shadow
+//- 	@Final
+//- 	private RecipeBookComponent recipeBookComponent;
 
-	public MixinCraftingTableScreen(CraftingMenu container_1, Inventory playerInventory_1, Component textComponent_1) {
-		super(container_1, playerInventory_1, textComponent_1);
-	}
+//- 	public MixinCraftingTableScreen(CraftingMenu container_1, Inventory playerInventory_1, Component textComponent_1) {
+//- 		super(container_1, playerInventory_1, textComponent_1);
+//- 	}
 
-	@Override
-	public ScrollAction mouseWheelie_onMouseScrollRecipeBook(double mouseX, double mouseY, double scrollAmount) {
-		return ((IRecipeBookWidget) recipeBookComponent).mouseWheelie_scrollRecipeBook(mouseX, mouseY, scrollAmount);
-	}
-}
+//- 	@Override
+//- 	public ScrollAction mouseWheelie_onMouseScrollRecipeBook(double mouseX, double mouseY, double scrollAmount) {
+//- 		return ((IRecipeBookWidget) recipeBookComponent).mouseWheelie_scrollRecipeBook(mouseX, mouseY, scrollAmount);
+//- 	}
+//- }
+//# end

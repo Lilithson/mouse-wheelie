@@ -44,8 +44,9 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.event.client.player.ClientPickBlockGatherCallback;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-//- import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -93,9 +94,10 @@ public class MWClient implements ClientModInitializer {
 		KeyBindingHelper.registerKeyBinding(RESTOCK_MODIFIER);
 
 		ClientPickBlockGatherCallback.EVENT.register((player, result) -> {
-			Item item = player.getMainHandItem().getItem();
+			ItemStack stack = player.getMainHandItem();
+			Item item = stack.getItem();
 			int index = -1;
-			if (MouseWheelie.config.toolPicking.holdTool && (isTool(item) || isWeapon(item))) {
+			if (MouseWheelie.config.toolPicking.holdTool && (isTool(stack) || isWeapon(stack))) {
 				ToolPicker toolPicker = new ToolPicker(player.getInventory());
 				if (result.getType() == HitResult.Type.BLOCK && result instanceof BlockHitResult) {
 					index = toolPicker.findToolFor(player.level().getBlockState(((BlockHitResult) result).getBlockPos()));
@@ -119,13 +121,23 @@ public class MWClient implements ClientModInitializer {
 		});
 	}
 
-	public static boolean isTool(Item item) {
-		// TODO: reimplement Fapi tool tags
-		return item instanceof TieredItem || item instanceof ShearsItem;
+	public static boolean isTool(ItemStack stack) {
+		//# if MC_VERSION_NUMBER >= 12103
+		return stack.has(DataComponents.TOOL);
+		//# else
+		//- // TODO: reimplement Fapi tool tags
+		//- return item instanceof TieredItem || item instanceof ShearsItem;
+		//# end
 	}
 
-	public static boolean isWeapon(Item item) {
-		return item instanceof ProjectileWeaponItem || item instanceof TridentItem || item instanceof SwordItem;
+	public static boolean isWeapon(ItemStack stack) {
+		//# if MC_VERSION_NUMBER >= 12103
+		return stack.getItem() instanceof ProjectileWeaponItem
+				|| stack.getItem() instanceof TridentItem
+				|| stack.is(ItemTags.SHARP_WEAPON_ENCHANTABLE);
+		//# else
+		//- return item instanceof ProjectileWeaponItem || item instanceof TridentItem || item instanceof SwordItem;
+		//# end
 	}
 
 	public static double getMouseX() {

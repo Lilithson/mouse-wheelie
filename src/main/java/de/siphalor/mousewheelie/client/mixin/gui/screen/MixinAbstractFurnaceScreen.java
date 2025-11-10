@@ -17,32 +17,35 @@
 
 package de.siphalor.mousewheelie.client.mixin.gui.screen;
 
-import de.siphalor.mousewheelie.client.util.ScrollAction;
-import de.siphalor.mousewheelie.client.util.inject.IRecipeBookWidget;
-import de.siphalor.mousewheelie.client.util.inject.IScrollableRecipeBook;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.AbstractFurnaceScreen;
-import net.minecraft.client.gui.screens.recipebook.AbstractFurnaceRecipeBookComponent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.AbstractFurnaceMenu;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+//- import de.siphalor.mousewheelie.client.util.ScrollAction;
+//- import de.siphalor.mousewheelie.client.util.inject.IRecipeBookWidget;
+//- import de.siphalor.mousewheelie.client.util.inject.IScrollableRecipeBook;
+//- import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+//- import net.minecraft.client.gui.screens.inventory.AbstractFurnaceScreen;
+//- import net.minecraft.client.gui.screens.recipebook.AbstractFurnaceRecipeBookComponent;
+//- import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
+//- import net.minecraft.network.chat.Component;
+//- import net.minecraft.world.entity.player.Inventory;
+//- import net.minecraft.world.inventory.AbstractFurnaceMenu;
+//- import org.spongepowered.asm.mixin.Final;
+//- import org.spongepowered.asm.mixin.Mixin;
+//- import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(AbstractFurnaceScreen.class)
-public abstract class MixinAbstractFurnaceScreen extends AbstractContainerScreen<AbstractFurnaceMenu> implements IScrollableRecipeBook {
+//# if MC_VERSION_NUMBER < 12103
+//- @Mixin(AbstractFurnaceScreen.class)
+//- public abstract class MixinAbstractFurnaceScreen extends AbstractContainerScreen<AbstractFurnaceMenu>
+//- 		implements IScrollableRecipeBook {
+//- 	public MixinAbstractFurnaceScreen(AbstractFurnaceMenu container, Inventory playerInventory, Component name) {
+//- 		super(container, playerInventory, name);
+//- 	}
 
-	@Shadow
-	@Final
-	public AbstractFurnaceRecipeBookComponent recipeBookComponent;
+//- 	@Shadow
+//- 	@Final
+//- 	public AbstractFurnaceRecipeBookComponent recipeBookComponent;
 
-	public MixinAbstractFurnaceScreen(AbstractFurnaceMenu container, Inventory playerInventory, Component name) {
-		super(container, playerInventory, name);
-	}
-
-	@Override
-	public ScrollAction mouseWheelie_onMouseScrollRecipeBook(double mouseX, double mouseY, double scrollAmount) {
-		return ((IRecipeBookWidget) recipeBookComponent).mouseWheelie_scrollRecipeBook(mouseX, mouseY, scrollAmount);
-	}
-}
+//- 	@Override
+//- 	public ScrollAction mouseWheelie_onMouseScrollRecipeBook(double mouseX, double mouseY, double scrollAmount) {
+//- 		return ((IRecipeBookWidget) recipeBookComponent).mouseWheelie_scrollRecipeBook(mouseX, mouseY, scrollAmount);
+//- 	}
+//- }
+//# end

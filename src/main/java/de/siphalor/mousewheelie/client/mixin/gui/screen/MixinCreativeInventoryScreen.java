@@ -26,8 +26,8 @@ import de.siphalor.mousewheelie.client.util.inject.IContainerScreen;
 import de.siphalor.mousewheelie.client.util.inject.ISlot;
 import de.siphalor.mousewheelie.client.util.inject.ISpecialScrollableScreen;
 //- import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
-import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
@@ -41,7 +41,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.List;
 
 @Mixin(CreativeModeInventoryScreen.class)
-public abstract class MixinCreativeInventoryScreen extends EffectRenderingInventoryScreen<CreativeModeInventoryScreen.ItemPickerMenu> implements ISpecialScrollableScreen, IContainerScreen {
+public abstract class MixinCreativeInventoryScreen extends AbstractContainerScreen<CreativeModeInventoryScreen.ItemPickerMenu> implements ISpecialScrollableScreen, IContainerScreen {
 
 	@Shadow
 	private static CreativeModeTab selectedTab;

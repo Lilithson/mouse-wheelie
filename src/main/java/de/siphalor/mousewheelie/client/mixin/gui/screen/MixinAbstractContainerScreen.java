@@ -32,8 +32,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+//- import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 //- import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
@@ -41,8 +43,9 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.BundleItem;
-import net.minecraft.world.item.Equipable;
+//- import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.equipment.Equippable;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
@@ -65,8 +68,18 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 		super(textComponent_1);
 	}
 
+	//# if MC_VERSION_NUMBER >= 12103
 	@Shadow
-	protected abstract Slot findSlot(double double_1, double double_2);
+	protected abstract Slot getHoveredSlot(double x, double y);
+
+	@Unique
+	private @Nullable Slot findSlot(double x, double y) {
+		return getHoveredSlot(x, y);
+	}
+	//# else
+	//- @Shadow
+	//- protected abstract Slot findSlot(double x, double y);
+	//# end
 
 	@Shadow
 	protected abstract void slotClicked(Slot slot_1, int int_1, int int_2, ClickType slotActionType_1);
@@ -291,11 +304,17 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 
 	@Unique
 	private static EquipmentSlot getEquipmentSlot(ItemStack stack) {
-		//# if MC_VERSION_NUMBER >= 12100
-		if (stack.getItem() instanceof Equipable) {
-			return ((Equipable) stack.getItem()).getEquipmentSlot();
+		//# if MC_VERSION_NUMBER >= 12103
+		Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
+		if (equippable != null) {
+			return equippable.slot();
 		}
 		return EquipmentSlot.MAINHAND;
+		//# elif MC_VERSION_NUMBER >= 12100
+		//- if (stack.getItem() instanceof Equipable) {
+		//- 	return ((Equipable) stack.getItem()).getEquipmentSlot();
+		//- }
+		//- return EquipmentSlot.MAINHAND;
 		//# else
 		//- return Mob.getEquipmentSlotForItem(hoveredSlot.getItem());
 		//# end

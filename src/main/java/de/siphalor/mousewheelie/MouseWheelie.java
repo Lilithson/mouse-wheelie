@@ -29,14 +29,14 @@ import de.siphalor.tweed5.fabric.helper.api.FabricConfigContainerHelper;
 import de.siphalor.tweed5.weaver.pojo.impl.weaving.TweedPojoWeaverBootstrapper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.player.UseItemCallback;
+//- import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
+//- import net.minecraft.world.InteractionHand;
+//- import net.minecraft.world.InteractionResultHolder;
+//- import net.minecraft.world.entity.player.Player;
+//- import net.minecraft.world.item.ItemStack;
+//- import net.minecraft.world.level.Level;
 
 public class MouseWheelie implements ModInitializer {
 	public static final String MOD_ID = "mousewheelie";
@@ -58,7 +58,9 @@ public class MouseWheelie implements ModInitializer {
 		initializeConfig();
 		loadConfig();
 
-		UseItemCallback.EVENT.register(this::onPlayerUseItem);
+		//# if MC_VERSION_NUMBER < 11904
+		//- UseItemCallback.EVENT.register(this::onPlayerUseItem);
+		//# end
 
 		MWNetworking.setup();
 		MWLogicalServerNetworking.setup();
@@ -88,22 +90,22 @@ public class MouseWheelie implements ModInitializer {
 		);
 	}
 
-	private InteractionResultHolder<ItemStack> onPlayerUseItem(Player player, Level world, InteractionHand hand) {
-		ItemStack stack = player.getItemInHand(hand);
-		//# if MC_VERSION_NUMBER < 11904
-		//- if (MWConfig.general.enableQuickArmorSwapping && !world.isClient()) {
-		//- 	EquipmentSlot equipmentSlot = MobEntity.getPreferredEquipmentSlot(stack);
-		//- 	if (equipmentSlot.getType() == EquipmentSlot.Type.ARMOR) {
-		//- 		ItemStack equipmentStack = player.getEquippedStack(equipmentSlot);
-		//- 		int index = 5 + (3 - equipmentSlot.getEntitySlotId());
-		//- 		if (!equipmentStack.isEmpty() && player.playerScreenHandler.getSlot(index).canTakeItems(player)) {
-		//- 			player.setStackInHand(hand, equipmentStack);
-		//- 			player.equipStack(equipmentSlot, stack);
-		//- 			return TypedActionResult.consume(equipmentStack);
-		//- 		}
-		//- 	}
-		//- }
-		//# end
-		return InteractionResultHolder.pass(stack);
-	}
+	//# if MC_VERSION_NUMBER < 11904
+	//- private InteractionResultHolder<ItemStack> onPlayerUseItem(Player player, Level world, InteractionHand hand) {
+	//- 	ItemStack stack = player.getItemInHand(hand);
+	//- 	if (MWConfig.general.enableQuickArmorSwapping && !world.isClient()) {
+	//- 		EquipmentSlot equipmentSlot = MobEntity.getPreferredEquipmentSlot(stack);
+	//- 		if (equipmentSlot.getType() == EquipmentSlot.Type.ARMOR) {
+	//- 			ItemStack equipmentStack = player.getEquippedStack(equipmentSlot);
+	//- 			int index = 5 + (3 - equipmentSlot.getEntitySlotId());
+	//- 			if (!equipmentStack.isEmpty() && player.playerScreenHandler.getSlot(index).canTakeItems(player)) {
+	//- 				player.setStackInHand(hand, equipmentStack);
+	//- 				player.equipStack(equipmentSlot, stack);
+	//- 				return TypedActionResult.consume(equipmentStack);
+	//- 			}
+	//- 		}
+	//- 	}
+	//- 	return InteractionResultHolder.pass(stack);
+	//- }
+	//# end
 }
