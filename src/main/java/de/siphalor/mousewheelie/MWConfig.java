@@ -143,9 +143,6 @@ public class MWConfig {
 	public static class ToolPicking {
 		public boolean holdTool = true;
 		public boolean holdBlock = false;
-		//# if MC_VERSION_NUMBER < 12104
-		//- // TODO: maybe implement via custom packet?
-		//- public boolean pickFromInventory = true;
-		//# end
+		public boolean pickFromInventory = true;
 	}
 }

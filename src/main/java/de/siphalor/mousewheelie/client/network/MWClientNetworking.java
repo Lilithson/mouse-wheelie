@@ -18,10 +18,14 @@
 package de.siphalor.mousewheelie.client.network;
 
 import de.siphalor.mousewheelie.common.network.MWNetworking;
+import de.siphalor.mousewheelie.common.network.PickFromInventoryPacket;
 import de.siphalor.mousewheelie.common.network.ReorderInventoryPacket;
+import lombok.CustomLog;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 //- import net.minecraft.network.FriendlyByteBuf;
 
+@CustomLog
 public class MWClientNetworking extends MWNetworking {
 
 	private static int blockNextGuiUpdateRefillTriggers;
@@ -34,6 +38,14 @@ public class MWClientNetworking extends MWNetworking {
 		//# end
 	}
 
+	public static boolean canSendPickFromInventoryPacket() {
+		//# if MC_VERSION_NUMBER >= 12104
+		return ClientPlayNetworking.canSend(PickFromInventoryPacket.TYPE);
+		//# else
+		//- return true;
+		//# end
+	}
+
 	public static void send(ReorderInventoryPacket packet) {
 		//# if MC_VERSION_NUMBER >= 12006
 		ClientPlayNetworking.send(packet);
@@ -41,6 +53,24 @@ public class MWClientNetworking extends MWNetworking {
 		//- FriendlyByteBuf buffer = createBuffer();
 		//- packet.write(buffer);
 		//- ClientPlayNetworking.send(REORDER_INVENTORY_C2S_PACKET, buffer);
+		//# end
+	}
+
+	public static void pickFromInventory(int slot) {
+		//# if MC_VERSION_NUMBER >= 12104
+		if (!canSendPickFromInventoryPacket()) {
+			log.warn("Trying to send pick from inventory packet, but the server doesn't support it");
+			return;
+		}
+		InteractionManager.push(new InteractionManager.PacketEvent(
+				new ServerboundCustomPayloadPacket(new PickFromInventoryPacket(slot)),
+				triggerType -> triggerType == InteractionManager.TriggerType.HELD_ITEM_CHANGE
+		));
+		//# else
+		//- InteractionManager.push(new InteractionManager.PacketEvent(
+		//- 		new ServerboundPickItemPacket(inventorySlot),
+		//- 		triggerType -> triggerType == InteractionManager.TriggerType.HELD_ITEM_CHANGE
+		//- ));
 		//# end
 	}
 

@@ -21,13 +21,17 @@ import de.siphalor.mousewheelie.MouseWheelie;
 import it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.CustomLog;
-//- import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 //- import net.minecraft.network.FriendlyByteBuf;
+//- import net.minecraft.network.protocol.PacketUtils;
+//- import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 //- import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
@@ -49,6 +53,10 @@ public class MWLogicalServerNetworking extends MWNetworking {
 		ServerPlayNetworking.registerGlobalReceiver(
 				ReorderInventoryPacket.TYPE,
 				(payload, context) -> onReorderInventoryPacket(payload, context.server(), context.player())
+		);
+		ServerPlayNetworking.registerGlobalReceiver(
+				PickFromInventoryPacket.TYPE,
+				(payload, context) -> onPickFromInventoryPacket(payload, context.player(), context.responseSender())
 		);
 		//# else
 		//- ServerPlayNetworking.registerGlobalReceiver(REORDER_INVENTORY_C2S_PACKET, MWLogicalServerNetworking::onReorderInventoryPacket);
@@ -167,4 +175,15 @@ public class MWLogicalServerNetworking extends MWNetworking {
 		}
 		return true;
 	}
+
+	//# if MC_VERSION_NUMBER >= 12104
+	private static void onPickFromInventoryPacket(PickFromInventoryPacket packet, Player player, PacketSender sender) {
+		Inventory inventory = player.getInventory();
+		inventory.pickSlot(packet.slot());
+		int selected = inventory.selected;
+		sender.sendPacket(inventory.createInventoryUpdatePacket(selected));
+		sender.sendPacket(inventory.createInventoryUpdatePacket(packet.slot()));
+		sender.sendPacket(new ClientboundSetHeldSlotPacket(selected));
+	}
+	//# end
 }

@@ -17,8 +17,9 @@
 
 package de.siphalor.mousewheelie.client.inventory;
 
-//- import de.siphalor.mousewheelie.MouseWheelie;
+import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.MWClient;
+import de.siphalor.mousewheelie.client.network.MWClientNetworking;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import net.fabricmc.api.EnvType;
@@ -88,7 +89,7 @@ public class ToolPicker {
 
 	private boolean canPickFromInventory() {
 		//# if MC_VERSION_NUMBER >= 12104
-		return false;
+		return MouseWheelie.config.toolPicking.pickFromInventory && MWClientNetworking.canSendPickFromInventoryPacket();
 		//# else
 		//- return MouseWheelie.config.toolPicking.pickFromInventory;
 		//# end
@@ -98,19 +99,12 @@ public class ToolPicker {
 		setLastToolPickSlot(index);
 
 		if (index != -1 && index != inventory.selected) {
-			//# if MC_VERSION_NUMBER >= 12104
 			if (Inventory.isHotbarSlot(index)) {
 				inventory.selected = index;
-				return true;
 			} else {
-				log.warn("Tried to pick non-hotbar {}, will be ignored", index);
-				return false;
+				MWClientNetworking.pickFromInventory(index);
 			}
-			//# else
-			//- ServerboundPickItemPacket packet = new ServerboundPickItemPacket(index);
-			//- Minecraft.getInstance().getConnection().send(packet);
-			//- return true;
-			//# end
+			return true;
 		}
 		return false;
 	}

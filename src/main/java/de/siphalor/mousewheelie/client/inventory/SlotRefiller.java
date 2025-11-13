@@ -19,6 +19,7 @@ package de.siphalor.mousewheelie.client.inventory;
 
 import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.network.InteractionManager;
+import de.siphalor.mousewheelie.client.network.MWClientNetworking;
 import de.siphalor.mousewheelie.client.util.ItemStackUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -229,7 +230,7 @@ public class SlotRefiller {
 			ItemStack mainHandStack = playerInventory.getSelected();
 			InteractionManager.push(InteractionManager.SWAP_WITH_OFFHAND_EVENT);
 
-			pickFromInventory(inventorySlot);
+			MWClientNetworking.pickFromInventory(inventorySlot);
 
 			InteractionManager.push(InteractionManager.SWAP_WITH_OFFHAND_EVENT);
 			// Sometimes the swapping visually duplicates the stack on the client,
@@ -239,19 +240,8 @@ public class SlotRefiller {
 				return InteractionManager.DUMMY_WAITER;
 			});
 		} else {
-			pickFromInventory(inventorySlot);
+			MWClientNetworking.pickFromInventory(inventorySlot);
 		}
-	}
-
-	private static void pickFromInventory(int inventorySlot) {
-		//# if MC_VERSION_NUMBER >= 12104
-		// TODO: custom packet?
-		//# else
-		//- InteractionManager.push(new InteractionManager.PacketEvent(
-		//- 		new ServerboundPickItemPacket(inventorySlot),
-		//- 		triggerType -> triggerType == InteractionManager.TriggerType.HELD_ITEM_CHANGE
-		//- ));
-		//# end
 	}
 
 	static {

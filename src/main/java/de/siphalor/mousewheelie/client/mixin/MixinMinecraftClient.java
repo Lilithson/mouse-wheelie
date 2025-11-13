@@ -18,6 +18,7 @@
 package de.siphalor.mousewheelie.client.mixin;
 
 import de.siphalor.mousewheelie.MouseWheelie;
+import de.siphalor.mousewheelie.client.MWClient;
 import de.siphalor.mousewheelie.client.inventory.SlotRefiller;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -25,6 +26,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.HitResult;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -37,7 +40,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MixinMinecraftClient {
 	@Shadow
 	public LocalPlayer player;
-
+	//# if MC_VERSION_NUMBER >= 12104
+	@Shadow
+	@Nullable
+	public HitResult hitResult;
+	//# end
 	@Unique
 	private ItemStack mainHandStack;
 	@Unique
@@ -66,4 +73,17 @@ public abstract class MixinMinecraftClient {
 		mainHandStack = null;
 		offHandStack = null;
 	}
+
+	//# if MC_VERSION_NUMBER >= 12104
+	@Inject(
+			method = "pickBlock",
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;hasControlDown()Z"),
+			cancellable = true
+	)
+	private void onPick(CallbackInfo callbackInfo) {
+		if (MWClient.triggerPick(player, hitResult)) {
+			callbackInfo.cancel();
+		}
+	}
+	//# end
 }
