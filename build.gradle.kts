@@ -161,6 +161,16 @@ publishing {
 			version = shortVersion
 
 			from(components["java"])
+
+			pom {
+				name.set("Mouse Wheelie")
+				description.set("A \"small\" client-side Minecraft mod providing various mouse wheel related utilities.")
+				url.set("https://github.com/Siphalor/mouse-wheelie")
+
+				scm {
+					url.set("https://github.com/Siphalor/mouse-wheelie")
+				}
+			}
 		}
 	}
 
