@@ -16,7 +16,7 @@
     "key.mousewheelie.pick_tool": "Välj rätt verktyg",
     "key.mousewheelie.pick_tool.amecsapi.description": "Byter manuellt till rätt verktyg\nför det aktuella blocket.",
     "mousewheelie.gui.config-screen-unavailable": "Öppnande av konfigurationsskärmen med knappbindingen är för nuvarande otillgängligt.",
-    "key.categories.mousewheelie": "Mushjul",
+    "key.category.mousewheelie.main": "Mushjul",
     "key.mousewheelie.deposit_modifier.amecsapi.description": "Håll ned denna modifierare medans du klickar\nför att föremålet skall deponeras i den öppna behållaren.",
     "key.mousewheelie.all_of_kind_modifier.amecsapi.description": "Håll ned denna modifierare medans du skrollar\nför att skicka alla stacks av samma sort."
 }

@@ -13,7 +13,7 @@
     "mousewheelie.sortmode.none": "Älä järjestä",
     "tweed4_tailor_screen.screen.mousewheelie": "Mouse Wheelie-konfiguraatio",
     "tweed4_tailor_screen.screen.mousewheelie.general": "Yleiset",
-    "key.categories.mousewheelie": "Mouse Wheelie",
+    "key.category.mousewheelie.main": "Mouse Wheelie",
     "key.mousewheelie.all_of_kind_modifier": "Kaikki Samantyyppiset Muuntaja",
     "key.mousewheelie.restock_modifier": "Varastojen Täydennys Muokkaaja",
     "tweed4_tailor_screen.screen.mousewheelie.scrolling.invert": "Käännä selaussuunta",

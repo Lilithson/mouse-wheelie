@@ -1,5 +1,5 @@
 {
-    "key.categories.mousewheelie": "Mouse Wheelie",
+    "key.category.mousewheelie.main": "Mouse Wheelie",
     "key.mousewheelie.open_config_screen": "Abrir menú de configuración",
     "key.mousewheelie.sort_inventory": "Ordenar inventario",
     "key.mousewheelie.scroll_up": "Desplazar hacia arriba",

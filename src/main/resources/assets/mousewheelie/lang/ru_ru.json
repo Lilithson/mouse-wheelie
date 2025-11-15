@@ -1,5 +1,5 @@
 {
-    "key.categories.mousewheelie": "Колёсико мыши",
+    "key.category.mousewheelie.main": "Колёсико мыши",
     "key.mousewheelie.all_of_kind_modifier.amecsapi.description": "Удерживание этого модификатора во время прокрутки\nотправит все стаки того же типа.",
     "key.mousewheelie.all_of_kind_modifier": "Модификатор того же типа",
     "key.mousewheelie.drop_modifier": "Модификатор выбрасывания",

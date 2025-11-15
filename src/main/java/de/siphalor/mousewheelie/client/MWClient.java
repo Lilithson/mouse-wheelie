@@ -70,7 +70,7 @@ public class MWClient implements ClientModInitializer {
 	//# if MC_VERSION_NUMBER >= 12109
 	public static final KeyMapping.Category KEY_BINDING_CATEGORY = new KeyMapping.Category(ResourceLocation.fromNamespaceAndPath(MOD_ID, "main"));
 	//# else
-	//- public static final String KEY_BINDING_CATEGORY = "key.categories." + MouseWheelie.MOD_ID;
+	//- public static final String KEY_BINDING_CATEGORY = "key.category." + MouseWheelie.MOD_ID + ".main";
 	//# end
 
 	public static final KeyMapping OPEN_CONFIG_SCREEN = new OpenConfigScreenKeybinding(createId("open_config_screen"), InputConstants.Type.KEYSYM, -1, KEY_BINDING_CATEGORY, new KeyModifiers());

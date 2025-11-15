@@ -75,7 +75,7 @@
     "tweed4_tailor_screen.screen.mousewheelie.sort.optimize-creative-search-sort.description": "Se a organização da pesquisa do criativo deveria ser otimizada para performance.\nIsto vai utilizar maios memória em troca do tempo de processamento, só desabilite isso se você encontrar problemas na memória.",
     "tweed4_tailor_screen.screen.mousewheelie.refill.rules.any-block": "Preencher com qualquer bloco",
     "tweed4_tailor_screen.screen.mousewheelie.refill.rules.any-block.description": "Tenta encontrar qualquer outro item de bloco.",
-    "key.categories.mousewheelie": "Mouse Wheelie",
+    "key.category.mousewheelie.main": "Mouse Wheelie",
     "tweed4_tailor_screen.screen.mousewheelie.refill.rules.equal-stacks": "Preencher com a mesma pilha (NBT)",
     "tweed4_tailor_screen.screen.mousewheelie.tool-picking.description": "Configure quando e como escolher a ferramenta correta para o bloco que está olhando irá funcionar.\nPor padrão, \"escolher a ferramenta\" será acionada quando clica com o botão do meio do mouse, isso pode ser trocado pelo menu de Controles Vanilla.",
     "tweed4_tailor_screen.screen.mousewheelie.tool-picking": "Escolher Ferramenta",

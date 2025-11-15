@@ -1,6 +1,6 @@
 {
     "tweed4_tailor_screen.screen.mousewheelie.sort.description": "Changer les modes de tri. Les modes de tri existants sont ALPHABET, RAW_ID et QUANTITY.\nPour Minecraft 1.19 et plus, il y a aussi CREATIVE_SEARCH.",
-    "key.categories.mousewheelie": "Mouse Wheelie",
+    "key.category.mousewheelie.main": "Mouse Wheelie",
     "key.mousewheelie.open_config_screen": "Ouvrir L'Écran De Config.",
     "key.mousewheelie.whole_stack_modifier": "Modificateur Du Stack Entier",
     "key.mousewheelie.all_of_kind_modifier": "Modificateur De Tout Type",

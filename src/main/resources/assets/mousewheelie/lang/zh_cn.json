@@ -1,5 +1,5 @@
 {
-    "key.categories.mousewheelie": "Mouse Wheelie",
+    "key.category.mousewheelie.main": "Mouse Wheelie",
     "key.mousewheelie.open_config_screen": "打开配置界面",
     "key.mousewheelie.sort_inventory": "整理物品栏",
     "key.mousewheelie.scroll_up": "上滑鼠标滚轮",

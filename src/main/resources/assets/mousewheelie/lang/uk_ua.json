@@ -11,7 +11,7 @@
     "key.mousewheelie.all_of_kind_modifier.amecsapi.description": "Утримування цього модифікатора гортаючи\nвідправить усі стаки однакового виду.",
     "key.mousewheelie.pick_tool.amecsapi.description": "Вручну запускає, що правильний предмет\nдля поточного блоку перед Вами обрано.",
     "key.mousewheelie.drop_modifier": "Модифікатор Викидання",
-    "key.categories.mousewheelie": "Mouse Wheelie",
+    "key.category.mousewheelie.main": "Mouse Wheelie",
     "tweed4_tailor_screen.screen.mousewheelie": "Налаштування Mouse Wheelie",
     "mousewheelie.gui.config-screen-unavailable": "Відкриття налаштувань за допомогою сполучення клавіш наразі недоступне.",
     "key.mousewheelie.drop_modifier.amecsapi.description": "Утримування цього модифікатора натискаючи\nвикидає предмет.",

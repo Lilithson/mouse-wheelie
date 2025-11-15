@@ -1,5 +1,5 @@
 {
-    "key.categories.mousewheelie": "Mouse Wheelie",
+    "key.category.mousewheelie.main": "Mouse Wheelie",
     "key.mousewheelie.open_config_screen": "Opens the config screen.",
 	"key.mousewheelie.open_config_screen.amecsapi.description": "Opens the Mouse Wheelie config screen\nif pressed in-game or in the main menu.",
     "key.mousewheelie.whole_stack_modifier": "Whole Stack Modifier",
