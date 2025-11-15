@@ -32,6 +32,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -110,7 +111,14 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 	private BundleDragMode bundleDragMode;
 
 	@Inject(method = "mouseDragged", at = @At("RETURN"))
-	public void onMouseDragged(double x, double y, int button, double deltaX, double deltaY, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
+	//# if MC_VERSION_NUMBER >= 12109
+	public void onMouseDragged(MouseButtonEvent event, double deltaX, double deltaY, CallbackInfoReturnable<Boolean> cir) {
+		int button = event.button();
+		double x = event.x();
+		double y = event.y();
+	//# else
+	//- public void onMouseDragged(double x, double y, int button, double deltaX, double deltaY, CallbackInfoReturnable<Boolean> cir) {
+	//# end
 		Collection<Slot> slots = Collections.emptyList();
 		Slot hoveredSlot = findSlot(x, y);
 
@@ -193,7 +201,14 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 
 	// Fires on mouse down
 	@Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-	public void onMouseClick(double x, double y, int button, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
+	//# if MC_VERSION_NUMBER >= 12109
+	public void onMouseClick(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
+		int button = event.button();
+		double x = event.x();
+		double y = event.y();
+	//# else
+	//- public void onMouseClick(double x, double y, int button, CallbackInfoReturnable<Boolean> cir) {
+	//# end
 		if (button == 0) {
 			Slot hoveredSlot = findSlot(x, y);
 			if (hoveredSlot == null) {
@@ -229,7 +244,7 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 				success = false;
 			}
 			if (success) {
-				callbackInfoReturnable.setReturnValue(true);
+				cir.setReturnValue(true);
 			}
 		} else if (button == 1) {
 			ItemStack cursorStack = menu.getCarried();
@@ -255,7 +270,11 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 
 	// Fires on mouse up
 	@Inject(method = "mouseReleased", at = @At("HEAD"), cancellable = true)
-	public void onMouseRelease(double x, double y, int button, CallbackInfoReturnable<Boolean> cir) {
+	//# if MC_VERSION_NUMBER >= 12109
+	public void onMouseRelease(MouseButtonEvent event, CallbackInfoReturnable<Boolean> cir) {
+	//# else
+	//- public void onMouseRelease(double x, double y, int button, CallbackInfoReturnable<Boolean> cir) {
+	//# end
 		if (bundleDragMode != null) {
 			clickedSlot = null;
 			isQuickCrafting = false;
@@ -273,7 +292,7 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 	@Override
 	public ScrollAction mouseWheelie_onMouseScroll(double mouseX, double mouseY, double scrollAmount) {
 		if (MouseWheelie.config.scrolling.enable) {
-			if (hasAltDown()) return ScrollAction.FAILURE;
+			if (MWClient.isScrollModeToggled()) return ScrollAction.FAILURE;
 			Slot hoveredSlot = findSlot(mouseX, mouseY);
 			if (hoveredSlot == null)
 				return ScrollAction.PASS;
@@ -327,14 +346,24 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 			return false;
 		Player player = Minecraft.getInstance().player;
 		if (player.getAbilities().instabuild
-				&& GLFW.glfwGetMouseButton(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_MIDDLE) != 0
+				//# if MC_VERSION_NUMBER >= 12109
+				&& GLFW.glfwGetMouseButton(minecraft.getWindow().handle(), GLFW.GLFW_MOUSE_BUTTON_MIDDLE) != 0
+				//# else
+				//- && GLFW.glfwGetMouseButton(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_MIDDLE) != 0
+				//# end
 				&& (!hoveredSlot.getItem().isEmpty() == menu.getCarried().isEmpty()))
 			return false;
 		InventorySorter sorter = new InventorySorter(screenHelper.get(), (AbstractContainerScreen<?>) (Object) this, hoveredSlot);
 		SortMode sortMode;
-		if (hasShiftDown()) {
+		//# if MC_VERSION_NUMBER >= 12109
+		if (Minecraft.getInstance().hasShiftDown()) {
 			sortMode = MouseWheelie.config.sort.shiftSort;
-		} else if (hasControlDown()) {
+		} else if (Minecraft.getInstance().hasControlDown()) {
+		//# else
+		//- if (hasShiftDown()) {
+		//- 	sortMode = MouseWheelie.config.sort.shiftSort;
+		//- } else if (hasControlDown()) {
+		//# end
 			sortMode = MouseWheelie.config.sort.controlSort;
 		} else {
 			sortMode = MouseWheelie.config.sort.primarySort;

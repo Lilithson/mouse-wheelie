@@ -18,21 +18,32 @@
 package de.siphalor.mousewheelie.client.keybinding;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.InputConstants;
 import de.siphalor.amecs.api.AmecsKeyBinding;
+import de.siphalor.amecs.api.KeyBindingUtils;
+import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.api.KeyBindingUtils;
 import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.api.PriorityKeyBinding;
 import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.MWClient;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 public class ScrollKeyBinding extends AmecsKeyBinding implements PriorityKeyBinding {
 	private final boolean scrollDown;
 
-	public ScrollKeyBinding(ResourceLocation id, String category, boolean scrollDown) {
+	//# if MC_VERSION_NUMBER >= 12109
+	public ScrollKeyBinding(ResourceLocation id, Category category, boolean scrollDown) {
 		super(id, InputConstants.Type.MOUSE, scrollDown ? KeyBindingUtils.MOUSE_SCROLL_DOWN : KeyBindingUtils.MOUSE_SCROLL_UP, category, new KeyModifiers());
 		this.scrollDown = scrollDown;
 	}
+	//# else
+	//- public ScrollKeyBinding(ResourceLocation id, String category, boolean scrollDown) {
+	//- 	super(id, InputConstants.Type.MOUSE, scrollDown ? KeyBindingUtils.MOUSE_SCROLL_DOWN : KeyBindingUtils.MOUSE_SCROLL_UP, category, new KeyModifiers());
+	//- 	this.scrollDown = scrollDown;
+	//- }
+	//# end
 
 	@Override
 	public boolean onPressedPriority() {

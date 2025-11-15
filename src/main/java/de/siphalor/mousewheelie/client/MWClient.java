@@ -46,6 +46,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
@@ -57,6 +58,7 @@ import org.lwjgl.glfw.GLFW;
 import java.util.Arrays;
 import java.util.Locale;
 
+import static de.siphalor.mousewheelie.MouseWheelie.MOD_ID;
 import static de.siphalor.mousewheelie.MouseWheelie.createId;
 import static de.siphalor.tweed5.defaultextensions.presets.api.PresetsExtension.presetValue;
 
@@ -65,7 +67,11 @@ import static de.siphalor.tweed5.defaultextensions.presets.api.PresetsExtension.
 public class MWClient implements ClientModInitializer {
 	private static final Minecraft CLIENT = Minecraft.getInstance();
 
-	public static final String KEY_BINDING_CATEGORY = "key.categories." + MouseWheelie.MOD_ID;
+	//# if MC_VERSION_NUMBER >= 12109
+	public static final KeyMapping.Category KEY_BINDING_CATEGORY = new KeyMapping.Category(ResourceLocation.fromNamespaceAndPath(MOD_ID, "main"));
+	//# else
+	//- public static final String KEY_BINDING_CATEGORY = "key.categories." + MouseWheelie.MOD_ID;
+	//# end
 
 	public static final KeyMapping OPEN_CONFIG_SCREEN = new OpenConfigScreenKeybinding(createId("open_config_screen"), InputConstants.Type.KEYSYM, -1, KEY_BINDING_CATEGORY, new KeyModifiers());
 	public static final KeyMapping SORT_KEY_BINDING = new SortKeyBinding(createId("sort_inventory"), InputConstants.Type.MOUSE, 2, KEY_BINDING_CATEGORY, new KeyModifiers());
@@ -130,6 +136,14 @@ public class MWClient implements ClientModInitializer {
 
 	public static double getMouseY() {
 		return CLIENT.mouseHandler.ypos() * (double) CLIENT.getWindow().getGuiScaledHeight() / (double) CLIENT.getWindow().getScreenHeight();
+	}
+
+	public static boolean isScrollModeToggled() {
+		//# if MC_VERSION_NUMBER >= 12109
+		return Minecraft.getInstance().hasAltDown();
+		//# else
+		//- return Screen.hasAltDown();
+		//# end
 	}
 
 	public static void onConfigChanged() {

@@ -27,9 +27,15 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
 
 public class SortKeyBinding extends AmecsKeyBinding implements PriorityKeyBinding {
-	public SortKeyBinding(ResourceLocation id, InputConstants.Type type, int code, String category, KeyModifiers defaultModifiers) {
+	//# if MC_VERSION_NUMBER >= 12109
+	public SortKeyBinding(ResourceLocation id, InputConstants.Type type, int code, Category category, KeyModifiers defaultModifiers) {
 		super(id, type, code, category, defaultModifiers);
 	}
+	//# else
+	//- public SortKeyBinding(ResourceLocation id, InputConstants.Type type, int code, String category, KeyModifiers defaultModifiers) {
+	//- 	super(id, type, code, category, defaultModifiers);
+	//- }
+	//# end
 
 	@Override
 	public boolean onPressedPriority() {

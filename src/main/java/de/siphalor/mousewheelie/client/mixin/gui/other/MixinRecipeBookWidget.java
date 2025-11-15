@@ -34,6 +34,9 @@ import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookPage;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookTabButton;
 import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.network.protocol.game.ServerboundPlaceRecipePacket;
 import net.minecraft.util.Mth;
 //- import net.minecraft.world.entity.player.StackedContents;
@@ -176,7 +179,12 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 			//- )
 			//# end
 	)
-	public void mouseClicked(double x, double y, int mouseButton, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
+	//# if MC_VERSION_NUMBER >= 12109
+	public void mouseClicked(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
+		int mouseButton = event.button();
+	//# else
+	//- public void mouseClicked(double x, double y, int mouseButton, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
+	//# end
 		if (MouseWheelie.config.general.enableQuickCraft && mouseButton == 1) {
 			int resSlot = getResultSlotIndex();
 			//# if MC_VERSION_NUMBER >= 12103
@@ -187,7 +195,8 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 			if (recipeEntry != null && canCraftMore(recipeEntry)) {
 				InteractionManager.clear();
 				InteractionManager.setWaiter((InteractionManager.TriggerType triggerType) ->
-						!isCraftingSlot(menu.slots.get(MWClient.lastUpdatedSlot))
+						MWClient.lastUpdatedSlot != -1
+								&& !isCraftingSlot(menu.slots.get(MWClient.lastUpdatedSlot))
 				);
 			}
 			InteractionManager.pushClickEvent(menu.containerId, resSlot, 0, MWClient.WHOLE_STACK_MODIFIER.isDown() ? ClickType.QUICK_MOVE : ClickType.PICKUP);
@@ -195,16 +204,38 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 	}
 
 	@Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
-	public void keyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
+	//# if MC_VERSION_NUMBER >= 12109
+	public void keyPressed(KeyEvent event, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
+	//# else
+	//- public void keyPressed(int keyCode, int scanCode, int modifiers, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
+	//# end
 		if (MouseWheelie.config.general.enableQuickCraft && isVisible() && !minecraft.player.isSpectator()) {
-			if (Minecraft.getInstance().options.keyDrop.matches(keyCode, scanCode)) {
+			//# if MC_VERSION_NUMBER >= 12109
+			if (Minecraft.getInstance().options.keyDrop.matches(event)) {
+			//# else
+			//- if (Minecraft.getInstance().options.keyDrop.matches(keyCode, scanCode)) {
+			//# end
 				ignoreTextInput = false;
 				//# if MC_VERSION_NUMBER >= 12103
 				RecipeDisplayEntry oldRecipeEntry = getLastClickedRecipeEntry();
 				//# else
 				//- RecipeHolder<?> oldRecipeEntry = recipeBookPage.getLastClickedRecipe();
 				//# end
-				if (this.recipeBookPage.mouseClicked(MWClient.getMouseX(), MWClient.getMouseY(), 0, (this.width - 147) / 2 - this.xOffset, (this.height - 166) / 2, 147, 166)) {
+				if (this.recipeBookPage.mouseClicked(
+						//# if MC_VERSION_NUMBER >= 12109
+						new MouseButtonEvent(MWClient.getMouseX(), MWClient.getMouseY(), new MouseButtonInfo(0, 0)),
+						//# else
+						//- MWClient.getMouseX(),
+						//- MWClient.getMouseY(),
+						//- 0,
+						//# end
+						(this.width - 147) / 2 - this.xOffset,
+						(this.height - 166) / 2,
+						147, 166 // width, height
+						//# if MC_VERSION_NUMBER >= 12109
+						, false
+						//# end
+				)) {
 					RecipeCollection resultCollection = recipeBookPage.getLastClickedRecipeCollection();
 					//# if MC_VERSION_NUMBER >= 12103
 					RecipeDisplayEntry recipeEntry = getLastClickedRecipeEntry();

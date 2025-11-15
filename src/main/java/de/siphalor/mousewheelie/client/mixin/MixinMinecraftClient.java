@@ -77,7 +77,11 @@ public abstract class MixinMinecraftClient {
 	//# if MC_VERSION_NUMBER >= 12104
 	@Inject(
 			method = "pickBlock",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;hasControlDown()Z"),
+			//# if MC_VERSION_NUMBER >= 12109
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;hasControlDown()Z"),
+			//# else
+			//- at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;hasControlDown()Z"),
+			//# end
 			cancellable = true
 	)
 	private void onPick(CallbackInfo callbackInfo) {

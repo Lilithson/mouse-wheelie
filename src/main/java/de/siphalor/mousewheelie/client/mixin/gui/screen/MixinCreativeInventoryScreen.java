@@ -19,6 +19,7 @@ package de.siphalor.mousewheelie.client.mixin.gui.screen;
 
 import de.siphalor.mousewheelie.MouseWheelie;
 //- import de.siphalor.mousewheelie.client.compat.FabricCreativeGuiHelper;
+import de.siphalor.mousewheelie.client.MWClient;
 import de.siphalor.mousewheelie.client.inventory.ContainerScreenHelper;
 import de.siphalor.mousewheelie.client.network.InteractionManager;
 import de.siphalor.mousewheelie.client.util.ScrollAction;
@@ -92,7 +93,7 @@ public abstract class MixinCreativeInventoryScreen extends AbstractContainerScre
 		}
 
 		if (MouseWheelie.config.scrolling.enable && !isInventoryOpen()) {
-			if (MouseWheelie.config.scrolling.scrollCreativeMenuItems == hasAltDown())
+			if (MouseWheelie.config.scrolling.scrollCreativeMenuItems == MWClient.isScrollModeToggled())
 				return ScrollAction.ABORT;
 			Slot hoverSlot = this.mouseWheelie_getSlotAt(mouseX, mouseY);
 			if (hoverSlot != null) {

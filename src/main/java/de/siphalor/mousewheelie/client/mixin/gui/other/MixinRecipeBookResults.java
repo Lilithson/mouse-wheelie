@@ -25,6 +25,7 @@ import net.minecraft.client.gui.screens.recipebook.RecipeBookPage;
 import net.minecraft.client.gui.screens.recipebook.RecipeButton;
 import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
 //- import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.item.crafting.display.RecipeDisplayId;
 import org.spongepowered.asm.mixin.Mixin;
@@ -87,13 +88,24 @@ public abstract class MixinRecipeBookResults implements IRecipeBookResults {
 			locals = LocalCapture.CAPTURE_FAILSOFT
 	)
 	public void mouseClicked(
-			double mouseX, double mouseY, int button, int areaLeft, int areaTop, int areaWidth, int areaHeight,
+			//# if MC_VERSION_NUMBER >= 12109
+			MouseButtonEvent event,
+			//# else
+			//- double mouseX, double mouseY, int button,
+			//# end
+			int areaLeft, int areaTop, int areaWidth, int areaHeight,
+			//# if MC_VERSION_NUMBER >= 12109
+			boolean doubleClick,
+			//# end
 			CallbackInfoReturnable<Boolean> cir,
 			//# if MC_VERSION_NUMBER >= 12103
 			ContextMap contextMap,
 			//# end
 			Iterator<?> iterator, RecipeButton recipeButton
 	) {
+		//# if MC_VERSION_NUMBER >= 12109
+		int button = event.button();
+		//# end
 		if (MouseWheelie.config.general.enableQuickCraft && button == 1 && recipeButton.isOnlyOption()) {
 			//# if MC_VERSION_NUMBER >= 12103
 			lastClickedRecipe = recipeButton.getCurrentRecipe();
