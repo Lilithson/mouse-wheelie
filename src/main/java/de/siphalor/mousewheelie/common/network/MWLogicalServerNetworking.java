@@ -54,10 +54,12 @@ public class MWLogicalServerNetworking extends MWNetworking {
 				ReorderInventoryPacket.TYPE,
 				(payload, context) -> onReorderInventoryPacket(payload, context.server(), context.player())
 		);
+		//# if MC_VERSION_NUMBER >= 12104
 		ServerPlayNetworking.registerGlobalReceiver(
 				PickFromInventoryPacket.TYPE,
 				(payload, context) -> onPickFromInventoryPacket(payload, context.player(), context.responseSender())
 		);
+		//# end
 		//# else
 		//- ServerPlayNetworking.registerGlobalReceiver(REORDER_INVENTORY_C2S_PACKET, MWLogicalServerNetworking::onReorderInventoryPacket);
 		//# end

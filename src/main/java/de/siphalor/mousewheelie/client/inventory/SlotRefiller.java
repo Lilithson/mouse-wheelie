@@ -129,7 +129,7 @@ public class SlotRefiller {
 		if (isRefillInProgress()) {
 			return false;
 		}
-		//# if MC_VERSION_NUMBER >= 12006
+		//# if MC_VERSION_NUMBER >= 12101
 		if (!stack.getOrDefault(
 				EnchantmentEffectComponents.TRIDENT_RETURN_ACCELERATION,
 				Collections.emptyList()
