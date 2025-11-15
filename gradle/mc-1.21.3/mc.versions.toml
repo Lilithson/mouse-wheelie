@@ -1,6 +1,6 @@
 [versions]
 amecs-api = "1.7.0"
-coat = "1.0.0-beta.24"
+coat = "1.0.0"
 fabric-api = "0.114.1+1.21.3"
 java = "17"
 minecraft = "1.21.3"
