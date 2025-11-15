@@ -29,7 +29,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 public class PickToolKeyBinding extends AmecsKeyBinding implements PriorityKeyBinding {
-	//# if MC_VERSION_NUMBER >= 12009
+	//# if MC_VERSION_NUMBER >= 12109
 	public PickToolKeyBinding(ResourceLocation id, InputConstants.Type type, int code, Category category, KeyModifiers defaultModifiers) {
 		super(id, type, code, category, defaultModifiers);
 	}

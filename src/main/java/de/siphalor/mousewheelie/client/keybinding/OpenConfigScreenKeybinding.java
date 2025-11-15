@@ -31,7 +31,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 
 public class OpenConfigScreenKeybinding extends AmecsKeyBinding implements PriorityKeyBinding {
-	//# if MC_VERSION_NUMBER >= 12009
+	//# if MC_VERSION_NUMBER >= 12109
 	public OpenConfigScreenKeybinding(ResourceLocation id, InputConstants.Type type, int code, Category category, KeyModifiers defaultModifiers) {
 		super(id, type, code, category, defaultModifiers);
 	}
