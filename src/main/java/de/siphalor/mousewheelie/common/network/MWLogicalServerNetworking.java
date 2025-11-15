@@ -180,7 +180,11 @@ public class MWLogicalServerNetworking extends MWNetworking {
 	private static void onPickFromInventoryPacket(PickFromInventoryPacket packet, Player player, PacketSender sender) {
 		Inventory inventory = player.getInventory();
 		inventory.pickSlot(packet.slot());
-		int selected = inventory.selected;
+		//# if MC_VERSION_NUMBER >= 12108
+		int selected = inventory.getSelectedSlot();
+		//# else
+		//- int selected = inventory.selected;
+		//# end
 		sender.sendPacket(inventory.createInventoryUpdatePacket(selected));
 		sender.sendPacket(inventory.createInventoryUpdatePacket(packet.slot()));
 		sender.sendPacket(new ClientboundSetHeldSlotPacket(selected));

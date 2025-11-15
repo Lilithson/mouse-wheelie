@@ -25,7 +25,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
 //- import net.minecraft.network.protocol.game.ServerboundPickItemPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
@@ -189,7 +188,11 @@ public class SlotRefiller {
 	}
 
 	private static void refillFromSlot(InteractionHand hand, int slot) {
-		if (slot == playerInventory.selected) {
+		//# if MC_VERSION_NUMBER >= 12108
+		if (slot == playerInventory.getSelectedSlot()) {
+		//# else
+		//- if (slot == playerInventory.selected) {
+		//# end
 			return;
 		}
 
@@ -204,12 +207,27 @@ public class SlotRefiller {
 
 	private static void refillFromHotbar(InteractionHand hand, int hotbarSlot) {
 		if (MouseWheelie.config.refill.restoreSelectedSlot) {
-			if (hand == InteractionHand.MAIN_HAND && !playerInventory.offhand.get(0).isEmpty()) {
+			//# if MC_VERSION_NUMBER >= 12108
+			ItemStack offhandStack = playerInventory.player.getOffhandItem();
+			//# else
+			//- ItemStack offhandStack = playerInventory.offhand.get(0);
+			//# end
+			if (hand == InteractionHand.MAIN_HAND && !offhandStack.isEmpty()) {
 				InteractionManager.push(InteractionManager.SWAP_WITH_OFFHAND_EVENT);
 			}
-			InteractionManager.push(new InteractionManager.PacketEvent(new ServerboundSetCarriedItemPacket(hotbarSlot), InteractionManager.Waiter.equal(InteractionManager.TriggerType.HELD_ITEM_CHANGE)));
+			InteractionManager.push(new InteractionManager.PacketEvent(
+					new ServerboundSetCarriedItemPacket(hotbarSlot),
+					InteractionManager.Waiter.equal(InteractionManager.TriggerType.HELD_ITEM_CHANGE)
+			));
 			InteractionManager.push(InteractionManager.SWAP_WITH_OFFHAND_EVENT);
-			InteractionManager.push(new InteractionManager.PacketEvent(new ServerboundSetCarriedItemPacket(playerInventory.selected), InteractionManager.TICK_WAITER));
+			InteractionManager.push(new InteractionManager.PacketEvent(
+					//# if MC_VERSION_NUMBER >= 12108
+					new ServerboundSetCarriedItemPacket(playerInventory.getSelectedSlot()),
+					//# else
+					//- new ServerboundSetCarriedItemPacket(playerInventory.selected),
+					//# end
+					InteractionManager.TICK_WAITER
+			));
 			if (hand == InteractionHand.MAIN_HAND) {
 				InteractionManager.push(InteractionManager.SWAP_WITH_OFFHAND_EVENT);
 			}
@@ -217,7 +235,11 @@ public class SlotRefiller {
 			if (hand == InteractionHand.OFF_HAND) {
 				InteractionManager.push(InteractionManager.SWAP_WITH_OFFHAND_EVENT);
 			}
-			playerInventory.selected = hotbarSlot;
+			//# if MC_VERSION_NUMBER >= 12108
+			playerInventory.setSelectedSlot(hotbarSlot);
+			//# else
+			//- playerInventory.selected = hotbarSlot;
+			//# end
 			InteractionManager.push(new InteractionManager.PacketEvent(new ServerboundSetCarriedItemPacket(hotbarSlot), InteractionManager.TICK_WAITER));
 			if (hand == InteractionHand.OFF_HAND) {
 				InteractionManager.push(InteractionManager.SWAP_WITH_OFFHAND_EVENT);
@@ -227,7 +249,11 @@ public class SlotRefiller {
 
 	private static void refillFromInventory(InteractionHand hand, int inventorySlot) {
 		if (hand == InteractionHand.OFF_HAND) {
-			ItemStack mainHandStack = playerInventory.getSelected();
+			//# if MC_VERSION_NUMBER >= 12108
+			ItemStack mainHandStack = playerInventory.getSelectedItem();
+			//# else
+			//- ItemStack mainHandStack = playerInventory.getSelected();
+			//# end
 			InteractionManager.push(InteractionManager.SWAP_WITH_OFFHAND_EVENT);
 
 			MWClientNetworking.pickFromInventory(inventorySlot);
@@ -236,7 +262,11 @@ public class SlotRefiller {
 			// Sometimes the swapping visually duplicates the stack on the client,
 			// so we're manually fixing the visuals here
 			InteractionManager.push(() -> {
-				playerInventory.setItem(playerInventory.selected, mainHandStack);
+				//# if MC_VERSION_NUMBER >= 12108
+				playerInventory.setItem(playerInventory.getSelectedSlot(), mainHandStack);
+				//# else
+				//- playerInventory.setItem(playerInventory.selected, mainHandStack);
+				//# end
 				return InteractionManager.DUMMY_WAITER;
 			});
 		} else {
@@ -287,9 +317,17 @@ public class SlotRefiller {
 		 * @return The slot index of the matching stack or -1 if no match was found.
 		 */
 		protected int iterateInventory(Inventory playerInventory, Predicate<ItemStack> predicate) {
-			for (int i = 0; i < playerInventory.items.size(); i++) {
-				if (predicate.test(playerInventory.items.get(i)))
-					return i;
+			//# if MC_VERSION_NUMBER >= 12108
+			int invSize = playerInventory.getContainerSize();
+			//# else
+			//- int invSize = playerInventory.items.size();
+			//# end
+			for (int i = 0; i < invSize; i++) {
+				//# if MC_VERSION_NUMBER >= 12108
+				if (predicate.test(playerInventory.getItem(i))) return i;
+				//# else
+				//- if (predicate.test(playerInventory.items.get(i))) return i;
+				//# end
 			}
 			return -1;
 		}
@@ -356,7 +394,7 @@ public class SlotRefiller {
 
 		@Override
 		int findMatchingStack(Inventory playerInventory, ItemStack oldStack) {
-			return findBestThroughClassHierarchy(oldStack, playerInventory.items, Item::getClass, Item.class);
+			return findBestThroughClassHierarchy(oldStack, playerInventory, Item::getClass, Item.class);
 		}
 	}
 
@@ -368,7 +406,7 @@ public class SlotRefiller {
 
 		@Override
 		int findMatchingStack(Inventory playerInventory, ItemStack oldStack) {
-			return findBestThroughClassHierarchy(oldStack, playerInventory.items, item -> {
+			return findBestThroughClassHierarchy(oldStack, playerInventory, item -> {
 				if (item instanceof BlockItem) {
 					return ((BlockItem) item).getBlock().getClass();
 				} else {
@@ -378,7 +416,7 @@ public class SlotRefiller {
 		}
 	}
 
-	private static int findBestThroughClassHierarchy(ItemStack baseStack, NonNullList<ItemStack> inventory, Function<Item, Class<?>> getClass, Class<?> baseClass) {
+	private static int findBestThroughClassHierarchy(ItemStack baseStack, Inventory inventory, Function<Item, Class<?>> getClass, Class<?> baseClass) {
 		int currentRank = 0;
 		Collection<Class<?>> classes = new ArrayList<>(10);
 		Class<?> clazz = getClass.apply(baseStack.getItem());
@@ -392,9 +430,18 @@ public class SlotRefiller {
 
 		int index = -1;
 
+		//# if MC_VERSION_NUMBER >= 12108
+		int invSize = inventory.getContainerSize();
+		//# else
+		//- int invSize = inventory.items.size();
+		//# end
 		outer:
-		for (int i = 0; i < inventory.size(); i++) {
-			clazz = getClass.apply(inventory.get(i).getItem());
+		for (int i = 0; i < invSize; i++) {
+			//# if MC_VERSION_NUMBER >= 12108
+			clazz = getClass.apply(inventory.getItem(i).getItem());
+			//# else
+			//- clazz = getClass.apply(inventory.items.get(i).getItem());
+			//# end
 			if (clazz == null) {
 				continue;
 			}

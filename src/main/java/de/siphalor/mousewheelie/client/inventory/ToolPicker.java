@@ -45,11 +45,21 @@ public class ToolPicker {
 	public int findToolFor(BlockState blockState) {
 		float bestBreakSpeed = 1.0F;
 		int bestSpeedSlot = -1;
-		int invSize = (canPickFromInventory() ? inventory.items.size() : 9);
+		//# if MC_VERSION_NUMBER >= 12108
+		int invSize = (canPickFromInventory() ? inventory.getContainerSize() : 9);
+		int selectedSlot = inventory.getSelectedSlot();
+		//# else
+		//- int invSize = (canPickFromInventory() ? inventory.items.size() : 9);
+		//- int selectedSlot = inventory.selected;
+		//# end
 		for (int i = 1; i <= invSize; i++) {
 			int index = (i + lastToolPickSlot) % invSize;
-			if (index == inventory.selected) continue;
-			ItemStack stack = inventory.items.get(index);
+			if (index == selectedSlot) continue;
+			//# if MC_VERSION_NUMBER >= 12108
+			ItemStack stack = inventory.getItem(index);
+			//# else
+			//- ItemStack stack = inventory.items.get(index);
+			//# end
 			if (stack.isCorrectToolForDrops(blockState)) {
 				return index;
 			} else {
@@ -61,9 +71,13 @@ public class ToolPicker {
 			}
 		}
 		if (bestSpeedSlot == -1) {
-			ItemStack stack = inventory.items.get(inventory.selected);
+			//# if MC_VERSION_NUMBER >= 12108
+			ItemStack stack = inventory.getItem(selectedSlot);
+			//# else
+			//- ItemStack stack = inventory.items.get(selectedSlot);
+			//# end
 			if (stack.isCorrectToolForDrops(blockState) || stack.getDestroySpeed(blockState) > 1.0F)
-				return inventory.selected;
+				return selectedSlot;
 		}
 		return bestSpeedSlot;
 	}
@@ -73,12 +87,20 @@ public class ToolPicker {
 	}
 
 	public int findWeapon() {
-		int invSize = (canPickFromInventory() ? inventory.items.size() : 9);
+		//# if MC_VERSION_NUMBER >= 12108
+		int invSize = (canPickFromInventory() ? inventory.getContainerSize() : 9);
+		//# else
+		//- int invSize = (canPickFromInventory() ? inventory.items.size() : 9);
+		//# end
 		for (int i = 1; i <= invSize; i++) {
 			int index = (i + lastToolPickSlot) % invSize;
-			if (index == inventory.selected) continue;
-			if (MWClient.isWeapon(inventory.items.get(index)))
-				return index;
+			//# if MC_VERSION_NUMBER >= 12108
+			if (index == inventory.getSelectedSlot()) continue;
+			if (MWClient.isWeapon(inventory.getItem(index))) return index;
+			//# else
+			//- if (index == inventory.selected) continue;
+			//- if (MWClient.isWeapon(inventory.items.get(index))) return index;
+			//# end
 		}
 		return -1;
 	}
@@ -98,9 +120,17 @@ public class ToolPicker {
 	private boolean pick(int index) {
 		setLastToolPickSlot(index);
 
-		if (index != -1 && index != inventory.selected) {
+		//# if MC_VERSION_NUMBER >= 12108
+		if (index != -1 && index != inventory.getSelectedSlot()) {
+		//# else
+		//- if (index != -1 && index != inventory.selected) {
+		//# end
 			if (Inventory.isHotbarSlot(index)) {
-				inventory.selected = index;
+				//# if MC_VERSION_NUMBER >= 12108
+				inventory.setSelectedSlot(index);
+				//# else
+				//- inventory.selected = index;
+				//# end
 			} else {
 				MWClientNetworking.pickFromInventory(index);
 			}

@@ -75,8 +75,21 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonPacketLi
 		if (MouseWheelie.config.refill.enable && MouseWheelie.config.refill.other) {
 			//noinspection ConstantConditions
 			Inventory inventory = minecraft.player.getInventory();
-			if (packet.getSlot() - 36 == inventory.selected) { // MAIN_HAND
-				SlotRefiller.scheduleRefillChecked(InteractionHand.MAIN_HAND, inventory, inventory.getItem(inventory.selected), packet.getItem());
+			//# if MC_VERSION_NUMBER >= 12108
+			if (packet.getSlot() == inventory.getSelectedSlot()) {
+			//# else
+			//- if (packet.getSlot() - 36 == inventory.selected) {
+			//# end
+				SlotRefiller.scheduleRefillChecked(
+						InteractionHand.MAIN_HAND,
+						inventory,
+						//# if MC_VERSION_NUMBER >= 12108
+						inventory.getSelectedItem(),
+						//# else
+						//- inventory.getItem(inventory.selected),
+						//# end
+						packet.getItem()
+				);
 			}
 		}
 	}
@@ -86,8 +99,17 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonPacketLi
 		//noinspection ConstantConditions
 		if (MouseWheelie.config.refill.enable && MouseWheelie.config.refill.other && minecraft.player.containerMenu == minecraft.player.inventoryMenu && packet.getSlot() == 45) {
 			Inventory inventory = minecraft.player.getInventory();
-			if (packet.getSlot() == 45) { // OFF_HAND
-				SlotRefiller.scheduleRefillChecked(InteractionHand.OFF_HAND, inventory, inventory.offhand.get(0), packet.getItem());
+			if (packet.getSlot() == /*# if MC_VERSION_NUMBER >= 12108 */Inventory.SLOT_OFFHAND/*# else *//*- 45 *//*# end */) {
+				SlotRefiller.scheduleRefillChecked(
+						InteractionHand.OFF_HAND,
+						inventory,
+						//# if MC_VERSION_NUMBER >= 12108
+						minecraft.player.getOffhandItem(),
+						//# else
+						//- inventory.offhand.get(0),
+						//# end
+						packet.getItem()
+				);
 			}
 		}
 	}

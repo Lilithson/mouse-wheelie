@@ -24,6 +24,7 @@ import lombok.CustomLog;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 //- import net.minecraft.network.FriendlyByteBuf;
+//- import net.minecraft.network.protocol.game.ServerboundPickItemPacket;
 
 @CustomLog
 public class MWClientNetworking extends MWNetworking {
@@ -68,7 +69,7 @@ public class MWClientNetworking extends MWNetworking {
 		));
 		//# else
 		//- InteractionManager.push(new InteractionManager.PacketEvent(
-		//- 		new ServerboundPickItemPacket(inventorySlot),
+		//- 		new ServerboundPickItemPacket(slot),
 		//- 		triggerType -> triggerType == InteractionManager.TriggerType.HELD_ITEM_CHANGE
 		//- ));
 		//# end

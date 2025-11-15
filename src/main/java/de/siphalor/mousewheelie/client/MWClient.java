@@ -109,7 +109,7 @@ public class MWClient implements ClientModInitializer {
 		return stack.has(DataComponents.TOOL);
 		//# else
 		//- // TODO: reimplement Fapi tool tags
-		//- return item instanceof TieredItem || item instanceof ShearsItem;
+		//- return stack.getItem() instanceof TieredItem || stack.getItem() instanceof ShearsItem;
 		//# end
 	}
 
@@ -119,6 +119,7 @@ public class MWClient implements ClientModInitializer {
 				|| stack.getItem() instanceof TridentItem
 				|| stack.is(ItemTags.SHARP_WEAPON_ENCHANTABLE);
 		//# else
+		//- Item item = stack.getItem();
 		//- return item instanceof ProjectileWeaponItem || item instanceof TridentItem || item instanceof SwordItem;
 		//# end
 	}
@@ -175,7 +176,7 @@ public class MWClient implements ClientModInitializer {
 	//# if MC_VERSION_NUMBER >= 12104
 	public static boolean triggerPick(Player player, HitResult hitResult) {
 	//# else
-	//- public static ItemStack onPick(Player player, HitResult hitResult) {
+	//- public static ItemStack triggerPick(Player player, HitResult hitResult) {
 	//# end
 		ItemStack stack = player.getMainHandItem();
 		Item item = stack.getItem();

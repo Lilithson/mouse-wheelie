@@ -53,8 +53,13 @@ public abstract class MixinContainer {
 			if (targetSlot.container != playerInventory) return;
 
 			int indexInInv = ((ISlot) targetSlot).mouseWheelie_getIndexInInv();
-			if (indexInInv == playerInventory.selected) {
-				SlotRefiller.scheduleRefillChecked(InteractionHand.MAIN_HAND, playerInventory, playerInventory.getSelected(), itemStacks.get(index));
+			//# if MC_VERSION_NUMBER >= 12108
+			int selectedSlot = playerInventory.getSelectedSlot();
+			//# else
+			//- int selectedSlot = playerInventory.selected;
+			//# end
+			if (indexInInv == selectedSlot) {
+				SlotRefiller.scheduleRefillChecked(InteractionHand.MAIN_HAND, playerInventory, playerInventory.getItem(selectedSlot), itemStacks.get(index));
 			} else if (indexInInv == 40) {
 				SlotRefiller.scheduleRefillChecked(InteractionHand.OFF_HAND, playerInventory, playerInventory.getItem(40), itemStacks.get(index));
 			}

@@ -316,7 +316,7 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 		//- }
 		//- return EquipmentSlot.MAINHAND;
 		//# else
-		//- return Mob.getEquipmentSlotForItem(hoveredSlot.getItem());
+		//- return Mob.getEquipmentSlotForItem(stack);
 		//# end
 	}
 
