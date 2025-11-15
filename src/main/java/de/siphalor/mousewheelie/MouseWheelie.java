@@ -27,23 +27,31 @@ import de.siphalor.tweed5.data.hjson.HjsonWriter;
 import de.siphalor.tweed5.fabric.helper.api.FabricConfigCommentLoader;
 import de.siphalor.tweed5.fabric.helper.api.FabricConfigContainerHelper;
 import de.siphalor.tweed5.weaver.pojo.impl.weaving.TweedPojoWeaverBootstrapper;
+import lombok.CustomLog;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 //- import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.ResourceLocation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 //- import net.minecraft.world.InteractionHand;
 //- import net.minecraft.world.InteractionResultHolder;
 //- import net.minecraft.world.entity.player.Player;
 //- import net.minecraft.world.item.ItemStack;
 //- import net.minecraft.world.level.Level;
 
+@CustomLog
 public class MouseWheelie implements ModInitializer {
 	public static final String MOD_ID = "mousewheelie";
 	public static final String MOD_NAME = "Mouse Wheelie";
 
 	public static MWConfig config;
 	public static FabricConfigContainerHelper<MWConfig> configContainerHelper;
+
+	public static Logger createLogger(Class<?> clazz) {
+		return LoggerFactory.getLogger(MOD_NAME + "/" + clazz.getSimpleName());
+	}
 
 	public static ResourceLocation createId(String path) {
 		//# if MC_VERSION_NUMBER >= 12100
@@ -71,6 +79,7 @@ public class MouseWheelie implements ModInitializer {
 		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
 			MWClient.onConfigChanged();
 		}
+		log.info("Loaded config");
 	}
 
 	private void initializeConfig() {
