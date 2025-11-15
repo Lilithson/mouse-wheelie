@@ -7,6 +7,7 @@ plugins {
 	`maven-publish`
 	alias(libs.plugins.licenser)
 	alias(libs.plugins.jcyo)
+	alias(libs.plugins.modPublisher)
 }
 
 val minecraftVersionDescriptor = project.properties["minecraft.version.descriptor"] as String
@@ -177,69 +178,42 @@ publishing {
 	}
 }
 
-/*
-static def getChangelog() {
-	return 'git log -1 --format=format:##%x20%s%n%n%b%nRelease%x20by%x20%an --grep Version'.execute().text.trim()
-}
-
-tasks.register('uploadToModSites') {
-	dependsOn build
-	group = "upload"
-}
-
-if (project.hasProperty("curseforgeToken")) {
-	curseforge {
-		apiKey project.curseforgeToken
-		project {
-			id = "317514"
-			releaseType = project.mod_release
-			changelogType = "markdown"
-			changelog = project.getChangelog()
-			addGameVersion("Fabric")
-			String mcVersions = project.hasProperty("curseforge_mc_versions") ? project.property("curseforge_mc_versions") : project.mod_mc_versions
-			for (version in (mcVersions).split(";")) {
-				addGameVersion(version)
-			}
-			relations {
-				embeddedLibrary "fabric-api"
-				embeddedLibrary "amecs"
-				embeddedLibrary "tweed-api"
-				optionalDependency "modmenu"
-			}
-			mainArtifact(remapJar) {
-				displayName = "[${project.mod_mc_version_specifier}] ${project.mod_version}"
-			}
-		}
-	}
-	uploadToModSites.finalizedBy(tasks.curseforge)
-}
-
-modrinth {
-	if (project.hasProperty("modrinthToken")) {
-		token = project.modrinthToken
-		uploadToModSites.finalizedBy(tasks.modrinth)
+publisher {
+	apiKeys {
+		project.findProperty("modrinth.token")?.let { modrinth(it as String) }
+		project.findProperty("curseforge.token")?.let { curseforge(it as String) }
+		project.findProperty("github.token")?.let { github(it as String) }
 	}
 
-	projectId = "u5Ic2U1u"
-	versionName = "[$project.mod_mc_version_specifier] $project.mod_version"
-	versionType = project.mod_release
-	changelog = project.getChangelog()
-	uploadFile = remapJar
-	gameVersions.set(project.mod_mc_versions.split(";") as List<String>)
-	loaders.set(["fabric"])
-}
-tasks.modrinth.group = "upload"
+	curseID = "317514"
+	modrinthID = "u5Ic2U1u"
 
-if (project.hasProperty("githubToken")) {
-	githubRelease {
-		token project.githubToken
-		targetCommitish = "unstable"
-		releaseName = "Version $project.mod_version for $project.mod_mc_version_specifier"
-		body = project.getChangelog()
-		releaseAssets remapJar.getArchiveFile()
-		prerelease = mod_release != "release"
-		overwrite = true
+	artifact.set(tasks.remapJar)
+
+	projectVersion = project.version as String
+	versionType = project.property("version.type") as String
+	loaders = listOf("fabric")
+	curseEnvironment = "client"
+
+	gameVersions = (mcProps["mc.version.supported"] as String).split(", ")
+
+	displayName = "[${mcProps["mc.version.title"]}] $shortVersion"
+	changelog.set(providers.exec {
+		commandLine("git", "log", "-1", "--format=format:##%x20%s%n%n%b%nRelease%x20by%x20%an", "--grep", "Version")
+	}.standardOutput.asText.map { it.trim() })
+
+	curseDepends {
+		required("fabric-api")
 	}
-	uploadToModSites.finalizedBy(tasks.githubRelease)
+	modrinthDepends {
+		required("fabric-api")
+	}
+
+	github {
+		repo("Siphalor/mouse-wheelie")
+		tag(shortVersion)
+		displayName(shortVersion)
+		createTag(true)
+		createRelease(true)
+	}
 }
-*/
