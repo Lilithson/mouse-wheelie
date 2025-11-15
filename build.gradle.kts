@@ -85,7 +85,7 @@ dependencies {
 		officialMojangMappings()
 		parchment("org.parchmentmc.data:parchment-${mcLibs.versions.minecraft.get()}:${mcLibs.versions.parchment.get()}@zip")
 	})
-	"modImplementation"(libs.fabric.loader)
+	modImplementation(libs.fabric.loader)
 
 	for (mod in listOf(
 		"fabric-api-base",
@@ -99,10 +99,10 @@ dependencies {
 		"fabric-registry-sync-v0",
 		"fabric-screen-api-v1",
 	)) {
-		"modImplementation"(fabricApi.module(mod, mcLibs.versions.fabric.api.get()))
+		modImplementation(fabricApi.module(mod, mcLibs.versions.fabric.api.get()))
 	}
 
-	modApi(mcLibs.modmenu)
+	modImplementation(mcLibs.modmenu)
 
 	include(mcLibs.bundles.config)
 	modApi(mcLibs.bundles.config) {

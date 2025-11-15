@@ -35,6 +35,11 @@
 			{
 				"value": "de.siphalor.mousewheelie.MouseWheelie"
 			}
+		],
+		"modmenu": [
+			{
+				"value": "de.siphalor.mousewheelie.client.compat.MWModMenuEntryPoint"
+			}
 		]
 	},
 	"suggests": {
