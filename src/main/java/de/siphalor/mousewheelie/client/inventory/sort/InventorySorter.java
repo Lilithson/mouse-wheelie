@@ -74,7 +74,7 @@ public class InventorySorter {
 	}
 
 	private void collectSlots(Slot originSlot) {
-		int originScope = screenHelper.getScope(originSlot);
+		int originScope = screenHelper.getScope(originSlot, true);
 		if (originScope == ContainerScreenHelper.INVALID_SCOPE) {
 			this.inventorySlots = new Slot[0];
 			return;

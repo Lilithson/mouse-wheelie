@@ -12,20 +12,26 @@ public class PlayerInventoryFocusedContainerScreenHelper<T extends AbstractConta
 	}
 
 	@Override
-	public int getScope(Slot slot) {
+	public int getScope(Slot slot, boolean preferSmallerScopes) {
 		// In player inventory-focused screens, Vanilla scopes the hotbar separately from the main inventory
 		if (slot.container instanceof Inventory) {
 			if (isHotbarSlot(slot)) {
 				return 0;
-			} else if (((ISlot) slot).mouseWheelie_getIndexInInv() < 40) {
-				// main inventory + armor slots
-				return 1;
 			} else {
-				// offhand + potentially other stuff
-				return -1;
+				int idInContainer = ((ISlot) slot).mouseWheelie_getIndexInInv();
+				if (idInContainer < 36) {
+					// main inventory
+					return 1;
+				} else if (idInContainer < 40) {
+					// armor slots
+					return 2;
+				} else {
+					// offhand + potentially other stuff
+					return -1;
+				}
 			}
 		} else {
-			return 2;
+			return 3;
 		}
 	}
 }
