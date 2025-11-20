@@ -87,7 +87,7 @@ public class MouseWheelie implements ModInitializer {
 		FabricConfigCommentLoader.builder()
 				.configContainer(configContainer)
 				.modId(MOD_ID)
-				.prefix("tweed4_tailor_screen.screen.mousewheelie")
+				.prefix("mousewheelie.config")
 				.suffix(".description")
 				.build()
 				.loadCommentsFromLanguageFile("en_us");

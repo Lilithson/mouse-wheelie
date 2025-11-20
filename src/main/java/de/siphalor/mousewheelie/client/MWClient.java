@@ -266,8 +266,8 @@ public class MWClient implements ClientModInitializer {
 				.rootEntry(MouseWheelie.configContainerHelper.configContainer().rootEntry())
 				.currentValue(MouseWheelie.config)
 				.defaultValue(defaultValue)
-				.title(Component.translatable("tweed4_tailor_screen.screen.mousewheelie"))
-				.translationKeyPrefix("tweed4_tailor_screen.screen.mousewheelie")
+				.title(Component.translatable("mousewheelie.config"))
+				.translationKeyPrefix("mousewheelie.config")
 				.saveHandler(value -> {
 					MouseWheelie.config = value;
 					MouseWheelie.configContainerHelper.writeConfigInConfigDirectory(value);
