@@ -19,6 +19,7 @@ package de.siphalor.mousewheelie.client.util;
 
 import com.google.common.collect.Sets;
 import de.siphalor.mousewheelie.MouseWheelie;
+//- import de.siphalor.mousewheelie.client.mixin.MinecraftClientAccessor;
 //- import net.minecraft.client.Minecraft;
 //- import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.core.component.DataComponentMap;
@@ -45,7 +46,7 @@ public class ItemStackUtils {
 	private static final Item.TooltipContext TOOLTIP_CONTEXT = Item.TooltipContext.EMPTY;
 	//# elif MC_VERSION_NUMBER >= 12006
 	//- private static final Item.TooltipContext TOOLTIP_CONTEXT = Item.TooltipContext.EMPTY;
-	//- private static final ItemColors ITEM_COLORS = ItemColors.createDefault(Minecraft.getInstance().getBlockColors());
+	//- private static final ItemColors ITEM_COLORS = ((MinecraftClientAccessor) Minecraft.getInstance()).getItemColors();
 	//# else
 	//- private static final CompoundTag EMPTY_COMPOUND = new CompoundTag();
 	//# end

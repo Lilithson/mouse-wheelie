@@ -9,6 +9,7 @@
 		"MixinContainer",
 		"MixinCreativeSlot",
 		"MixinMinecraftClient",
+		"MinecraftClientAccessor",
 		"MixinSlot",
 		"entity.MixinClientPlayerEntity",
 		"entity.MixinLivingEntity",
