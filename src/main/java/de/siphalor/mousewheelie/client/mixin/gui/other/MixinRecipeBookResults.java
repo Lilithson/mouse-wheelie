@@ -24,6 +24,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookPage;
 import net.minecraft.client.gui.screens.recipebook.RecipeButton;
 import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
+//- import net.minecraft.world.item.crafting.Recipe;
 //- import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.util.context.ContextMap;
@@ -53,9 +54,12 @@ public abstract class MixinRecipeBookResults implements IRecipeBookResults {
 	//# if MC_VERSION_NUMBER >= 12103
 	@Shadow
 	private RecipeDisplayId lastClickedRecipe;
-	//# else
+	//# elif MC_VERSION_NUMBER >= 12002
 	//- @Shadow
 	//- private RecipeHolder<?> lastClickedRecipe;
+	//# else
+	//- @Shadow
+	//- private Recipe<?> lastClickedRecipe;
 	//# end
 
 	@Shadow

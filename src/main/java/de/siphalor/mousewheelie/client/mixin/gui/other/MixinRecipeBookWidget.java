@@ -46,6 +46,7 @@ import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.PlacementInfo;
+//- import net.minecraft.world.item.crafting.Recipe;
 //- import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.display.RecipeDisplayEntry;
 import net.minecraft.world.item.crafting.display.RecipeDisplayId;
@@ -171,10 +172,16 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 					value = "INVOKE",
 					target = "Lnet/minecraft/client/gui/screens/recipebook/RecipeBookComponent;isOffsetNextToMainGUI()Z"
 			)
-			//# else
+			//# elif MC_VERSION_NUMBER >= 12002
 			//- at = @At(
 			//- 		value = "INVOKE",
 			//- 		target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;handlePlaceRecipe(ILnet/minecraft/world/item/crafting/RecipeHolder;Z)V",
+			//- 		shift = At.Shift.AFTER
+			//- )
+			//# else
+			//- at = @At(
+			//- 		value = "INVOKE",
+			//- 		target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;handlePlaceRecipe(ILnet/minecraft/world/item/crafting/Recipe;Z)V",
 			//- 		shift = At.Shift.AFTER
 			//- )
 			//# end
@@ -189,8 +196,10 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 			int resSlot = getResultSlotIndex();
 			//# if MC_VERSION_NUMBER >= 12103
 			RecipeDisplayEntry recipeEntry = getLastClickedRecipeEntry();
-			//# else
+			//# elif MC_VERSION_NUMBER >= 12002
 			//- RecipeHolder<?> recipeEntry = recipeBookPage.getLastClickedRecipe();
+			//# else
+			//- Recipe<?> recipeEntry = recipeBookPage.getLastClickedRecipe();
 			//# end
 			if (recipeEntry != null && canCraftMore(recipeEntry)) {
 				InteractionManager.clear();
@@ -218,8 +227,10 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 				ignoreTextInput = false;
 				//# if MC_VERSION_NUMBER >= 12103
 				RecipeDisplayEntry oldRecipeEntry = getLastClickedRecipeEntry();
-				//# else
+				//# elif MC_VERSION_NUMBER >= 12002
 				//- RecipeHolder<?> oldRecipeEntry = recipeBookPage.getLastClickedRecipe();
+				//# else
+				//- Recipe<?> oldRecipeEntry = recipeBookPage.getLastClickedRecipe();
 				//# end
 				if (this.recipeBookPage.mouseClicked(
 						//# if MC_VERSION_NUMBER >= 12109
@@ -240,8 +251,11 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 					//# if MC_VERSION_NUMBER >= 12103
 					RecipeDisplayEntry recipeEntry = getLastClickedRecipeEntry();
 					if (!resultCollection.isCraftable(recipeEntry.id())) {
-					//# else
+					//# elif MC_VERSION_NUMBER >= 12002
 					//- RecipeHolder<?> recipeEntry = recipeBookPage.getLastClickedRecipe();
+					//- if (!resultCollection.isCraftable(recipeEntry)) {
+					//# else
+					//- Recipe<?> recipeEntry = recipeBookPage.getLastClickedRecipe();
 					//- if (!resultCollection.isCraftable(recipeEntry)) {
 					//# end
 						return;
@@ -337,7 +351,7 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 				null
 		);
 	}
-	//# else
+	//# elif MC_VERSION_NUMBER >= 12002
 	//- @Unique
 	//- private boolean canCraftMore(RecipeHolder<?> recipeEntry) {
 	//- 	return getBiggestCraftingStackSize() < getMaxCraftsCount(recipeEntry);
@@ -348,6 +362,20 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 	//- 	return stackedContents.getBiggestCraftableStack(
 	//- 			recipeEntry,
 	//- 			recipeEntry.value().getResultItem(minecraft.level.registryAccess()).getMaxStackSize(),
+	//- 			null
+	//- 	);
+	//- }
+	//# else
+	//- @Unique
+	//- private boolean canCraftMore(Recipe<?> recipeEntry) {
+	//- 	return getBiggestCraftingStackSize() < getMaxCraftsCount(recipeEntry);
+	//- }
+
+	//- @Unique
+	//- private int getMaxCraftsCount(Recipe<?> recipeEntry) {
+	//- 	return stackedContents.getBiggestCraftableStack(
+	//- 			recipeEntry,
+	//- 			recipeEntry.getResultItem(minecraft.level.registryAccess()).getMaxStackSize(),
 	//- 			null
 	//- 	);
 	//- }

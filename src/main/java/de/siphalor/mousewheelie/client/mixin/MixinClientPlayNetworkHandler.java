@@ -26,26 +26,37 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.CommonListenerCookie;
 import net.minecraft.network.Connection;
+//- import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 //- import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
 import net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket;
+//- import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
+//- import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+//- import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
 @Mixin(ClientPacketListener.class)
-public abstract class MixinClientPlayNetworkHandler extends ClientCommonPacketListenerImpl {
+public abstract class MixinClientPlayNetworkHandler
+	/*# if MC_VERSION_NUMBER >= 12002 */extends ClientCommonPacketListenerImpl/*# end */ {
+
+	//# if MC_VERSION_NUMBER >= 12002
 	protected MixinClientPlayNetworkHandler(Minecraft client, Connection connection, CommonListenerCookie connectionState) {
 		super(client, connection, connectionState);
 	}
-
+	//# else
+	//- @Shadow @Final
+	//- private Minecraft minecraft;
+	//# end
 
 	/*@Inject(method = "onConfirmScreenAction", at = @At("RETURN"))
 	public void onGuiActionConfirmed(ConfirmScreenActionS2CPacket packet, CallbackInfo callbackInfo) {
@@ -130,4 +141,17 @@ public abstract class MixinClientPlayNetworkHandler extends ClientCommonPacketLi
 			SlotRefiller.performRefill();
 		}
 	}
+
+	//# if MC_VERSION_NUMBER >= 12002
+	// moved to MixinClientCommonNetworkHandler
+	//# else
+	//- @Inject(method = "send(Lnet/minecraft/network/protocol/Packet;)V", at = @At("HEAD"))
+	//- public void onSend(Packet<?> packet, CallbackInfo callbackInfo) {
+	//- 	if (packet instanceof ServerboundPlayerActionPacket) {
+	//- 		if (((ServerboundPlayerActionPacket) packet).getAction() == ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND) {
+	//- 			MWClientNetworking.blockNextGuiUpdateRefillTriggers(2);
+	//- 		}
+	//- 	}
+	//- }
+	//# end
 }
