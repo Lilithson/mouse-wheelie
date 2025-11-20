@@ -20,6 +20,7 @@ package de.siphalor.mousewheelie.client.util;
 import com.google.common.collect.Sets;
 import de.siphalor.mousewheelie.MouseWheelie;
 //- import de.siphalor.mousewheelie.client.mixin.MinecraftClientAccessor;
+import lombok.CustomLog;
 //- import net.minecraft.client.Minecraft;
 //- import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.core.component.DataComponentMap;
@@ -36,11 +37,9 @@ import net.minecraft.world.item.component.DyedItemColor;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.awt.*;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
+@CustomLog
 public class ItemStackUtils {
 	//# if MC_VERSION_NUMBER >= 12104
 	private static final Item.TooltipContext TOOLTIP_CONTEXT = Item.TooltipContext.EMPTY;
@@ -108,13 +107,8 @@ public class ItemStackUtils {
 
 	private static int compareEqualItems3(ItemStack a, ItemStack b) {
 		// compare tooltips
-		//# if MC_VERSION_NUMBER >= 12006
-		Iterator<Component> tooltipsA = a.getTooltipLines(TOOLTIP_CONTEXT, null, TooltipFlag.Default.NORMAL).iterator();
-		Iterator<Component> tooltipsB = b.getTooltipLines(TOOLTIP_CONTEXT, null, TooltipFlag.Default.NORMAL).iterator();
-		//# else
-		//- Iterator<Component> tooltipsA = a.getTooltipLines(null, TooltipFlag.Default.NORMAL).iterator();
-		//- Iterator<Component> tooltipsB = b.getTooltipLines(null, TooltipFlag.Default.NORMAL).iterator();
-		//# end
+		Iterator<Component> tooltipsA = getTooltipLines(a);
+		Iterator<Component> tooltipsB = getTooltipLines(b);
 
 		while (tooltipsA.hasNext()) {
 			if (!tooltipsB.hasNext()) {
@@ -130,6 +124,19 @@ public class ItemStackUtils {
 			return -1;
 		}
 		return compareEqualItems4(a, b);
+	}
+
+	private static Iterator<Component> getTooltipLines(ItemStack stack) {
+		try {
+			//# if MC_VERSION_NUMBER >= 12006
+			return stack.getTooltipLines(TOOLTIP_CONTEXT, null, TooltipFlag.Default.NORMAL).iterator();
+			//# else
+			//- return stack.getTooltipLines(null, TooltipFlag.Default.NORMAL).iterator();
+			//# end
+		} catch (Exception e) {
+			log.debug("Uncaught exception while resolving tooltip of stack {}", stack, e);
+			return Collections.emptyIterator();
+		}
 	}
 
 	private static int compareEqualItems4(ItemStack a, ItemStack b) {
