@@ -304,6 +304,9 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 			//# if MC_VERSION_NUMBER >= 12103
 			Slot hoveredSlot = findSlot(mouseX, mouseY);
 
+			if (hoveredSlot == null)
+				return ScrollAction.PASS;
+
 			if (MouseWheelie.config.scrolling.preferStackSpecialScrollActions) {
 				if (!MWClient.isScrollModeToggled()) {
 					for (ItemSlotMouseAction slotMouseAction : itemSlotMouseActions) {
@@ -322,8 +325,6 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 			//- Slot hoveredSlot = findSlot(mouseX, mouseY);
 			//# end
 
-			if (hoveredSlot == null)
-				return ScrollAction.PASS;
 			if (hoveredSlot.getItem().isEmpty())
 				return ScrollAction.PASS;
 
