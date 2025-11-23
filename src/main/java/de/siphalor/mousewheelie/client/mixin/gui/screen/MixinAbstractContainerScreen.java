@@ -150,7 +150,7 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 			}
 		}
 		if (slots.isEmpty()) {
-			if (hoveredSlot != null && !hoveredSlot.getItem().isEmpty()) {
+			if (hoveredSlot != null) {
 				slots = Collections.singletonList(hoveredSlot);
 			} else {
 				return;
@@ -161,49 +161,67 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 		if (button == 0) { // Left mouse button
 			if (MouseWheelie.config.general.enableDropModifier && MWClient.DROP_MODIFIER.isDown()) {
 				for (Slot slot : slots) {
-					screenHelper.dropStackLocked(slot);
+					if (!slot.getItem().isEmpty()) {
+						screenHelper.dropStackLocked(slot);
+					}
 				}
 			} else if (MWClient.WHOLE_STACK_MODIFIER.isDown()) {
 				for (Slot slot : slots) {
-					screenHelper.sendStackLocked(slot);
+					if (!slot.getItem().isEmpty()) {
+						screenHelper.sendStackLocked(slot);
+					}
 				}
 			} else if (MWClient.ALL_OF_KIND_MODIFIER.isDown()) {
 				for (Slot slot : slots) {
-					screenHelper.sendAllOfAKind(slot);
+					if (!slot.getItem().isEmpty()) {
+						screenHelper.sendAllOfAKind(slot);
+					}
 				}
 			}
-		} else if (button == 1) { // Right mouse button
-			ItemStack cursorStack = menu.getCarried();
+		}
 
-			if (!cursorStack.isEmpty() && bundleDragMode != null && cursorStack.getItem() instanceof BundleItem item) {
-				Slot lastSlot = null;
-				for (Slot slot : slots) {
-					if (slot == lastBundleInteractionSlot) {
+		ItemStack cursorStack = menu.getCarried();
+		if (!cursorStack.isEmpty() && cursorStack.getItem() instanceof BundleItem item) {
+			if (bundleDragMode == null && button != 0) {
+				return;
+			}
+			Slot lastSlot = null;
+			for (Slot slot : slots) {
+				if (slot == lastBundleInteractionSlot) {
+					continue;
+				}
+				if (bundleDragMode == null) {
+					if (slot.getItem().isEmpty()) {
 						continue;
 					}
-					if (bundleDragMode == BundleDragMode.AUTO) {
-						if (slot.getItem().isEmpty()) {
-							if (item.isBarVisible(cursorStack)) {
-								bundleDragMode = BundleDragMode.PUTTING_OUT;
-							}
-						} else {
-							bundleDragMode = BundleDragMode.PICKING_UP;
+					bundleDragMode = BundleDragMode.PICKING_UP;
+				}
+				if (bundleDragMode == BundleDragMode.AUTO) {
+					if (slot.getItem().isEmpty()) {
+						if (item.isBarVisible(cursorStack)) {
+							bundleDragMode = BundleDragMode.PUTTING_OUT;
 						}
+					} else {
+						bundleDragMode = BundleDragMode.PICKING_UP;
 					}
-					if (bundleDragMode == BundleDragMode.PICKING_UP && slot.getItem().isEmpty()) {
+				}
+				if (bundleDragMode == BundleDragMode.PICKING_UP) {
+					if (slot.getItem().isEmpty()) {
 						continue;
 					}
-					if (bundleDragMode == BundleDragMode.PUTTING_OUT && !slot.getItem().isEmpty()) {
+					bundlePickUp(slot);
+				}
+				if (bundleDragMode == BundleDragMode.PUTTING_OUT) {
+					if (!slot.getItem().isEmpty()) {
 						continue;
 					}
-
-					slotClicked(slot, slot.index, 1, ClickType.PICKUP);
-
-					lastSlot = slot;
+					bundlePutOut(slot);
 				}
-				if (lastSlot != null) {
-					lastBundleInteractionSlot = lastSlot;
-				}
+
+				lastSlot = slot;
+			}
+			if (lastSlot != null) {
+				lastBundleInteractionSlot = lastSlot;
 			}
 		}
 	}
@@ -251,6 +269,13 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 				}
 			} else {
 				success = false;
+				if (MouseWheelie.config.general.enableBundleDragging && isCarryingBundle()) {
+					if (!hoveredSlot.getItem().isEmpty()) {
+						bundleDragMode = BundleDragMode.PICKING_UP;
+						slotClicked(hoveredSlot, hoveredSlot.index, 0, ClickType.PICKUP);
+						success = true;
+					}
+				}
 			}
 			if (success) {
 				cir.setReturnValue(true);
@@ -264,17 +289,34 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 				} else if (hoveredSlot.getItem().isEmpty()) {
 					if (item.isBarVisible(cursorStack)) {
 						bundleDragMode = BundleDragMode.PUTTING_OUT;
-					} else {
-						bundleDragMode = BundleDragMode.AUTO;
+						bundlePutOut(hoveredSlot);
 					}
 				} else {
 					bundleDragMode = BundleDragMode.PICKING_UP;
+					bundlePickUp(hoveredSlot);
 				}
-				if (hoveredSlot != null) {
-					slotClicked(hoveredSlot, hoveredSlot.index, 1, ClickType.PICKUP);
-				}
+				cir.setReturnValue(true);
 			}
 		}
+	}
+
+	@Unique
+	private boolean isCarryingBundle() {
+		return !menu.getCarried().isEmpty() && menu.getCarried().getItem() instanceof BundleItem;
+	}
+
+	@Unique
+	private void bundlePutOut(Slot slot) {
+		slotClicked(slot, slot.index, 1, ClickType.PICKUP);
+	}
+
+	@Unique
+	private void bundlePickUp(Slot slot) {
+		//# if MC_VERSION_NUMBER >= 12102
+		slotClicked(slot, slot.index, 0, ClickType.PICKUP);
+		//# else
+		//- slotClicked(slot, slot.index, 1, ClickType.PICKUP);
+		//# end
 	}
 
 	// Fires on mouse up
@@ -284,7 +326,7 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 	//# else
 	//- public void onMouseRelease(double x, double y, int button, CallbackInfoReturnable<Boolean> cir) {
 	//# end
-		if (bundleDragMode != null) {
+		if (bundleDragMode != null && bundleDragMode != BundleDragMode.AUTO) {
 			clickedSlot = null;
 			isQuickCrafting = false;
 			cir.setReturnValue(true);
