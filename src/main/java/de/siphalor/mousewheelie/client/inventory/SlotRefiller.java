@@ -164,7 +164,9 @@ public class SlotRefiller {
 	private static void startRefill() {
 		refillStartTime = System.currentTimeMillis();
 
-		scheduleRefillSound();
+		if (MouseWheelie.config.refill.playSound) {
+			scheduleRefillSound();
+		}
 	}
 
 	private static void endRefill() {
@@ -176,15 +178,17 @@ public class SlotRefiller {
 	}
 
 	private static void scheduleRefillSound() {
-		if (MouseWheelie.config.refill.playSound) {
-			InteractionManager.delay(SlotRefiller::playRefillSound, Duration.of(200, ChronoUnit.MILLIS));
-		}
+		InteractionManager.delay(SlotRefiller::playRefillSound, Duration.of(200, ChronoUnit.MILLIS));
 	}
 
 	private static void playRefillSound() {
-		if (MouseWheelie.config.refill.playSound) {
-			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.ITEM_PICKUP, 0.2F, 1F));
-		}
+		//# if MC_VERSION_NUMBER >= 12102
+		Minecraft.getInstance().schedule(() ->
+		//# else
+		//- Minecraft.getInstance().tell(() ->
+		//# end
+			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.ITEM_PICKUP, 0.2F, 1F))
+		);
 	}
 
 	private static void refillFromSlot(InteractionHand hand, int slot) {
