@@ -18,7 +18,7 @@
 		"sources": "https://github.com/Siphalor/mouse-wheelie"
 	},
 
-	"license": "CC0-1.0",
+	"license": "Apache-2.0",
 	"icon": "assets/mousewheelie/icon.png",
 
 	"environment": "*",
