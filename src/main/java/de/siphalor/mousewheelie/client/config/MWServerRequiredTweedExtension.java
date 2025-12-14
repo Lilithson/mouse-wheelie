@@ -33,7 +33,7 @@ import de.siphalor.tweed5.defaultextensions.validation.api.result.ValidationResu
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.client.resources.language.I18n;
-import org.jspecify.annotations.NullMarked;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -78,9 +78,8 @@ public class MWServerRequiredTweedExtension implements TweedExtension, Validatio
 		}
 	}
 
-	@NullMarked
 	@Override
-	public Middleware<ConfigEntryValidator> validationMiddleware() {
+	public @NotNull Middleware<ConfigEntryValidator> validationMiddleware() {
 		return new Middleware<>() {
 			@Override
 			public String id() {
@@ -91,7 +90,7 @@ public class MWServerRequiredTweedExtension implements TweedExtension, Validatio
 			public ConfigEntryValidator process(ConfigEntryValidator inner) {
 				return new ConfigEntryValidator() {
 					@Override
-					public <T> ValidationResult<T> validate(ConfigEntry<T> configEntry, T value) {
+					public <T> @NotNull ValidationResult<T> validate(@NotNull ConfigEntry<T> configEntry, T value) {
 						ValidationResult<T> innerResult = inner.validate(configEntry, value);
 						if (attributesExtension.getAttributeValue(configEntry, ATTRIBUTE) == null) {
 							return innerResult;
@@ -106,7 +105,7 @@ public class MWServerRequiredTweedExtension implements TweedExtension, Validatio
 					}
 
 					@Override
-					public <T> String description(ConfigEntry<T> configEntry) {
+					public <T> @NotNull String description(@NotNull ConfigEntry<T> configEntry) {
 						String innerDescription = inner.description(configEntry);
 						if (attributesExtension.getAttributeValue(configEntry, ATTRIBUTE) == null) {
 							return innerDescription;
