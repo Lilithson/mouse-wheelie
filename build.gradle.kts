@@ -121,19 +121,15 @@ tasks.processResources {
     inputs.property("version", project.version)
 	inputs.property("extraClientMixins", mcProps["mixins.extra.client"])
 
-	from("src/main/resources") {
-		include("fabric.mod.json")
+	filesMatching("fabric.mod.json") {
 		expand("version" to project.version)
-		duplicatesStrategy = DuplicatesStrategy.INCLUDE
 	}
-	from("src/main/resources") {
-		include("mousewheelie.mixins.json")
+	filesMatching("mousewheelie.mixins.json") {
 		val extraClientMixins = mcProps.getProperty("mixins.extra.client")?.split(",")?.map { it.trim() } ?: listOf()
 		expand("extraClientMixins" to
 				if (extraClientMixins.isEmpty()) ""
 				else "," + extraClientMixins.joinToString(",") { "\"$it\"" }
 		)
-		duplicatesStrategy = DuplicatesStrategy.INCLUDE
 	}
 }
 
