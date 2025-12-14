@@ -25,7 +25,8 @@ import net.minecraft.network.VarInt;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+//- import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,7 +40,11 @@ public class ReorderInventoryPacket
 		//# end
 {
 	//# if MC_VERSION_NUMBER >= 12006
-	public static final ResourceLocation PAYLOAD_ID = createId("reorder_inventory");
+	//# if MC_VERSION_NUMBER >= 12111
+	public static final Identifier PAYLOAD_ID = createId("reorder_inventory");
+	//# else
+	//- public static final ResourceLocation PAYLOAD_ID = createId("reorder_inventory");
+	//# end
 	public static final Type<ReorderInventoryPacket> TYPE = new Type<>(PAYLOAD_ID);
 	private static final int MAX_SLOTS = 2048;
 	private static final StreamCodec<ByteBuf, int[]> INT_ARRAY_STREAM_CODEC = new StreamCodec<>() {

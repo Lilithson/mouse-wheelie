@@ -1,5 +1,5 @@
 [versions]
-fabric-loader = "0.17.2"
+fabric-loader = "0.18.2"
 jcyo = "0.5.1"
 licenser = "2.2.1"
 lombok = "1.18.38"

@@ -32,7 +32,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 //- import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+//- import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 //- import net.minecraft.world.InteractionHand;
@@ -53,13 +54,19 @@ public class MouseWheelie implements ModInitializer {
 		return LoggerFactory.getLogger(MOD_NAME + "/" + clazz.getSimpleName());
 	}
 
-	public static ResourceLocation createId(String path) {
-		//# if MC_VERSION_NUMBER >= 12100
-		return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
-		//# else
-		//- return new ResourceLocation(MOD_ID, path);
-		//# end
+	//# if MC_VERSION_NUMBER >= 12111
+	public static Identifier createId(String path) {
+		return Identifier.fromNamespaceAndPath(MOD_ID, path);
 	}
+	//# else
+	//- public static ResourceLocation createId(String path) {
+	//- 	//# if MC_VERSION_NUMBER >= 12100
+	//- 	return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+	//- 	//# else
+	//- 	return new ResourceLocation(MOD_ID, path);
+	//- 	//# end
+	//- }
+	//# end
 
 	@Override
 	public void onInitialize() {

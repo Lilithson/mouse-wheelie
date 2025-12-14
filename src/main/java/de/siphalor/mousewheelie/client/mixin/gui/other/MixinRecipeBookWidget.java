@@ -148,9 +148,15 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 				RecipeBookTabButton tab = tabButtons.get(index);
 				if (tab.visible) {
 					if (tab != selectedTab) {
-						selectedTab.setStateTriggered(false);
+						//# if MC_VERSION_NUMBER >= 12111
+						selectedTab.select();
 						selectedTab = tab;
-						selectedTab.setStateTriggered(true);
+						selectedTab.unselect();
+						//# else
+						//- selectedTab.setStateTriggered(false);
+						//- selectedTab = tab;
+						//- selectedTab.setStateTriggered(true);
+						//# end
 						//# if MC_VERSION_NUMBER >= 12103
 						updateCollections(true, isFiltering());
 						//# else

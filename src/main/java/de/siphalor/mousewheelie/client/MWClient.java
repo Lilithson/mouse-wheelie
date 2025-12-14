@@ -48,7 +48,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.component.DataComponents;
 //- import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+//- import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
@@ -60,7 +60,7 @@ import org.lwjgl.glfw.GLFW;
 import java.util.Arrays;
 import java.util.Locale;
 
-import static de.siphalor.mousewheelie.MouseWheelie.MOD_ID;
+//- import static de.siphalor.mousewheelie.MouseWheelie.MOD_ID;
 import static de.siphalor.mousewheelie.MouseWheelie.createId;
 import static de.siphalor.tweed5.defaultextensions.presets.api.PresetsExtension.presetValue;
 
@@ -70,7 +70,7 @@ public class MWClient implements ClientModInitializer {
 	private static final Minecraft CLIENT = Minecraft.getInstance();
 
 	//# if MC_VERSION_NUMBER >= 12109
-	public static final KeyMapping.Category KEY_BINDING_CATEGORY = new KeyMapping.Category(ResourceLocation.fromNamespaceAndPath(MOD_ID, "main"));
+	public static final KeyMapping.Category KEY_BINDING_CATEGORY = new KeyMapping.Category(createId("main"));
 	//# else
 	//- public static final String KEY_BINDING_CATEGORY = "key.category." + MouseWheelie.MOD_ID + ".main";
 	//# end

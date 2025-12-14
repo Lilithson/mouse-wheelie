@@ -21,13 +21,18 @@ import com.mojang.blaze3d.platform.InputConstants;
 import de.siphalor.amecs.api.AmecsKeyBinding;
 import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.api.PriorityKeyBinding;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+//- import net.minecraft.resources.ResourceLocation;
 
 public class ActionModifierKeybinding extends AmecsKeyBinding implements PriorityKeyBinding {
-	//# if MC_VERSION_NUMBER >= 12109
-	public ActionModifierKeybinding(ResourceLocation id, InputConstants.Type type, int code, Category category, KeyModifiers defaultModifiers) {
+	//# if MC_VERSION_NUMBER >= 12111
+	public ActionModifierKeybinding(Identifier id, InputConstants.Type type, int code, Category category, KeyModifiers defaultModifiers) {
 		super(id, type, code, category, defaultModifiers);
 	}
+	//# elif MC_VERSION_NUMBER >= 12109
+	//- public ActionModifierKeybinding(ResourceLocation id, InputConstants.Type type, int code, Category category, KeyModifiers defaultModifiers) {
+	//- 	super(id, type, code, category, defaultModifiers);
+	//- }
 	//# else
 	//- public ActionModifierKeybinding(ResourceLocation id, InputConstants.Type type, int code, String category, KeyModifiers defaultModifiers) {
 	//- 	super(id, type, code, category, defaultModifiers);

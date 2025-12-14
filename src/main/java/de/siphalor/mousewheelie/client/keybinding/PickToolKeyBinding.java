@@ -23,16 +23,21 @@ import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.api.PriorityKeyBinding;
 import de.siphalor.mousewheelie.client.inventory.ToolPicker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+//- import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 public class PickToolKeyBinding extends AmecsKeyBinding implements PriorityKeyBinding {
-	//# if MC_VERSION_NUMBER >= 12109
-	public PickToolKeyBinding(ResourceLocation id, InputConstants.Type type, int code, Category category, KeyModifiers defaultModifiers) {
+	//# if MC_VERSION_NUMBER >= 12111
+	public PickToolKeyBinding(Identifier id, InputConstants.Type type, int code, Category category, KeyModifiers defaultModifiers) {
 		super(id, type, code, category, defaultModifiers);
 	}
+	//# elif MC_VERSION_NUMBER >= 12109
+	//- public PickToolKeyBinding(ResourceLocation id, InputConstants.Type type, int code, Category category, KeyModifiers defaultModifiers) {
+	//- 	super(id, type, code, category, defaultModifiers);
+	//- }
 	//# else
 	//- public PickToolKeyBinding(ResourceLocation id, InputConstants.Type type, int code, String category, KeyModifiers defaultModifiers) {
 	//- 	super(id, type, code, category, defaultModifiers);
