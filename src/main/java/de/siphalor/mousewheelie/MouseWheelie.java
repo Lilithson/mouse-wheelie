@@ -20,6 +20,7 @@ package de.siphalor.mousewheelie;
 import de.siphalor.mousewheelie.client.MWClient;
 import de.siphalor.mousewheelie.common.network.MWLogicalServerNetworking;
 import de.siphalor.mousewheelie.common.network.MWNetworking;
+import de.siphalor.mousewheelie.client.config.MWServerRequiredTweedExtension;
 import de.siphalor.tweed5.coat.bridge.api.TweedCoatBridgeExtension;
 import de.siphalor.tweed5.core.api.container.ConfigContainer;
 import de.siphalor.tweed5.data.hjson.HjsonCommentType;
@@ -93,7 +94,7 @@ public class MouseWheelie implements ModInitializer {
 	private void initializeConfig() {
 		TweedPojoWeaver<MWConfig> weaver = TweedPojoWeaver.forClass(MWConfig.class);
 		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-			weaver.withExtension(TweedCoatBridgeExtension.class);
+			weaver.withExtension(TweedCoatBridgeExtension.class).withExtension(MWServerRequiredTweedExtension.class);
 		}
 
 		ConfigContainer<MWConfig> configContainer = weaver.weave();

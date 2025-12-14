@@ -19,18 +19,15 @@ package de.siphalor.mousewheelie;
 
 import de.siphalor.mousewheelie.client.inventory.sort.SortMode;
 import de.siphalor.mousewheelie.client.util.ItemStackUtils;
+import de.siphalor.mousewheelie.client.config.MWServerRequiredTweedExtension;
 import de.siphalor.tweed5.coat.bridge.api.TweedCoatAttributes;
 import de.siphalor.tweed5.commentloaderextension.api.CommentLoaderExtension;
 import de.siphalor.tweed5.defaultextensions.presets.api.PresetsExtension;
 import de.siphalor.tweed5.fabric.helper.api.DefaultTweedMinecraftWeaving;
 import de.siphalor.tweed5.weaver.pojo.api.annotation.CompoundWeaving;
-//- import de.siphalor.tweed5.weaver.pojo.api.annotation.PojoWeavingExtension;
 import de.siphalor.tweed5.weaver.pojo.api.annotation.TweedExtension;
 import de.siphalor.tweed5.weaver.pojoext.attributes.api.Attribute;
 import de.siphalor.tweed5.weaver.pojoext.presets.api.Preset;
-//- import de.siphalor.tweed5.weaver.pojoext.serde.api.EntryReadWriteConfig;
-//- import de.siphalor.tweed5.weaver.pojoext.serde.api.ReadWritePojoWeavingProcessor;
-//- import de.siphalor.tweed5.weaver.pojoext.serde.api.nullable.AutoNullableReadWritePojoWeavingProcessor;
 import de.siphalor.tweed5.weaver.pojoext.validation.api.Validator;
 import de.siphalor.tweed5.weaver.pojoext.validation.api.validators.WeavableNumberRangeValidator;
 import lombok.AllArgsConstructor;
@@ -103,6 +100,7 @@ public class MWConfig {
 		public SortMode primarySort = SortMode.CREATIVE;
 		public SortMode shiftSort = SortMode.QUANTITY;
 		public SortMode controlSort = SortMode.ALPHABET;
+		@Attribute(key = MWServerRequiredTweedExtension.ATTRIBUTE, value = "true")
 		public boolean serverAcceleratedSorting = true;
 		public boolean optimizeCreativeSearchSort = true;
 	}
@@ -110,6 +108,9 @@ public class MWConfig {
 	@CompoundWeaving
 	@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, value = "textures/block/horn_coral_block.png")
 	public static class Refill {
+		//# if MC_VERSION_NUMBER >= 12104
+		@Attribute(key = MWServerRequiredTweedExtension.ATTRIBUTE, value = "true")
+		//# end
 		public boolean enable = true;
 
 		public boolean playSound = true;
@@ -144,6 +145,9 @@ public class MWConfig {
 	public static class ToolPicking {
 		public boolean holdTool = true;
 		public boolean holdBlock = false;
+		//# if MC_VERSION_NUMBER >= 12104
+		@Attribute(key = MWServerRequiredTweedExtension.ATTRIBUTE, value = "true")
+		//# end
 		public boolean pickFromInventory = true;
 	}
 }

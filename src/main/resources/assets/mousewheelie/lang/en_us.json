@@ -113,5 +113,6 @@
     "mousewheelie.config.tool-picking.hold-block": "Middle-click while holding the same block",
     "mousewheelie.config.tool-picking.hold-block.description": "Pick correct tool when middle clicking (rebindable) whilst holding the same block as faced.",
     "mousewheelie.config.tool-picking.pick-from-inventory": "Pick from whole inventory",
-    "mousewheelie.config.tool-picking.pick-from-inventory.description": "Allows picking tools from the whole inventory.\nIf disabled picking will only happen from the hotbar."
+    "mousewheelie.config.tool-picking.pick-from-inventory.description": "Allows picking tools from the whole inventory.\nIf disabled picking will only happen from the hotbar.",
+    "mousewheelie.config.server-required": "This feature only works in singleplayer or on a server with Mouse Wheelie installed."
 }
