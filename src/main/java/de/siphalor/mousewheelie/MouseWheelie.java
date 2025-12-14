@@ -20,13 +20,14 @@ package de.siphalor.mousewheelie;
 import de.siphalor.mousewheelie.client.MWClient;
 import de.siphalor.mousewheelie.common.network.MWLogicalServerNetworking;
 import de.siphalor.mousewheelie.common.network.MWNetworking;
+import de.siphalor.tweed5.coat.bridge.api.TweedCoatBridgeExtension;
 import de.siphalor.tweed5.core.api.container.ConfigContainer;
 import de.siphalor.tweed5.data.hjson.HjsonCommentType;
 import de.siphalor.tweed5.data.hjson.HjsonSerde;
 import de.siphalor.tweed5.data.hjson.HjsonWriter;
 import de.siphalor.tweed5.fabric.helper.api.FabricConfigCommentLoader;
 import de.siphalor.tweed5.fabric.helper.api.FabricConfigContainerHelper;
-import de.siphalor.tweed5.weaver.pojo.impl.weaving.TweedPojoWeaverBootstrapper;
+import de.siphalor.tweed5.weaver.pojo.api.TweedPojoWeaver;
 import lombok.CustomLog;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
@@ -90,7 +91,12 @@ public class MouseWheelie implements ModInitializer {
 	}
 
 	private void initializeConfig() {
-		ConfigContainer<MWConfig> configContainer = TweedPojoWeaverBootstrapper.create(MWConfig.class).weave();
+		TweedPojoWeaver<MWConfig> weaver = TweedPojoWeaver.forClass(MWConfig.class);
+		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+			weaver.withExtension(TweedCoatBridgeExtension.class);
+		}
+
+		ConfigContainer<MWConfig> configContainer = weaver.weave();
 		FabricConfigCommentLoader.builder()
 				.configContainer(configContainer)
 				.modId(MOD_ID)
