@@ -83,7 +83,9 @@ dependencies {
 	minecraft(mcLibs.minecraft)
 	mappings(loom.layered {
 		officialMojangMappings()
-		parchment("org.parchmentmc.data:parchment-${mcLibs.versions.minecraft.get()}:${mcLibs.versions.parchment.get()}@zip")
+		parchment(variantOf(mcLibs.parchment) {
+			artifactType("zip")
+		})
 	})
 	modImplementation(libs.fabric.loader)
 
