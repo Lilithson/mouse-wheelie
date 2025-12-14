@@ -343,12 +343,12 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 	@Override
 	public ScrollAction mouseWheelie_onMouseScroll(double mouseX, double mouseY, double scrollAmount) {
 		if (MouseWheelie.config.scrolling.enable) {
-			//# if MC_VERSION_NUMBER >= 12103
 			Slot hoveredSlot = findSlot(mouseX, mouseY);
 
 			if (hoveredSlot == null)
 				return ScrollAction.PASS;
 
+			//# if MC_VERSION_NUMBER >= 12103
 			if (MouseWheelie.config.scrolling.preferStackSpecialScrollActions) {
 				if (!MWClient.isScrollModeToggled()) {
 					for (ItemSlotMouseAction slotMouseAction : itemSlotMouseActions) {
@@ -357,15 +357,12 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 						}
 					}
 				}
-			} else if (MWClient.isScrollModeToggled()) {
+			}
+			//# end
+
+			if (MWClient.isScrollModeToggled()) {
 				return ScrollAction.FAILURE;
 			}
-			//# else
-			//- if (MWClient.isScrollModeToggled()) {
-			//- 	return ScrollAction.FAILURE;
-			//- }
-			//- Slot hoveredSlot = findSlot(mouseX, mouseY);
-			//# end
 
 			if (hoveredSlot.getItem().isEmpty())
 				return ScrollAction.PASS;
