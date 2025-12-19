@@ -6,7 +6,7 @@ java = "17"
 minecraft = "1.21.4"
 modmenu = "13.0.0"
 parchment = "2025.03.23"
-tweed = "0.6.1"
+tweed = "0.7.0"
 
 [libraries]
 amecs-api = { group = "de.siphalor.amecs-api", name = "amecs-api-mc1.21.8", version.ref = "amecs-api" }
