@@ -166,9 +166,9 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 				if (tab.visible) {
 					if (tab != selectedTab) {
 						//# if MC_VERSION_NUMBER >= 12111
-						selectedTab.select();
-						selectedTab = tab;
 						selectedTab.unselect();
+						selectedTab = tab;
+						selectedTab.select();
 						//# else
 						//- selectedTab.setStateTriggered(false);
 						//- selectedTab = tab;
