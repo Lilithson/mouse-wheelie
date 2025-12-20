@@ -153,15 +153,23 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 		int left = getLeft();
 		if (mouseX >= left && mouseX < left + WIDGET_WIDTH) {
 			// Ugly approach since assigning the casted value causes a runtime mixin error
-			int maxPage = ((IRecipeBookResults) recipeBookPage).mouseWheelie_getPageCount() - 1;
-			((IRecipeBookResults) recipeBookPage).mouseWheelie_setCurrentPage(Mth.clamp((int) (((IRecipeBookResults) recipeBookPage).mouseWheelie_getCurrentPage() + Math.round(scrollAmount)), 0, Math.max(maxPage, 0)));
-			((IRecipeBookResults) recipeBookPage).mouseWheelie_refreshResultButtons();
+			IRecipeBookResults castedBookPage = (IRecipeBookResults) recipeBookPage;
+			int maxPage = castedBookPage.mouseWheelie_getPageCount() - 1;
+			castedBookPage.mouseWheelie_setCurrentPage(Mth.clamp(
+					(int) (castedBookPage.mouseWheelie_getCurrentPage() + Math.signum(scrollAmount)),
+					0,
+					Math.max(maxPage, 0)
+			));
+			castedBookPage.mouseWheelie_refreshResultButtons();
 			return ScrollAction.SUCCESS;
 		} else if(mouseX >= left - 30 && mouseX < left) {
 			int index = tabButtons.indexOf(selectedTab);
-			int inc = (int) Math.round(scrollAmount);
+			int inc = (int) Math.signum(scrollAmount);
 			while (true) {
-				index = Mth.clamp(index + inc, 0, tabButtons.size() - 1);
+				index += inc;
+				if (index < 0 || index >= tabButtons.size()) {
+					return ScrollAction.PASS;
+				}
 				RecipeBookTabButton tab = tabButtons.get(index);
 				if (tab.visible) {
 					if (tab != selectedTab) {

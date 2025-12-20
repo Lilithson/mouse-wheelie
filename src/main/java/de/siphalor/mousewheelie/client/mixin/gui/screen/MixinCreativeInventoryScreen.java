@@ -77,7 +77,11 @@ public abstract class MixinCreativeInventoryScreen extends AbstractContainerScre
 				//# if MC_VERSION_NUMBER < 12006
 				//- if (FabricLoader.getInstance().isModLoaded("fabric-item-group-api-v1")) {
 				//- 	FabricCreativeGuiHelper helper = new FabricCreativeGuiHelper((CreativeModeInventoryScreen) (Object) this);
-				//- 	int newIndex = Mth.clamp(selectedTabIndex + (int) Math.round(scrollAmount), 0, groupsToDisplay.size() - 1);
+				//- 	int newIndex = Mth.clamp(
+				//- 			selectedTabIndex + (int) Math.signum(scrollAmount),
+				//- 			0,
+				//- 			groupsToDisplay.size() - 1
+				//- 	);
 				//- 	int newPage = helper.getPageForTabIndex(newIndex);
 				//- 	if (newPage < helper.getCurrentPage())
 				//- 		helper.previousPage();
@@ -87,7 +91,11 @@ public abstract class MixinCreativeInventoryScreen extends AbstractContainerScre
 				//- 	return ScrollAction.SUCCESS;
 				//- }
 				//# end
-				selectTab(groupsToDisplay.get(Mth.clamp((int) (selectedTabIndex + Math.round(scrollAmount)), 0, groupsToDisplay.size() - 1)));
+				selectTab(groupsToDisplay.get(Mth.clamp(
+						(int) (selectedTabIndex + Math.signum(scrollAmount)),
+						0,
+						groupsToDisplay.size() - 1)
+				));
 				return ScrollAction.SUCCESS;
 			}
 		}
