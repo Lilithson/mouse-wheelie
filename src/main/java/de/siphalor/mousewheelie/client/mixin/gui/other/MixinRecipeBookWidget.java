@@ -30,6 +30,7 @@ import lombok.CustomLog;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
+//- import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookPage;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookTabButton;
@@ -67,6 +68,11 @@ import java.util.List;
 @Mixin(RecipeBookComponent.class)
 @CustomLog
 public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
+	@Unique
+	private static final int WIDGET_HEIGHT = RecipeBookComponent.IMAGE_HEIGHT;
+	@Unique
+	private static final int WIDGET_WIDTH = RecipeBookComponent.IMAGE_WIDTH;
+
 	@Shadow @Final
 	private RecipeBookPage recipeBookPage;
 
@@ -116,6 +122,11 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 	//- @Shadow protected RecipeBookMenu<?> menu;
 	//# end
 
+	//# if MC_VERSION_NUMBER < 12102
+	//- @Shadow
+	//- private @Nullable EditBox searchBox;
+	//# end
+
 	//# if MC_VERSION_NUMBER >= 12103
 	@Shadow
 	protected abstract boolean isCraftingSlot(Slot slot);
@@ -126,15 +137,21 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 	//- }
 	//# end
 
+	@Shadow
+	protected abstract int getXOrigin();
+
+	@Shadow
+	protected abstract int getYOrigin();
+
 	@Override
 	public ScrollAction mouseWheelie_scrollRecipeBook(double mouseX, double mouseY, double scrollAmount) {
 		if (!this.isVisible())
 			return ScrollAction.PASS;
-		int top = (this.height - 166) / 2;
-		if (mouseY < top || mouseY >= top + 166)
+		int top = getTop();
+		if (mouseY < top || mouseY >= top + WIDGET_HEIGHT)
 			return ScrollAction.PASS;
-		int left = (this.width - 147) / 2 - this.xOffset;
-		if (mouseX >= left && mouseX < left + 147) {
+		int left = getLeft();
+		if (mouseX >= left && mouseX < left + WIDGET_WIDTH) {
 			// Ugly approach since assigning the casted value causes a runtime mixin error
 			int maxPage = ((IRecipeBookResults) recipeBookPage).mouseWheelie_getPageCount() - 1;
 			((IRecipeBookResults) recipeBookPage).mouseWheelie_setCurrentPage(Mth.clamp((int) (((IRecipeBookResults) recipeBookPage).mouseWheelie_getCurrentPage() + Math.round(scrollAmount)), 0, Math.max(maxPage, 0)));
@@ -246,8 +263,8 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 						//- MWClient.getMouseY(),
 						//- 0,
 						//# end
-						(this.width - 147) / 2 - this.xOffset,
-						(this.height - 166) / 2,
+						getLeft(),
+						getTop(),
 						147, 166 // width, height
 						//# if MC_VERSION_NUMBER >= 12109
 						, false
@@ -427,4 +444,32 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 	//- 	return menu.getResultSlotIndex();
 	//- }
 	//# end
+
+	@Unique
+	private int getLeft() {
+		//# if MC_VERSION_NUMBER >= 12102
+		return getXOrigin();
+		//# else
+		//- // we try to position by the search box, so we can keep compatible with other mods that move stuff around
+		//- if (searchBox != null) {
+		//- 	return this.searchBox.getX() - 25;
+		//- } else {
+		//- 	return (this.width - WIDGET_WIDTH) / 2 - this.xOffset;
+		//- }
+		//# end
+	}
+
+	@Unique
+	private int getTop() {
+		//# if MC_VERSION_NUMBER >= 12102
+		return getYOrigin();
+		//# else
+		//- // we try to position by the search box, so we can keep compatible with other mods that move stuff around
+		//- if (searchBox != null) {
+		//- 	return this.searchBox.getY() - 13;
+		//- } else {
+		//- 	return (this.height - WIDGET_HEIGHT) / 2;
+		//- }
+		//# end
+	}
 }
