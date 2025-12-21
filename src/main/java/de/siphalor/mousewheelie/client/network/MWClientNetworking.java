@@ -17,19 +17,55 @@
 
 package de.siphalor.mousewheelie.client.network;
 
+import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.common.network.MWNetworking;
 import de.siphalor.mousewheelie.common.network.PickFromInventoryPacket;
 import de.siphalor.mousewheelie.common.network.ReorderInventoryPacket;
 import lombok.CustomLog;
+import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationNetworking;
+import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 //- import net.minecraft.network.FriendlyByteBuf;
 //- import net.minecraft.network.protocol.game.ServerboundPickItemPacket;
+
+import java.util.concurrent.CompletableFuture;
 
 @CustomLog
 public class MWClientNetworking extends MWNetworking {
 
 	private static int blockNextGuiUpdateRefillTriggers;
+
+	public static void setup() {
+		//# if MC_VERSION_NUMBER >= 12006
+		PayloadTypeRegistry.configurationS2C().register(MWFeatureControlPacket.TYPE, MWFeatureControlPacket.STREAM_CODEC);
+		ClientConfigurationNetworking.registerGlobalReceiver(
+				MWFeatureControlPacket.TYPE,
+				(packet, context) -> onFeatureControlPacket(packet)
+		);
+		PayloadTypeRegistry.playS2C().register(MWFeatureControlPacket.TYPE, MWFeatureControlPacket.STREAM_CODEC);
+		ClientPlayNetworking.registerGlobalReceiver(
+				MWFeatureControlPacket.TYPE,
+				(packet, context) -> onFeatureControlPacket(packet)
+		);
+		//# elif MC_VERSION_NUMBER >= 12002
+		//- ClientConfigurationNetworking.registerGlobalReceiver(MWFeatureControlPacket.PAYLOAD_ID, (client, handler, buf, responseSender) -> {
+		//- 	onFeatureControlPacket(MWFeatureControlPacket.read(buf));
+		//- });
+		//- ClientPlayNetworking.registerGlobalReceiver(MWFeatureControlPacket.PAYLOAD_ID, (minecraft, handler, buf, responseSender) -> {
+		//- 	onFeatureControlPacket(MWFeatureControlPacket.read(buf));
+		//- });
+		//# end
+		ClientLoginNetworking.registerGlobalReceiver(MWFeatureControlPacket.PAYLOAD_ID, (minecraft, listener, buf, consumer) -> {
+			onFeatureControlPacket(MWFeatureControlPacket.read(buf));
+			return CompletableFuture.completedFuture(null);
+		});
+	}
+
+	private static void onFeatureControlPacket(MWFeatureControlPacket packet) {
+		MouseWheelie.setFeaturesForSession(packet.getFeatures());
+	}
 
 	public static boolean canSendReorderPacket() {
 		//# if MC_VERSION_NUMBER >= 12006

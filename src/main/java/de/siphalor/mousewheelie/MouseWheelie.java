@@ -18,6 +18,7 @@
 package de.siphalor.mousewheelie;
 
 import de.siphalor.mousewheelie.client.MWClient;
+import de.siphalor.mousewheelie.client.inventory.sort.SortMode;
 import de.siphalor.mousewheelie.common.network.MWLogicalServerNetworking;
 import de.siphalor.mousewheelie.common.network.MWNetworking;
 import de.siphalor.mousewheelie.client.config.MWServerRequiredTweedExtension;
@@ -38,6 +39,9 @@ import net.minecraft.resources.Identifier;
 //- import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.EnumSet;
+import java.util.Set;
 //- import net.minecraft.world.InteractionHand;
 //- import net.minecraft.world.InteractionResultHolder;
 //- import net.minecraft.world.entity.player.Player;
@@ -49,7 +53,10 @@ public class MouseWheelie implements ModInitializer {
 	public static final String MOD_ID = "mousewheelie";
 	public static final String MOD_NAME = "Mouse Wheelie";
 
+	public static MWConfig globalConfig;
 	public static MWConfig config;
+	public static EnumSet<MWFeature> enabledFeatures = EnumSet.allOf(MWFeature.class);
+
 	public static FabricConfigContainerHelper<MWConfig> configContainerHelper;
 
 	public static Logger createLogger(Class<?> clazz) {
@@ -83,14 +90,6 @@ public class MouseWheelie implements ModInitializer {
 		MWLogicalServerNetworking.setup();
 	}
 
-	private void loadConfig() {
-		config = configContainerHelper.loadAndUpdateInConfigDirectory();
-		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-			MWClient.onConfigChanged();
-		}
-		log.info("Loaded config");
-	}
-
 	private void initializeConfig() {
 		TweedPojoWeaver<MWConfig> weaver = TweedPojoWeaver.forClass(MWConfig.class);
 		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
@@ -111,6 +110,48 @@ public class MouseWheelie implements ModInitializer {
 				new HjsonSerde(new HjsonWriter.Options().multilineCommentType(HjsonCommentType.SLASHES)),
 				MOD_ID
 		);
+	}
+
+	private void loadConfig() {
+		globalConfig = configContainerHelper.loadAndUpdateInConfigDirectory();
+		config = globalConfig;
+		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+			MWClient.onConfigChanged();
+		}
+		log.info("Loaded {} config", MOD_NAME);
+	}
+
+	public static void updateConfig(MWConfig config) {
+		globalConfig = config;
+		setFeaturesForSession(enabledFeatures);
+	}
+
+	public static void setFeaturesForSession(Set<MWFeature> features) {
+		log.info("Reducing enabled {} features to {}", MOD_NAME, features);
+
+		config = configContainerHelper.configContainer().rootEntry().deepCopy(globalConfig);
+
+		if (!features.contains(MWFeature.SORT)) {
+			config.sort.primarySort = SortMode.NONE;
+			config.sort.shiftSort = SortMode.NONE;
+			config.sort.controlSort = SortMode.NONE;
+		}
+		if (config.general.enableQuickCraft) {
+			config.general.enableQuickCraft = features.contains(MWFeature.QUICK_CRAFT);
+		}
+		if (config.refill.enable) {
+			config.refill.enable = features.contains(MWFeature.REFILL);
+		}
+		if (config.toolPicking.pickFromInventory) {
+			config.toolPicking.pickFromInventory = features.contains(MWFeature.TOOL_PICK_INVENTORY);
+		}
+	}
+
+	public static void endFeatureSession() {
+		log.info("{} feature session ended", MOD_NAME);
+
+		enabledFeatures = EnumSet.allOf(MWFeature.class);
+		config = globalConfig;
 	}
 
 	//# if MC_VERSION_NUMBER < 11904

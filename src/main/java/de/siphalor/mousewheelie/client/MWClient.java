@@ -27,6 +27,7 @@ import de.siphalor.mousewheelie.client.inventory.ToolPicker;
 import de.siphalor.mousewheelie.client.inventory.sort.SortMode;
 import de.siphalor.mousewheelie.client.keybinding.*;
 import de.siphalor.mousewheelie.client.network.InteractionManager;
+import de.siphalor.mousewheelie.client.network.MWClientNetworking;
 import de.siphalor.mousewheelie.client.util.CreativeSearchOrder;
 import de.siphalor.mousewheelie.client.util.ScrollAction;
 import de.siphalor.mousewheelie.client.util.inject.IContainerScreen;
@@ -106,9 +107,15 @@ public class MWClient implements ClientModInitializer {
 		//- ClientPickBlockGatherCallback.EVENT.register(MWClient::triggerPick);
 		//# end
 
+		MWClientNetworking.setup();
+
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
 			CreativeSearchOrder.refreshItemSearchPositionLookup();
 			updateTickRate();
+		});
+
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+			MouseWheelie.endFeatureSession();
 		});
 	}
 
@@ -264,12 +271,12 @@ public class MWClient implements ClientModInitializer {
 
 		return coatBridge.createConfigScreen(ConfigScreenCreateParams.<MWConfig>builder()
 				.rootEntry(MouseWheelie.configContainerHelper.configContainer().rootEntry())
-				.currentValue(MouseWheelie.config)
+				.currentValue(MouseWheelie.globalConfig)
 				.defaultValue(defaultValue)
 				.title(Component.translatable("mousewheelie.config"))
 				.translationKeyPrefix("mousewheelie.config")
 				.saveHandler(value -> {
-					MouseWheelie.config = value;
+					MouseWheelie.updateConfig(value);
 					MouseWheelie.configContainerHelper.writeConfigInConfigDirectory(value);
 					MWClient.onConfigChanged();
 				})
