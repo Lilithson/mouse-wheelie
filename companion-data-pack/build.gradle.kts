@@ -1,6 +1,10 @@
 import de.siphalor.mousewheelie.gradle.FormatReadmeForModSites
 import org.gradle.kotlin.dsl.register
 
+plugins {
+	alias(libs.plugins.modrinth)
+}
+
 project.version = property("version") as String
 val displayName = "Mouse Wheelie Companion Data Pack"
 
@@ -34,4 +38,19 @@ tasks.register("build") {
 val formatReadmeForModSites = tasks.register<FormatReadmeForModSites>("formatReadmeForModSites") {
 	input = layout.projectDirectory.file("README.md")
 	output = layout.buildDirectory.dir("readme")
+}
+
+modrinth {
+	project.findProperty("modrinth.token")?.let { token = it as String }
+	projectId = "E9oUbZ2Q"
+
+	syncBodyFrom = providers.fileContents(layout.buildDirectory.file("readme/modrinth.md")).asText
+}
+
+tasks.modrinth {
+	enabled = false
+}
+
+tasks.modrinthSyncBody {
+	dependsOn(formatReadmeForModSites)
 }

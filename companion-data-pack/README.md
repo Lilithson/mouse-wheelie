@@ -1,5 +1,8 @@
+<!-- mod_site.exclude.start -->
+
 # Mouse Wheelie Companion Data Pack
 
+<!-- mod_site.exclude.end -->
 <!-- curseforge.exclude.start -->
 This is a companion data pack for [Mouse Wheelie](https://modrinth.com/project/u5Ic2U1u)
 that allows certain features that would normally require a modded server on Vanilla.

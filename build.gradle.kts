@@ -1,4 +1,5 @@
 import de.siphalor.jcyo.gradle.JcyoTask
+import de.siphalor.mousewheelie.gradle.FormatReadmeForModSites
 import java.util.*
 
 plugins {
@@ -8,6 +9,7 @@ plugins {
 	alias(libs.plugins.licenser)
 	alias(libs.plugins.jcyo)
 	alias(libs.plugins.modPublisher)
+	alias(libs.plugins.modrinth)
 }
 
 val minecraftVersionDescriptor = project.properties["minecraft.version.descriptor"] as String
@@ -230,4 +232,19 @@ publisher {
 val formatReadmeForModSites = tasks.register<FormatReadmeForModSites>("formatReadmeForModSites") {
 	input = layout.projectDirectory.file("README.md")
 	output = layout.buildDirectory.dir("readme")
+}
+
+modrinth {
+	project.findProperty("modrinth.token")?.let { token = it as String }
+	projectId = "u5Ic2U1u"
+
+	syncBodyFrom = providers.fileContents(layout.buildDirectory.file("readme/modrinth.md")).asText
+}
+
+tasks.modrinth {
+	enabled = false
+}
+
+tasks.modrinthSyncBody {
+	dependsOn(formatReadmeForModSites)
 }
