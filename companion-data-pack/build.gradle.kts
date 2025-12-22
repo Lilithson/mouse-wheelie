@@ -1,3 +1,6 @@
+import de.siphalor.mousewheelie.gradle.FormatReadmeForModSites
+import org.gradle.kotlin.dsl.register
+
 project.version = property("version") as String
 val displayName = "Mouse Wheelie Companion Data Pack"
 
@@ -26,4 +29,9 @@ tasks.register("build") {
 	description = "Build the data pack"
 
 	dependsOn(zip)
+}
+
+val formatReadmeForModSites = tasks.register<FormatReadmeForModSites>("formatReadmeForModSites") {
+	input = layout.projectDirectory.file("README.md")
+	output = layout.buildDirectory.dir("readme")
 }

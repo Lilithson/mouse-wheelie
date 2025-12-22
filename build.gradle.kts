@@ -226,3 +226,8 @@ publisher {
 		createRelease(true)
 	}
 }
+
+val formatReadmeForModSites = tasks.register<FormatReadmeForModSites>("formatReadmeForModSites") {
+	input = layout.projectDirectory.file("README.md")
+	output = layout.buildDirectory.dir("readme")
+}
