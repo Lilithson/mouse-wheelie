@@ -41,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.EnumSet;
-import java.util.Set;
 //- import net.minecraft.world.InteractionHand;
 //- import net.minecraft.world.InteractionResultHolder;
 //- import net.minecraft.world.entity.player.Player;
@@ -123,11 +122,13 @@ public class MouseWheelie implements ModInitializer {
 
 	public static void updateConfig(MWConfig config) {
 		globalConfig = config;
-		setFeaturesForSession(enabledFeatures);
+		refreshEnabledFeatures();
 	}
 
-	public static void setFeaturesForSession(Set<MWFeature> features) {
+	public static void setFeaturesForSession(EnumSet<MWFeature> features) {
 		log.info("Reducing enabled {} features to {}", MOD_NAME, features);
+
+		enabledFeatures = features;
 
 		config = configContainerHelper.configContainer().rootEntry().deepCopy(globalConfig);
 
@@ -145,6 +146,15 @@ public class MouseWheelie implements ModInitializer {
 		if (config.toolPicking.pickFromInventory) {
 			config.toolPicking.pickFromInventory = features.contains(MWFeature.TOOL_PICK_INVENTORY);
 		}
+
+		if (features.size() < MWFeature.values().length
+				&& FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+			MWClient.onFeatureSetReduced();
+		}
+	}
+
+	public static void refreshEnabledFeatures() {
+		setFeaturesForSession(enabledFeatures);
 	}
 
 	public static void endFeatureSession() {

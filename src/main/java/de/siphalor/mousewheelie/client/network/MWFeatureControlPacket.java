@@ -93,6 +93,6 @@ public class MWFeatureControlPacket
 		}
 	}
 
-	Set<MWFeature> features;
+	EnumSet<MWFeature> features;
 
 }

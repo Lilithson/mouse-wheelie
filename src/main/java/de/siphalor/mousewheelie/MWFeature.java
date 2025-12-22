@@ -17,6 +17,8 @@
 
 package de.siphalor.mousewheelie;
 
+import net.minecraft.network.chat.Component;
+
 import java.util.Locale;
 import java.util.Optional;
 
@@ -34,5 +36,9 @@ public enum MWFeature {
 		} catch (IllegalArgumentException ignored) {
 			return Optional.empty();
 		}
+	}
+
+	public Component getComponent() {
+		return Component.translatable("mousewheelie.feature." + name().toLowerCase(Locale.ROOT));
 	}
 }

@@ -22,6 +22,7 @@ import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.coat.screen.ConfigScreen;
 import de.siphalor.coat.util.EnumeratedMaterial;
 import de.siphalor.mousewheelie.MWConfig;
+import de.siphalor.mousewheelie.MWFeature;
 import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.compat.MWCompanionDataPackHelper;
 import de.siphalor.mousewheelie.client.inventory.ToolPicker;
@@ -51,6 +52,7 @@ import net.minecraft.core.component.DataComponents;
 //- import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 //- import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.player.Player;
@@ -61,6 +63,7 @@ import net.minecraft.world.phys.HitResult;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Locale;
 
 //- import static de.siphalor.mousewheelie.MouseWheelie.MOD_ID;
@@ -176,6 +179,22 @@ public class MWClient implements ClientModInitializer {
 		//# else
 		//- return Screen.hasAltDown();
 		//# end
+	}
+
+	public static void onFeatureSetReduced() {
+		MutableComponent message = Component.translatable("mousewheelie.features.reduced-by-server");
+		Component[] disabledFeatures = EnumSet.complementOf(MouseWheelie.enabledFeatures)
+				.stream()
+				.map(MWFeature::getComponent)
+				.toArray(Component[]::new);
+		for (int i = 0; i < disabledFeatures.length; i++) {
+			message.append(disabledFeatures[i]);
+			if (i < disabledFeatures.length - 1) {
+				message.append(", ");
+			}
+		}
+
+		Minecraft.getInstance().player.displayClientMessage(message, false);
 	}
 
 	public static void onConfigChanged() {
