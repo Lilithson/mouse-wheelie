@@ -88,7 +88,7 @@ public abstract class MixinClientPlayNetworkHandler
 			//noinspection ConstantConditions
 			Inventory inventory = minecraft.player.getInventory();
 			//# if MC_VERSION_NUMBER >= 12108
-			if (packet.getSlot() == inventory.getSelectedSlot()) {
+			if (packet.getSlot() - Inventory.INVENTORY_SIZE == inventory.getSelectedSlot()) {
 			//# else
 			//- if (packet.getSlot() - 36 == inventory.selected) {
 			//# end
