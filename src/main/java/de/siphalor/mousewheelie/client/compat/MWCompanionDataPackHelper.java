@@ -72,7 +72,7 @@ public class MWCompanionDataPackHelper {
 	}
 
 	public static void pickFromInventorySlot(int slot) {
-		InteractionManager.push(() -> InteractionManager.HELD_ITEM_CHANGE_WAITER);
+		InteractionManager.push(() -> triggerType -> triggerType == InteractionManager.TriggerType.CONTAINER_SLOT_UPDATE);
 		//noinspection DataFlowIssue
 		Minecraft.getInstance().getConnection().send(new ServerboundChatCommandPacket(
 				"trigger " + PICK_FROM_INVENTORY_TRIGGER + " set " + slot
