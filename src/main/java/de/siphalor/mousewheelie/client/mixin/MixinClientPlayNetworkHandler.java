@@ -19,6 +19,7 @@ package de.siphalor.mousewheelie.client.mixin;
 
 import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.MWClient;
+import de.siphalor.mousewheelie.client.compat.MWCompanionDataPackHelper;
 import de.siphalor.mousewheelie.client.inventory.SlotRefiller;
 import de.siphalor.mousewheelie.client.network.InteractionManager;
 import de.siphalor.mousewheelie.client.network.MWClientNetworking;
@@ -26,11 +27,11 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.CommonListenerCookie;
 import net.minecraft.network.Connection;
 //- import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 //- import net.minecraft.network.protocol.game.ClientboundSetCarriedItemPacket;
 import net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket;
@@ -153,5 +154,18 @@ public abstract class MixinClientPlayNetworkHandler
 	//- 		}
 	//- 	}
 	//- }
+	//# end
+
+	//# if MC_VERSION_NUMBER >= 12104
+	@Inject(
+			method = "handleCommandSuggestions",
+			at = @At(value = "HEAD"),
+			cancellable = true
+	)
+	public void onCommandSuggestions(ClientboundCommandSuggestionsPacket packet, CallbackInfo callbackInfo) {
+		if (MWCompanionDataPackHelper.handleAvailabilityTriggerCommandSuggestions(packet)) {
+			callbackInfo.cancel();
+		}
+	}
 	//# end
 }

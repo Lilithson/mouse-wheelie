@@ -23,6 +23,7 @@ import de.siphalor.coat.screen.ConfigScreen;
 import de.siphalor.coat.util.EnumeratedMaterial;
 import de.siphalor.mousewheelie.MWConfig;
 import de.siphalor.mousewheelie.MouseWheelie;
+import de.siphalor.mousewheelie.client.compat.MWCompanionDataPackHelper;
 import de.siphalor.mousewheelie.client.inventory.ToolPicker;
 import de.siphalor.mousewheelie.client.inventory.sort.SortMode;
 import de.siphalor.mousewheelie.client.keybinding.*;
@@ -42,6 +43,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 //- import net.fabricmc.fabric.api.event.client.player.ClientPickBlockGatherCallback;
 import net.minecraft.client.KeyMapping;
@@ -50,6 +52,7 @@ import net.minecraft.core.component.DataComponents;
 //- import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 //- import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
@@ -112,6 +115,24 @@ public class MWClient implements ClientModInitializer {
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
 			CreativeSearchOrder.refreshItemSearchPositionLookup();
 			updateTickRate();
+			//# if MC_VERSION_NUMBER >= 12104
+			if (!MWClientNetworking.canSendPickFromInventoryPacket()) {
+				MWCompanionDataPackHelper.updateAvailability();
+			}
+			//# end
+		});
+
+		ClientReceiveMessageEvents.ALLOW_GAME.register((component, overlay) -> {
+			if (!(component.getContents() instanceof TranslatableContents translatableContents)) {
+				return true;
+			}
+			if (!translatableContents.getKey().equals("commands.trigger.set.success") || translatableContents.getArgs().length < 1) {
+				return true;
+			}
+			if (!(translatableContents.getArgs()[0] instanceof Component firstArg)) {
+				return true;
+			}
+			return !firstArg.getString().contains(MWCompanionDataPackHelper.PICK_FROM_INVENTORY_TRIGGER);
 		});
 
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {

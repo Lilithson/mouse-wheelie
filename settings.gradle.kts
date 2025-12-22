@@ -40,4 +40,7 @@ dependencyResolutionManagement {
 	}
 }
 
+include("mouse-wheelie-companion-data-pack")
+project(":mouse-wheelie-companion-data-pack").projectDir = file("companion-data-pack")
+
 rootProject.name = "mouse-wheelie"

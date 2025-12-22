@@ -18,6 +18,7 @@
 package de.siphalor.mousewheelie.client.network;
 
 import de.siphalor.mousewheelie.MouseWheelie;
+import de.siphalor.mousewheelie.client.compat.MWCompanionDataPackHelper;
 import de.siphalor.mousewheelie.common.network.MWNetworking;
 import de.siphalor.mousewheelie.common.network.PickFromInventoryPacket;
 import de.siphalor.mousewheelie.common.network.ReorderInventoryPacket;
@@ -96,12 +97,16 @@ public class MWClientNetworking extends MWNetworking {
 	public static void pickFromInventory(int slot) {
 		//# if MC_VERSION_NUMBER >= 12104
 		if (!canSendPickFromInventoryPacket()) {
-			log.warn("Trying to send pick from inventory packet, but the server doesn't support it");
+			if (MWCompanionDataPackHelper.canPickFromInventory()) {
+				MWCompanionDataPackHelper.pickFromInventorySlot(slot - 9);
+			} else {
+				log.warn("Trying to send pick from inventory packet, but the server doesn't support it");
+			}
 			return;
 		}
 		InteractionManager.push(new InteractionManager.PacketEvent(
 				new ServerboundCustomPayloadPacket(new PickFromInventoryPacket(slot)),
-				triggerType -> triggerType == InteractionManager.TriggerType.HELD_ITEM_CHANGE
+				InteractionManager.HELD_ITEM_CHANGE_WAITER
 		));
 		//# else
 		//- InteractionManager.push(new InteractionManager.PacketEvent(

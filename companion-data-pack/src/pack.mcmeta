@@ -1,0 +1,12 @@
+{
+	"pack": {
+		"description": "Companion datapack that substitutes for installing the mod on the server side.\nVersion: ${version}",
+		"min_format": 18,
+		"max_format": [94, 1],
+		"supported_formats": {
+			"min_inclusive": 18,
+			"max_inclusive": 94
+		},
+		"pack_format": 94
+	}
+}

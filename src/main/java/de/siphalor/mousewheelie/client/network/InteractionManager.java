@@ -47,6 +47,7 @@ public class InteractionManager {
 
 	public static final Waiter DUMMY_WAITER = (TriggerType triggerType) -> true;
 	public static final Waiter TICK_WAITER = (TriggerType triggerType) -> triggerType == TriggerType.TICK;
+	public static final Waiter HELD_ITEM_CHANGE_WAITER = (TriggerType triggerType) -> triggerType == TriggerType.HELD_ITEM_CHANGE;
 
 	public static final PacketEvent SWAP_WITH_OFFHAND_EVENT = new PacketEvent(
 			new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND, BlockPos.ZERO, Direction.DOWN),

@@ -1,0 +1,2 @@
+scoreboard objectives add mousewheelie_companion_version_info trigger
+scoreboard objectives add mousewheelie_companion_pick_from_inventory trigger

@@ -19,6 +19,7 @@ package de.siphalor.mousewheelie.client.inventory;
 
 import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.MWClient;
+import de.siphalor.mousewheelie.client.compat.MWCompanionDataPackHelper;
 import de.siphalor.mousewheelie.client.network.MWClientNetworking;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
@@ -111,7 +112,9 @@ public class ToolPicker {
 
 	private boolean canPickFromInventory() {
 		//# if MC_VERSION_NUMBER >= 12104
-		return MouseWheelie.config.toolPicking.pickFromInventory && MWClientNetworking.canSendPickFromInventoryPacket();
+		return MouseWheelie.config.toolPicking.pickFromInventory
+				&& (MWClientNetworking.canSendPickFromInventoryPacket()
+						|| MWCompanionDataPackHelper.canPickFromInventory());
 		//# else
 		//- return MouseWheelie.config.toolPicking.pickFromInventory;
 		//# end

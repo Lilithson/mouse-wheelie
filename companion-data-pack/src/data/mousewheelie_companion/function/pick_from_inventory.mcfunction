@@ -1,0 +1,2 @@
+execute store result storage mousewheelie_companion pick_from_inventory.inv_slot int 1 run scoreboard players get @s mousewheelie_companion_pick_from_inventory
+function mousewheelie_companion:pick_from_inventory_slot with storage mousewheelie_companion pick_from_inventory

@@ -96,6 +96,7 @@ dependencies {
 		"fabric-item-group-api-v1",
 		"fabric-lifecycle-events-v1",
 		"fabric-key-binding-api-v1",
+		"fabric-message-api-v1",
 		"fabric-networking-api-v1",
 		"fabric-resource-loader-v0",
 		"fabric-registry-sync-v0",
@@ -154,7 +155,7 @@ tasks.compileJava {
 
 publishing {
 	publications {
-		create<MavenPublication>("mavenJava") {
+		create<MavenPublication>("mod") {
 			artifactId = archivesBaseName
 			version = shortVersion
 
