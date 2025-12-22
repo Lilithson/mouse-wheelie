@@ -20,7 +20,7 @@ _No mouses were harmed in the making of this mod._
 </div>
 <!-- mod_site.exclude.end -->
 
-## Features
+## Main Features
 
 | Feature               | Description                                                                | How?                                          | Availability                                             |
 |-----------------------|----------------------------------------------------------------------------|-----------------------------------------------|----------------------------------------------------------|
@@ -47,10 +47,15 @@ Alternatively, you can install the [Mouse Wheelie Companion data pack](https://m
 
 ## Configuration
 
+Lots of stuff is configurable.
+
 <!-- curseforge.exclude.start -->
-Lots of stuff is configurable. To open the config screen you'll need to install [Mod Menu](https://modrinth.com/project/mOgUt4GM).
+To open the config screen you'll need to install [Mod Menu](https://modrinth.com/project/mOgUt4GM).
 <!-- curseforge.exclude.end -->
-<!-- curseforge.include: Lots of stuff is configurable. To open the config screen you'll need to install [Mod Menu](https://www.curseforge.com/minecraft/mc-mods/modmenu). -->
+<!-- curseforge.include: To open the config screen you'll need to install [Mod Menu](https://www.curseforge.com/minecraft/mc-mods/modmenu). -->
+
+Alternatively, you can edit the config file `mousewheelie.hjson` in the config folder after the first launch.  
+Changes will only be applied after a restart when editing the config file.
 
 ## Translation status
 
