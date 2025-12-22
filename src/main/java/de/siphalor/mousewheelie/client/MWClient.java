@@ -38,7 +38,6 @@ import de.siphalor.tweed5.coat.bridge.api.ConfigScreenCreateParams;
 import de.siphalor.tweed5.coat.bridge.api.TweedCoatBridgeExtension;
 import de.siphalor.tweed5.coat.bridge.api.TweedCoatMappers;
 import de.siphalor.tweed5.defaultextensions.presets.api.PresetsExtension;
-//- import lombok.CustomLog;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -122,6 +121,8 @@ public class MWClient implements ClientModInitializer {
 			//# end
 		});
 
+
+		//# if MC_VERSION_NUMBER >= 12104
 		ClientReceiveMessageEvents.ALLOW_GAME.register((component, overlay) -> {
 			if (!(component.getContents() instanceof TranslatableContents translatableContents)) {
 				return true;
@@ -134,6 +135,7 @@ public class MWClient implements ClientModInitializer {
 			}
 			return !firstArg.getString().contains(MWCompanionDataPackHelper.PICK_FROM_INVENTORY_TRIGGER);
 		});
+		//# end
 
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			MouseWheelie.endFeatureSession();
