@@ -58,6 +58,11 @@ Lots of stuff is configurable. To open the config screen you'll need to install 
 
 Contribute or improve translations [here](https://weblate.siphalor.de/engage/mouse-wheelie).
 
+## Notes for Server Operators
+
+A bunch of the features in this mod are rightfully considered cheating.  
+See [here](https://github.com/Siphalor/mouse-wheelie/blob/master/SERVER_OPERATORS.md) for information on how to prevent this.
+
 <!-- mod_site.exclude.start -->
 ## License
 
