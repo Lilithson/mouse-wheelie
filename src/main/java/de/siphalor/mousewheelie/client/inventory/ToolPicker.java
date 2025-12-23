@@ -134,10 +134,11 @@ public class ToolPicker {
 				//# else
 				//- inventory.selected = index;
 				//# end
-			} else {
+				return true;
+			} else if (MWClientNetworking.canPickFromInventory()) {
 				MWClientNetworking.pickFromInventory(index);
+				return true;
 			}
-			return true;
 		}
 		return false;
 	}

@@ -152,8 +152,6 @@ public class SlotRefiller {
 			int slot = rule.findMatchingStack(playerInventory, stack);
 
 			if (slot != -1) {
-				startRefill();
-
 				refillFromSlot(hand, slot);
 				return true;
 			}
@@ -163,10 +161,6 @@ public class SlotRefiller {
 
 	private static void startRefill() {
 		refillStartTime = System.currentTimeMillis();
-
-		if (MouseWheelie.config.refill.playSound) {
-			scheduleRefillSound();
-		}
 	}
 
 	private static void endRefill() {
@@ -178,7 +172,9 @@ public class SlotRefiller {
 	}
 
 	private static void scheduleRefillSound() {
-		InteractionManager.delay(SlotRefiller::playRefillSound, Duration.of(200, ChronoUnit.MILLIS));
+		if (MouseWheelie.config.refill.playSound) {
+			InteractionManager.delay(SlotRefiller::playRefillSound, Duration.of(200, ChronoUnit.MILLIS));
+		}
 	}
 
 	private static void playRefillSound() {
@@ -210,6 +206,9 @@ public class SlotRefiller {
 	}
 
 	private static void refillFromHotbar(InteractionHand hand, int hotbarSlot) {
+		startRefill();
+		scheduleRefillSound();
+
 		if (MouseWheelie.config.refill.restoreSelectedSlot) {
 			//# if MC_VERSION_NUMBER >= 12108
 			ItemStack offhandStack = playerInventory.player.getOffhandItem();
@@ -252,6 +251,12 @@ public class SlotRefiller {
 	}
 
 	private static void refillFromInventory(InteractionHand hand, int inventorySlot) {
+		if (!MWClientNetworking.canPickFromInventory()) {
+			return;
+		}
+
+		startRefill();
+		scheduleRefillSound();
 		if (hand == InteractionHand.OFF_HAND) {
 			//# if MC_VERSION_NUMBER >= 12108
 			ItemStack mainHandStack = playerInventory.getSelectedItem();

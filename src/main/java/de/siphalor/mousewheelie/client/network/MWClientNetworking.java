@@ -94,20 +94,29 @@ public class MWClientNetworking extends MWNetworking {
 		//# end
 	}
 
+	public static boolean canPickFromInventory() {
+		//# if MC_VERSION_NUMBER >= 12104
+		return canSendPickFromInventoryPacket() || MWCompanionDataPackHelper.canPickFromInventory();
+		//# else
+		//- return true;
+		//# end
+	}
+
 	public static void pickFromInventory(int slot) {
 		//# if MC_VERSION_NUMBER >= 12104
-		if (!canSendPickFromInventoryPacket()) {
-			if (MWCompanionDataPackHelper.canPickFromInventory()) {
-				MWCompanionDataPackHelper.pickFromInventorySlot(slot - 9);
-			} else {
-				log.warn("Trying to send pick from inventory packet, but the server doesn't support it");
-			}
+		if (canSendPickFromInventoryPacket()) {
+			InteractionManager.push(new InteractionManager.PacketEvent(
+					new ServerboundCustomPayloadPacket(new PickFromInventoryPacket(slot)),
+					InteractionManager.HELD_ITEM_CHANGE_WAITER
+			));
 			return;
 		}
-		InteractionManager.push(new InteractionManager.PacketEvent(
-				new ServerboundCustomPayloadPacket(new PickFromInventoryPacket(slot)),
-				InteractionManager.HELD_ITEM_CHANGE_WAITER
-		));
+		if (MWCompanionDataPackHelper.canPickFromInventory()) {
+			MWCompanionDataPackHelper.pickFromInventorySlot(slot - 9);
+			return;
+		}
+
+		log.warn("Trying to send pick from inventory packet, but the server doesn't support it");
 		//# else
 		//- InteractionManager.push(new InteractionManager.PacketEvent(
 		//- 		new ServerboundPickItemPacket(slot),
