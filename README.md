@@ -25,6 +25,7 @@ _No mouses were harmed in the making of this mod._
 | Feature               | Description                                                                | How?                                          | Availability                                             |
 |-----------------------|----------------------------------------------------------------------------|-----------------------------------------------|----------------------------------------------------------|
 | Inventory scrolling   | Scroll over stacks in inventories to move them around                      | Scroll over stacks                            | Everywhere                                               |
+| Depositing/Restocking | Move all items that already exist in another inventory                     | Hold space and left click                     | Everywhere                                               |
 | Inventory sorting     | Sort items in inventories by name, quantity or creative order              | Press middle mouse button                     | Everywhere (faster if on server¹, creative since 1.19.3) |
 | Scroll through tabs   | Scroll through tabs and pages in the creative inventory or recipe book     | Scroll over tabs/pages                        | Everywhere                                               |
 | Auto refill           | Automatically refills used up tools, foods and the like from the inventory | Use something up                              | Up to 1.21.3, later only if on server¹                   |
