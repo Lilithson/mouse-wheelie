@@ -24,6 +24,7 @@ import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.api.PriorityKeyBinding;
 import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.MWClient;
+
 import net.minecraft.resources.Identifier;
 //- import net.minecraft.resources.ResourceLocation;
 

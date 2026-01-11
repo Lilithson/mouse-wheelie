@@ -18,8 +18,9 @@
 package de.siphalor.mousewheelie.client.util.inject;
 
 import de.siphalor.mousewheelie.client.util.ScrollAction;
-import net.minecraft.world.inventory.Slot;
 import org.jetbrains.annotations.ApiStatus;
+
+import net.minecraft.world.inventory.Slot;
 
 @ApiStatus.Internal
 public interface IContainerScreen {

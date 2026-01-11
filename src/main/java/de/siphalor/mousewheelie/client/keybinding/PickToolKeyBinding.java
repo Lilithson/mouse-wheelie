@@ -22,6 +22,7 @@ import de.siphalor.amecs.api.AmecsKeyBinding;
 import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.api.PriorityKeyBinding;
 import de.siphalor.mousewheelie.client.inventory.ToolPicker;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 //- import net.minecraft.resources.ResourceLocation;

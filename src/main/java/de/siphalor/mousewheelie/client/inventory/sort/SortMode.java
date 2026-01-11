@@ -25,13 +25,13 @@ import de.siphalor.tweed5.weaver.pojoext.serde.api.EntryReadWriteConfig;
 import it.unimi.dsi.fastutil.ints.IntArrays;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import java.util.*;
+import java.util.concurrent.locks.Lock;
+
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-
-import java.util.*;
-import java.util.concurrent.locks.Lock;
 
 @EntryReadWriteConfig("de.siphalor.mousewheelie.client.inventory.sort.SortModeReaderWriter")
 public abstract class SortMode {

@@ -20,7 +20,11 @@ package de.siphalor.mousewheelie.client.util;
 import com.google.common.collect.Sets;
 import de.siphalor.mousewheelie.MouseWheelie;
 //- import de.siphalor.mousewheelie.client.mixin.MinecraftClientAccessor;
+import java.awt.*;
+import java.util.*;
 import lombok.CustomLog;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 //- import net.minecraft.client.Minecraft;
 //- import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.core.component.DataComponentMap;
@@ -34,10 +38,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.DyedItemColor;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
-import java.awt.*;
-import java.util.*;
 
 @CustomLog
 public class ItemStackUtils {

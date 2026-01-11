@@ -17,10 +17,10 @@
 
 package de.siphalor.mousewheelie;
 
-import net.minecraft.network.chat.Component;
-
 import java.util.Locale;
 import java.util.Optional;
+
+import net.minecraft.network.chat.Component;
 
 public enum MWFeature {
 	SCROLL,

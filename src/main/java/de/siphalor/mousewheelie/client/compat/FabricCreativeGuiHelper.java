@@ -19,6 +19,7 @@ package de.siphalor.mousewheelie.client.compat;
 
 //- import net.fabricmc.fabric.impl.client.itemgroup.CreativeGuiExtensions;
 //- import net.fabricmc.fabric.impl.client.itemgroup.FabricCreativeGuiComponents;
+
 //- import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 
 //# if MC_VERSION_NUMBER < 12006

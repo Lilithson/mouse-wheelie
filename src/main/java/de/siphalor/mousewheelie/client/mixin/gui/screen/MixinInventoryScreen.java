@@ -20,15 +20,16 @@ package de.siphalor.mousewheelie.client.mixin.gui.screen;
 //- import de.siphalor.mousewheelie.client.util.ScrollAction;
 //- import de.siphalor.mousewheelie.client.util.inject.IRecipeBookWidget;
 //- import de.siphalor.mousewheelie.client.util.inject.IScrollableRecipeBook;
+//- import org.spongepowered.asm.mixin.Final;
+//- import org.spongepowered.asm.mixin.Mixin;
+//- import org.spongepowered.asm.mixin.Shadow;
+
 //- import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 //- import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 //- import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 //- import net.minecraft.network.chat.Component;
 //- import net.minecraft.world.entity.player.Inventory;
 //- import net.minecraft.world.inventory.InventoryMenu;
-//- import org.spongepowered.asm.mixin.Final;
-//- import org.spongepowered.asm.mixin.Mixin;
-//- import org.spongepowered.asm.mixin.Shadow;
 
 //# if MC_VERSION_NUMBER < 12103
 //- @Mixin(InventoryScreen.class)

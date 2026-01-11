@@ -17,11 +17,11 @@
 
 package de.siphalor.mousewheelie.client.inventory.sort;
 
+import java.util.List;
 import lombok.Value;
+
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.Slot;
-
-import java.util.List;
 
 /**
  * Additional context for executing a sort.

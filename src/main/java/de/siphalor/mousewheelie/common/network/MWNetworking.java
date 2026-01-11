@@ -20,6 +20,7 @@ package de.siphalor.mousewheelie.common.network;
 //- import de.siphalor.mousewheelie.MouseWheelie;
 //- import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+
 //- import net.minecraft.network.FriendlyByteBuf;
 //- import net.minecraft.resources.ResourceLocation;
 

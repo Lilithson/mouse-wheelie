@@ -30,15 +30,15 @@ import de.siphalor.tweed5.defaultextensions.validation.api.ValidationProvidingEx
 import de.siphalor.tweed5.defaultextensions.validation.api.result.ValidationIssue;
 import de.siphalor.tweed5.defaultextensions.validation.api.result.ValidationIssueLevel;
 import de.siphalor.tweed5.defaultextensions.validation.api.result.ValidationResult;
-import lombok.CustomLog;
-import lombok.RequiredArgsConstructor;
-import net.minecraft.client.resources.language.I18n;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import lombok.CustomLog;
+import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
+
+import net.minecraft.client.resources.language.I18n;
 
 /**
  * Custom Tweed extension that adds an informational message

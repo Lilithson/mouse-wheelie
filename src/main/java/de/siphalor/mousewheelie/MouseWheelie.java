@@ -18,10 +18,10 @@
 package de.siphalor.mousewheelie;
 
 import de.siphalor.mousewheelie.client.MWClient;
+import de.siphalor.mousewheelie.client.config.MWServerRequiredTweedExtension;
 import de.siphalor.mousewheelie.client.inventory.sort.SortMode;
 import de.siphalor.mousewheelie.common.network.MWLogicalServerNetworking;
 import de.siphalor.mousewheelie.common.network.MWNetworking;
-import de.siphalor.mousewheelie.client.config.MWServerRequiredTweedExtension;
 import de.siphalor.tweed5.coat.bridge.api.TweedCoatBridgeExtension;
 import de.siphalor.tweed5.core.api.container.ConfigContainer;
 import de.siphalor.tweed5.data.hjson.HjsonCommentType;
@@ -30,17 +30,17 @@ import de.siphalor.tweed5.data.hjson.HjsonWriter;
 import de.siphalor.tweed5.fabric.helper.api.FabricConfigCommentLoader;
 import de.siphalor.tweed5.fabric.helper.api.FabricConfigContainerHelper;
 import de.siphalor.tweed5.weaver.pojo.api.TweedPojoWeaver;
+import java.util.EnumSet;
 import lombok.CustomLog;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 //- import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.resources.Identifier;
-//- import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.EnumSet;
+import net.minecraft.resources.Identifier;
+//- import net.minecraft.resources.ResourceLocation;
 //- import net.minecraft.world.InteractionHand;
 //- import net.minecraft.world.InteractionResultHolder;
 //- import net.minecraft.world.entity.player.Player;

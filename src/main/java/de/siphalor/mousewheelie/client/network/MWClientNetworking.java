@@ -22,16 +22,16 @@ import de.siphalor.mousewheelie.client.compat.MWCompanionDataPackHelper;
 import de.siphalor.mousewheelie.common.network.MWNetworking;
 import de.siphalor.mousewheelie.common.network.PickFromInventoryPacket;
 import de.siphalor.mousewheelie.common.network.ReorderInventoryPacket;
+import java.util.concurrent.CompletableFuture;
 import lombok.CustomLog;
 import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
-//- import net.minecraft.network.FriendlyByteBuf;
-//- import net.minecraft.network.protocol.game.ServerboundPickItemPacket;
 
-import java.util.concurrent.CompletableFuture;
+//- import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
+//- import net.minecraft.network.protocol.game.ServerboundPickItemPacket;
 
 @CustomLog
 public class MWClientNetworking extends MWNetworking {

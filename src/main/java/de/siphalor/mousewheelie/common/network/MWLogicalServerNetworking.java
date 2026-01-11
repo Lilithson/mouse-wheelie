@@ -20,9 +20,12 @@ package de.siphalor.mousewheelie.common.network;
 import de.siphalor.mousewheelie.MouseWheelie;
 import it.unimi.dsi.fastutil.ints.IntAVLTreeSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.CustomLog;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+
 //- import net.minecraft.network.FriendlyByteBuf;
 //- import net.minecraft.network.protocol.PacketUtils;
 //- import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -36,9 +39,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Class that handles functionality on the logical server side.

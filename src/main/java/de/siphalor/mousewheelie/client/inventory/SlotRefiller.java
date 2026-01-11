@@ -21,8 +21,15 @@ import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.network.InteractionManager;
 import de.siphalor.mousewheelie.client.network.MWClientNetworking;
 import de.siphalor.mousewheelie.client.util.ItemStackUtils;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.component.DataComponents;
@@ -36,13 +43,6 @@ import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 //- import net.minecraft.world.item.enchantment.EnchantmentHelper;
 //- import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
-
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 @SuppressWarnings("unused")
 @Environment(EnvType.CLIENT)

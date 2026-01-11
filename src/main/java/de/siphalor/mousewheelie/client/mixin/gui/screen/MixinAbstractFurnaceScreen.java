@@ -20,16 +20,17 @@ package de.siphalor.mousewheelie.client.mixin.gui.screen;
 //- import de.siphalor.mousewheelie.client.util.ScrollAction;
 //- import de.siphalor.mousewheelie.client.util.inject.IRecipeBookWidget;
 //- import de.siphalor.mousewheelie.client.util.inject.IScrollableRecipeBook;
-//- import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-//- import net.minecraft.client.gui.screens.inventory.AbstractFurnaceScreen;
-//- import net.minecraft.client.gui.screens.recipebook.AbstractFurnaceRecipeBookComponent;
-//- import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
-//- import net.minecraft.network.chat.Component;
-//- import net.minecraft.world.entity.player.Inventory;
-//- import net.minecraft.world.inventory.AbstractFurnaceMenu;
 //- import org.spongepowered.asm.mixin.Final;
 //- import org.spongepowered.asm.mixin.Mixin;
 //- import org.spongepowered.asm.mixin.Shadow;
+
+//- import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+//- import net.minecraft.client.gui.screens.inventory.AbstractFurnaceScreen;
+//- import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
+//- import net.minecraft.client.gui.screens.recipebook.AbstractFurnaceRecipeBookComponent;
+//- import net.minecraft.network.chat.Component;
+//- import net.minecraft.world.entity.player.Inventory;
+//- import net.minecraft.world.inventory.AbstractFurnaceMenu;
 
 //# if MC_VERSION_NUMBER < 12103
 //- @Mixin(AbstractFurnaceScreen.class)

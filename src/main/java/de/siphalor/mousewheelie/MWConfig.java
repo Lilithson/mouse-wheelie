@@ -17,9 +17,9 @@
 
 package de.siphalor.mousewheelie;
 
+import de.siphalor.mousewheelie.client.config.MWServerRequiredTweedExtension;
 import de.siphalor.mousewheelie.client.inventory.sort.SortMode;
 import de.siphalor.mousewheelie.client.util.ItemStackUtils;
-import de.siphalor.mousewheelie.client.config.MWServerRequiredTweedExtension;
 import de.siphalor.tweed5.coat.bridge.api.TweedCoatAttributes;
 import de.siphalor.tweed5.commentloaderextension.api.CommentLoaderExtension;
 import de.siphalor.tweed5.defaultextensions.presets.api.PresetsExtension;

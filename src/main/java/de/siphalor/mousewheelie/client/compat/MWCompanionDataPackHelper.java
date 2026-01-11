@@ -19,6 +19,7 @@ package de.siphalor.mousewheelie.client.compat;
 
 import de.siphalor.mousewheelie.client.network.InteractionManager;
 import lombok.CustomLog;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket;
 import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
