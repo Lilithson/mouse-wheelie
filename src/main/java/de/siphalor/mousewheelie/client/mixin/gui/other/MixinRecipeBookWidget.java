@@ -137,11 +137,13 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 	//- }
 	//# end
 
+	//# if MC_VERSION_NUMBER >= 12102
 	@Shadow
 	protected abstract int getXOrigin();
 
 	@Shadow
 	protected abstract int getYOrigin();
+	//# end
 
 	@Override
 	public ScrollAction mouseWheelie_scrollRecipeBook(double mouseX, double mouseY, double scrollAmount) {
