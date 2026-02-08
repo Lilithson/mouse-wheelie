@@ -31,7 +31,9 @@ import static de.siphalor.mousewheelie.MouseWheelie.createId;
 //# if MC_VERSION_NUMBER >= 12104
 /**
  * Replicates the old {@code ServerboundPickItemPacket} that no longer exists in that form since Minecraft 1.21.4.
+ * @deprecated Only for supporting older versions of Mouse Wheelie
  */
+@Deprecated(since = "1.16")
 public record PickFromInventoryPacket(int slot) implements CustomPacketPayload {
 	//# if MC_VERSION_NUMBER >= 12111
 	public static final Identifier PAYLOAD_ID = createId("pick_from_inventory");

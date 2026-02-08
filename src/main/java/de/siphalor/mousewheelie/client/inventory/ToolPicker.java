@@ -19,8 +19,8 @@ package de.siphalor.mousewheelie.client.inventory;
 
 import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.MWClient;
-import de.siphalor.mousewheelie.client.compat.MWCompanionDataPackHelper;
-import de.siphalor.mousewheelie.client.network.MWClientNetworking;
+//- import de.siphalor.mousewheelie.client.compat.MWCompanionDataPackHelper;
+//- import de.siphalor.mousewheelie.client.network.MWClientNetworking;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import net.fabricmc.api.EnvType;
@@ -113,9 +113,7 @@ public class ToolPicker {
 
 	private boolean canPickFromInventory() {
 		//# if MC_VERSION_NUMBER >= 12104
-		return MouseWheelie.config.toolPicking.pickFromInventory
-				&& (MWClientNetworking.canSendPickFromInventoryPacket()
-						|| MWCompanionDataPackHelper.canPickFromInventory());
+		return MouseWheelie.config.toolPicking.pickFromInventory;
 		//# else
 		//- return MouseWheelie.config.toolPicking.pickFromInventory;
 		//# end
@@ -135,11 +133,11 @@ public class ToolPicker {
 				//# else
 				//- inventory.selected = index;
 				//# end
-				return true;
-			} else if (MWClientNetworking.canPickFromInventory()) {
-				MWClientNetworking.pickFromInventory(index);
-				return true;
+			} else {
+				new StackPicker(inventory.player)
+						.pick(index, StackPicker.TargetMode.KEEP_SELECTED_HOTBAR_SLOT);
 			}
+			return true;
 		}
 		return false;
 	}

@@ -23,7 +23,6 @@ import de.siphalor.coat.util.EnumeratedMaterial;
 import de.siphalor.mousewheelie.MWConfig;
 import de.siphalor.mousewheelie.MWFeature;
 import de.siphalor.mousewheelie.MouseWheelie;
-import de.siphalor.mousewheelie.client.compat.MWCompanionDataPackHelper;
 import de.siphalor.mousewheelie.client.inventory.ToolPicker;
 import de.siphalor.mousewheelie.client.inventory.sort.SortMode;
 import de.siphalor.mousewheelie.client.keybinding.*;
@@ -155,28 +154,7 @@ public class MWClient implements ClientModInitializer {
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
 			CreativeSearchOrder.refreshItemSearchPositionLookup();
 			updateTickRate();
-			//# if MC_VERSION_NUMBER >= 12104
-			if (!MWClientNetworking.canSendPickFromInventoryPacket()) {
-				MWCompanionDataPackHelper.updateAvailability();
-			}
-			//# end
 		});
-
-
-		//# if MC_VERSION_NUMBER >= 12104
-		ClientReceiveMessageEvents.ALLOW_GAME.register((component, overlay) -> {
-			if (!(component.getContents() instanceof TranslatableContents translatableContents)) {
-				return true;
-			}
-			if (!translatableContents.getKey().equals("commands.trigger.set.success") || translatableContents.getArgs().length < 1) {
-				return true;
-			}
-			if (!(translatableContents.getArgs()[0] instanceof Component firstArg)) {
-				return true;
-			}
-			return !firstArg.getString().contains(MWCompanionDataPackHelper.PICK_FROM_INVENTORY_TRIGGER);
-		});
-		//# end
 
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			MouseWheelie.endFeatureSession();

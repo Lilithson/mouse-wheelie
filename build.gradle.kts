@@ -112,6 +112,7 @@ dependencies {
 	include(mcLibs.bundles.config)
 	modApi(mcLibs.bundles.config) {
 		exclude(group = "net.fabricmc.fabric-api")
+		exclude(group = "de.siphalor.amecs-api")
 	}
 
 	include(mcLibs.amecs.key.mapping.descriptions)

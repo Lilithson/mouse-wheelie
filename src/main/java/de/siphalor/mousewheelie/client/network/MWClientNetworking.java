@@ -18,9 +18,8 @@
 package de.siphalor.mousewheelie.client.network;
 
 import de.siphalor.mousewheelie.MouseWheelie;
-import de.siphalor.mousewheelie.client.compat.MWCompanionDataPackHelper;
+//- import de.siphalor.mousewheelie.client.compat.MWCompanionDataPackHelper;
 import de.siphalor.mousewheelie.common.network.MWNetworking;
-import de.siphalor.mousewheelie.common.network.PickFromInventoryPacket;
 import de.siphalor.mousewheelie.common.network.ReorderInventoryPacket;
 import java.util.concurrent.CompletableFuture;
 import lombok.CustomLog;
@@ -30,8 +29,9 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 
 //- import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
+//- import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 //- import net.minecraft.network.protocol.game.ServerboundPickItemPacket;
+//- import net.minecraft.world.inventory.AbstractContainerMenu;
 
 @CustomLog
 public class MWClientNetworking extends MWNetworking {
@@ -76,14 +76,6 @@ public class MWClientNetworking extends MWNetworking {
 		//# end
 	}
 
-	public static boolean canSendPickFromInventoryPacket() {
-		//# if MC_VERSION_NUMBER >= 12104
-		return ClientPlayNetworking.canSend(PickFromInventoryPacket.TYPE);
-		//# else
-		//- return true;
-		//# end
-	}
-
 	public static void send(ReorderInventoryPacket packet) {
 		//# if MC_VERSION_NUMBER >= 12006
 		ClientPlayNetworking.send(packet);
@@ -91,37 +83,6 @@ public class MWClientNetworking extends MWNetworking {
 		//- FriendlyByteBuf buffer = createBuffer();
 		//- packet.write(buffer);
 		//- ClientPlayNetworking.send(REORDER_INVENTORY_C2S_PACKET, buffer);
-		//# end
-	}
-
-	public static boolean canPickFromInventory() {
-		//# if MC_VERSION_NUMBER >= 12104
-		return canSendPickFromInventoryPacket() || MWCompanionDataPackHelper.canPickFromInventory();
-		//# else
-		//- return true;
-		//# end
-	}
-
-	public static void pickFromInventory(int slot) {
-		//# if MC_VERSION_NUMBER >= 12104
-		if (canSendPickFromInventoryPacket()) {
-			InteractionManager.push(new InteractionManager.PacketEvent(
-					new ServerboundCustomPayloadPacket(new PickFromInventoryPacket(slot)),
-					InteractionManager.HELD_ITEM_CHANGE_WAITER
-			));
-			return;
-		}
-		if (MWCompanionDataPackHelper.canPickFromInventory()) {
-			MWCompanionDataPackHelper.pickFromInventorySlot(slot - 9);
-			return;
-		}
-
-		log.warn("Trying to send pick from inventory packet, but the server doesn't support it");
-		//# else
-		//- InteractionManager.push(new InteractionManager.PacketEvent(
-		//- 		new ServerboundPickItemPacket(slot),
-		//- 		triggerType -> triggerType == InteractionManager.TriggerType.HELD_ITEM_CHANGE
-		//- ));
 		//# end
 	}
 

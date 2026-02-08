@@ -17,9 +17,10 @@
 
 package de.siphalor.mousewheelie.client.inventory;
 
+//- import de.siphalor.mousewheelie.MWConfig;
 import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.network.InteractionManager;
-import de.siphalor.mousewheelie.client.network.MWClientNetworking;
+//- import de.siphalor.mousewheelie.client.network.MWClientNetworking;
 import de.siphalor.mousewheelie.client.util.ItemStackUtils;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -251,35 +252,19 @@ public class SlotRefiller {
 	}
 
 	private static void refillFromInventory(InteractionHand hand, int inventorySlot) {
-		if (!MWClientNetworking.canPickFromInventory()) {
-			return;
-		}
-
 		startRefill();
 		scheduleRefillSound();
 		if (hand == InteractionHand.OFF_HAND) {
-			//# if MC_VERSION_NUMBER >= 12108
-			ItemStack mainHandStack = playerInventory.getSelectedItem();
-			//# else
-			//- ItemStack mainHandStack = playerInventory.getSelected();
-			//# end
-			InteractionManager.push(InteractionManager.SWAP_WITH_OFFHAND_EVENT);
-
-			MWClientNetworking.pickFromInventory(inventorySlot);
-
-			InteractionManager.push(InteractionManager.SWAP_WITH_OFFHAND_EVENT);
-			// Sometimes the swapping visually duplicates the stack on the client,
-			// so we're manually fixing the visuals here
-			InteractionManager.push(() -> {
-				//# if MC_VERSION_NUMBER >= 12108
-				playerInventory.setItem(playerInventory.getSelectedSlot(), mainHandStack);
-				//# else
-				//- playerInventory.setItem(playerInventory.selected, mainHandStack);
-				//# end
-				return InteractionManager.DUMMY_WAITER;
-			});
+			new StackPicker(playerInventory.player)
+					.pick(inventorySlot, StackPicker.TargetMode.OFFHAND);
 		} else {
-			MWClientNetworking.pickFromInventory(inventorySlot);
+			if (MouseWheelie.config.refill.restoreSelectedSlot) {
+				new StackPicker(playerInventory.player)
+					.pick(inventorySlot, StackPicker.TargetMode.KEEP_SELECTED_HOTBAR_SLOT);
+			} else {
+				new StackPicker(playerInventory.player)
+					.pick(inventorySlot, StackPicker.TargetMode.PREFER_EMPTY_HOTBAR_SLOTS);
+			}
 		}
 	}
 
