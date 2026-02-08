@@ -114,8 +114,16 @@ dependencies {
 		exclude(group = "net.fabricmc.fabric-api")
 	}
 
-	include(mcLibs.amecs.api)
-	modImplementation(mcLibs.amecs.api) {
+	include(mcLibs.amecs.key.mapping.descriptions)
+	modImplementation(mcLibs.amecs.key.mapping.descriptions) {
+		exclude(group = "net.fabricmc.fabric-api")
+	}
+	include(mcLibs.amecs.mouse.inputs)
+	modImplementation(mcLibs.amecs.mouse.inputs) {
+		exclude(group = "net.fabricmc.fabric-api")
+	}
+	include(mcLibs.amecs.priority.key.mappings)
+	modImplementation(mcLibs.amecs.priority.key.mappings) {
 		exclude(group = "net.fabricmc.fabric-api")
 	}
 }

@@ -49,7 +49,9 @@
 		"appliedenergistics2": "*"
 	},
 	"depends": {
-		"amecsapi": "*",
+		"amecs_key_mapping_descriptions": "*",
+		"amecs_priority_key_mappings": "*",
+		"amecs_mouse_inputs": "*",
 		"coat": "*",
 		"fabricloader": ">=0.17.0",
 		"fabric-api-base": "*",

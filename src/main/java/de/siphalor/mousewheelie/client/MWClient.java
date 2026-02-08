@@ -18,7 +18,6 @@
 package de.siphalor.mousewheelie.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.coat.screen.ConfigScreen;
 import de.siphalor.coat.util.EnumeratedMaterial;
 import de.siphalor.mousewheelie.MWConfig;
@@ -49,7 +48,6 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 //- import net.fabricmc.fabric.api.event.client.player.ClientPickBlockGatherCallback;
-import org.lwjgl.glfw.GLFW;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -81,16 +79,56 @@ public class MWClient implements ClientModInitializer {
 	//- public static final String KEY_BINDING_CATEGORY = "key.category." + MouseWheelie.MOD_ID + ".main";
 	//# end
 
-	public static final KeyMapping OPEN_CONFIG_SCREEN = new OpenConfigScreenKeybinding(createId("open_config_screen"), InputConstants.Type.KEYSYM, -1, KEY_BINDING_CATEGORY, new KeyModifiers());
-	public static final KeyMapping SORT_KEY_BINDING = new SortKeyBinding(createId("sort_inventory"), InputConstants.Type.MOUSE, 2, KEY_BINDING_CATEGORY, new KeyModifiers());
-	public static final KeyMapping SCROLL_UP_KEY_BINDING = new ScrollKeyBinding(createId("scroll_up"), KEY_BINDING_CATEGORY, false);
-	public static final KeyMapping SCROLL_DOWN_KEY_BINDING = new ScrollKeyBinding(createId("scroll_down"), KEY_BINDING_CATEGORY, true);
-	public static final KeyMapping PICK_TOOL_KEY_BINDING = new PickToolKeyBinding(createId("pick_tool"), InputConstants.Type.KEYSYM, -1, KEY_BINDING_CATEGORY, new KeyModifiers());
-	public static final ActionModifierKeybinding WHOLE_STACK_MODIFIER = new ActionModifierKeybinding(createId("whole_stack_modifier"), InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_SHIFT, KEY_BINDING_CATEGORY, new KeyModifiers());
-	public static final ActionModifierKeybinding ALL_OF_KIND_MODIFIER = new ActionModifierKeybinding(createId("all_of_kind_modifier"), InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_CONTROL, KEY_BINDING_CATEGORY, new KeyModifiers());
-	public static final ActionModifierKeybinding DROP_MODIFIER = new ActionModifierKeybinding(createId("drop_modifier"), InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, KEY_BINDING_CATEGORY, new KeyModifiers());
-	public static final ActionModifierKeybinding DEPOSIT_MODIFIER = new ActionModifierKeybinding(createId("deposit_modifier"), InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_SPACE, KEY_BINDING_CATEGORY, new KeyModifiers());
-	public static final ActionModifierKeybinding RESTOCK_MODIFIER = new ActionModifierKeybinding(createId("restock_modifier"), InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_SPACE, KEY_BINDING_CATEGORY, new KeyModifiers());
+	public static final KeyMapping OPEN_CONFIG_SCREEN = new OpenConfigScreenKeybinding(
+			"open_config_screen",
+			InputConstants.UNKNOWN,
+			KEY_BINDING_CATEGORY
+	);
+	public static final KeyMapping SORT_KEY_BINDING = new SortKeyBinding(
+			"sort_inventory",
+			InputConstants.Type.MOUSE.getOrCreate(InputConstants.MOUSE_BUTTON_MIDDLE),
+			KEY_BINDING_CATEGORY
+	);
+	public static final KeyMapping SCROLL_UP_KEY_BINDING = new ScrollKeyBinding(
+			"scroll_up",
+			KEY_BINDING_CATEGORY,
+			false
+	);
+	public static final KeyMapping SCROLL_DOWN_KEY_BINDING = new ScrollKeyBinding(
+			"scroll_down",
+			KEY_BINDING_CATEGORY,
+			true
+	);
+	public static final KeyMapping PICK_TOOL_KEY_BINDING = new PickToolKeyBinding(
+			"pick_tool",
+			InputConstants.UNKNOWN,
+			KEY_BINDING_CATEGORY
+	);
+	public static final ActionModifierKeybinding WHOLE_STACK_MODIFIER = new ActionModifierKeybinding(
+			"whole_stack_modifier",
+			InputConstants.Type.KEYSYM.getOrCreate(InputConstants.KEY_LSHIFT),
+			KEY_BINDING_CATEGORY
+	);
+	public static final ActionModifierKeybinding ALL_OF_KIND_MODIFIER = new ActionModifierKeybinding(
+			"all_of_kind_modifier",
+			InputConstants.Type.KEYSYM.getOrCreate(InputConstants.KEY_LCONTROL),
+			KEY_BINDING_CATEGORY
+	);
+	public static final ActionModifierKeybinding DROP_MODIFIER = new ActionModifierKeybinding(
+			"drop_modifier",
+			InputConstants.Type.KEYSYM.getOrCreate(InputConstants.KEY_LALT),
+			KEY_BINDING_CATEGORY
+	);
+	public static final ActionModifierKeybinding DEPOSIT_MODIFIER = new ActionModifierKeybinding(
+			"deposit_modifier",
+			InputConstants.Type.KEYSYM.getOrCreate(InputConstants.KEY_SPACE),
+			KEY_BINDING_CATEGORY
+	);
+	public static final ActionModifierKeybinding RESTOCK_MODIFIER = new ActionModifierKeybinding(
+			"restock_modifier",
+			InputConstants.Type.KEYSYM.getOrCreate(InputConstants.KEY_SPACE),
+			KEY_BINDING_CATEGORY
+	);
 
 	public static int lastUpdatedSlot = -1;
 

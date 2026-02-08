@@ -18,32 +18,22 @@
 package de.siphalor.mousewheelie.client.keybinding;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import de.siphalor.amecs.api.AmecsKeyBinding;
-import de.siphalor.amecs.api.KeyModifiers;
-import de.siphalor.amecs.api.PriorityKeyBinding;
+import de.siphalor.amecs.priority_key_mappings.api.AmecsPriorityKeyMapping;
 import de.siphalor.mousewheelie.client.inventory.ToolPicker;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
-//- import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
-public class PickToolKeyBinding extends AmecsKeyBinding implements PriorityKeyBinding {
-	//# if MC_VERSION_NUMBER >= 12111
-	public PickToolKeyBinding(Identifier id, InputConstants.Type type, int code, Category category, KeyModifiers defaultModifiers) {
-		super(id, type, code, category, defaultModifiers);
-	}
-	//# elif MC_VERSION_NUMBER >= 12109
-	//- public PickToolKeyBinding(ResourceLocation id, InputConstants.Type type, int code, Category category, KeyModifiers defaultModifiers) {
-	//- 	super(id, type, code, category, defaultModifiers);
-	//- }
+public class PickToolKeyBinding extends MWBaseKeyMapping implements AmecsPriorityKeyMapping {
+	//# if MC_VERSION_NUMBER >= 12109
+	public PickToolKeyBinding(String name, InputConstants.Key key, Category category) {
 	//# else
-	//- public PickToolKeyBinding(ResourceLocation id, InputConstants.Type type, int code, String category, KeyModifiers defaultModifiers) {
-	//- 	super(id, type, code, category, defaultModifiers);
-	//- }
+	//- public PickToolKeyBinding(String name, InputConstants.Key key, String category) {
 	//# end
+		super(name, key, category);
+	}
 
 	@Override
 	public boolean onPressedPriority() {

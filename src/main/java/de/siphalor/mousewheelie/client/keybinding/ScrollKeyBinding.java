@@ -18,35 +18,27 @@
 package de.siphalor.mousewheelie.client.keybinding;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import de.siphalor.amecs.api.AmecsKeyBinding;
-import de.siphalor.amecs.api.KeyBindingUtils;
-import de.siphalor.amecs.api.KeyModifiers;
-import de.siphalor.amecs.api.PriorityKeyBinding;
+import de.siphalor.amecs.inputs.mouse.api.AmecsMouseInputs;
+import de.siphalor.amecs.priority_key_mappings.api.AmecsPriorityKeyMapping;
 import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.MWClient;
 
-import net.minecraft.resources.Identifier;
-//- import net.minecraft.resources.ResourceLocation;
-
-public class ScrollKeyBinding extends AmecsKeyBinding implements PriorityKeyBinding {
+public class ScrollKeyBinding extends MWBaseKeyMapping implements AmecsPriorityKeyMapping {
 	private final boolean scrollDown;
 
-	//# if MC_VERSION_NUMBER >= 12111
-	public ScrollKeyBinding(Identifier id, Category category, boolean scrollDown) {
-		super(id, InputConstants.Type.MOUSE, scrollDown ? KeyBindingUtils.MOUSE_SCROLL_DOWN : KeyBindingUtils.MOUSE_SCROLL_UP, category, new KeyModifiers());
+	//# if MC_VERSION_NUMBER >= 12109
+	public ScrollKeyBinding(String name, Category category, boolean scrollDown) {
+	//# else
+	//- public ScrollKeyBinding(String name, String category, boolean scrollDown) {
+	//# end
+		super(
+				name,
+				InputConstants.Type.MOUSE,
+				scrollDown ? AmecsMouseInputs.SCROLL_DOWN : AmecsMouseInputs.SCROLL_UP,
+				category
+		);
 		this.scrollDown = scrollDown;
 	}
-	//# elif MC_VERSION_NUMBER >= 12109
-	//- public ScrollKeyBinding(ResourceLocation id, Category category, boolean scrollDown) {
-	//- 	super(id, InputConstants.Type.MOUSE, scrollDown ? KeyBindingUtils.MOUSE_SCROLL_DOWN : KeyBindingUtils.MOUSE_SCROLL_UP, category, new KeyModifiers());
-	//- 	this.scrollDown = scrollDown;
-	//- }
-	//# else
-	//- public ScrollKeyBinding(ResourceLocation id, String category, boolean scrollDown) {
-	//- 	super(id, InputConstants.Type.MOUSE, scrollDown ? KeyBindingUtils.MOUSE_SCROLL_DOWN : KeyBindingUtils.MOUSE_SCROLL_UP, category, new KeyModifiers());
-	//- 	this.scrollDown = scrollDown;
-	//- }
-	//# end
 
 	@Override
 	public boolean onPressedPriority() {

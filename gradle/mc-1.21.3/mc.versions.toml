@@ -1,5 +1,7 @@
 [versions]
-amecs-api = "1.7.1"
+amecs-key-mapping-descriptions = "1.0.0"
+amecs-mouse-inputs = "1.0.0"
+amecs-priority-key-mappings = "1.0.0"
 coat = "1.1.1"
 fabric-api = "0.114.1+1.21.3"
 java = "17"
@@ -9,7 +11,9 @@ parchment = "2024.12.07"
 tweed = "0.7.0"
 
 [libraries]
-amecs-api = { group = "de.siphalor.amecs-api", name = "amecs-api-mc1.21.3", version.ref = "amecs-api" }
+amecs-key-mapping-descriptions = { group = "de.siphalor.amecs.amecs-key-mapping-descriptions", name = "amecs-key-mapping-descriptions-mc1.21.3", version.ref = "amecs-key-mapping-descriptions" }
+amecs-mouse-inputs = { group = "de.siphalor.amecs.amecs-mouse-inputs", name = "amecs-mouse-inputs-mc1.21.3", version.ref = "amecs-mouse-inputs" }
+amecs-priority-key-mappings = { group = "de.siphalor.amecs.amecs-priority-key-mappings", name = "amecs-priority-key-mappings-mc1.21.3", version.ref = "amecs-priority-key-mappings" }
 coat = { group = "de.siphalor.coat", name = "coat-mc1.21.3", version.ref = "coat" }
 minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraft" }
 modmenu = { group = "com.terraformersmc", name = "modmenu", version.ref = "modmenu" }

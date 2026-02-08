@@ -18,30 +18,20 @@
 package de.siphalor.mousewheelie.client.keybinding;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import de.siphalor.amecs.api.AmecsKeyBinding;
-import de.siphalor.amecs.api.KeyModifiers;
-import de.siphalor.amecs.api.PriorityKeyBinding;
+import de.siphalor.amecs.priority_key_mappings.api.AmecsPriorityKeyMapping;
 import de.siphalor.mousewheelie.client.util.inject.IContainerScreen;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.resources.Identifier;
-//- import net.minecraft.resources.ResourceLocation;
 
-public class SortKeyBinding extends AmecsKeyBinding implements PriorityKeyBinding {
-	//# if MC_VERSION_NUMBER >= 12111
-	public SortKeyBinding(Identifier id, InputConstants.Type type, int code, Category category, KeyModifiers defaultModifiers) {
-		super(id, type, code, category, defaultModifiers);
-	}
-	//# elif MC_VERSION_NUMBER >= 12109
-	//- public SortKeyBinding(ResourceLocation id, InputConstants.Type type, int code, Category category, KeyModifiers defaultModifiers) {
-	//- 	super(id, type, code, category, defaultModifiers);
-	//- }
+public class SortKeyBinding extends MWBaseKeyMapping implements AmecsPriorityKeyMapping {
+	//# if MC_VERSION_NUMBER >= 12109
+	public SortKeyBinding(String name, InputConstants.Key key, Category category) {
 	//# else
-	//- public SortKeyBinding(ResourceLocation id, InputConstants.Type type, int code, String category, KeyModifiers defaultModifiers) {
-	//- 	super(id, type, code, category, defaultModifiers);
-	//- }
+	//- public SortKeyBinding(String name, InputConstants.Key key, String category) {
 	//# end
+		super(name, key, category);
+	}
 
 	@Override
 	public boolean onPressedPriority() {
