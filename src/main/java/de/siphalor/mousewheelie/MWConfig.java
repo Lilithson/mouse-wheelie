@@ -79,6 +79,8 @@ public class MWConfig {
 		public boolean betterFastDragging = false;
 
 		public boolean enableBundleDragging = true;
+
+		public boolean pickFromBundles = true;
 	}
 
 	@CompoundWeaving

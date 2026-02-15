@@ -23,8 +23,12 @@ import de.siphalor.coat.util.EnumeratedMaterial;
 import de.siphalor.mousewheelie.MWConfig;
 import de.siphalor.mousewheelie.MWFeature;
 import de.siphalor.mousewheelie.MouseWheelie;
+import de.siphalor.mousewheelie.client.inventory.StackPicker;
 import de.siphalor.mousewheelie.client.inventory.ToolPicker;
 import de.siphalor.mousewheelie.client.inventory.sort.SortMode;
+import de.siphalor.mousewheelie.client.inventory.view.InventoryView;
+import de.siphalor.mousewheelie.client.inventory.view.InventoryViewEntry;
+import de.siphalor.mousewheelie.client.inventory.view.InventoryViewLocation;
 import de.siphalor.mousewheelie.client.keybinding.*;
 import de.siphalor.mousewheelie.client.network.InteractionManager;
 import de.siphalor.mousewheelie.client.network.MWClientNetworking;
@@ -50,6 +54,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 //- import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -291,6 +296,32 @@ public class MWClient implements ClientModInitializer {
 				//# else
 				//- index = toolPicker.findToolFor(blockState);
 				//# end
+			}
+		}
+		if (MouseWheelie.config.general.pickFromBundles && hitResult instanceof BlockHitResult) {
+			BlockPos blockPos = ((BlockHitResult) hitResult).getBlockPos();
+			BlockState blockState = player.level().getBlockState(blockPos);
+			ItemStack referenceStack = blockState.getCloneItemStack(player.level(), blockPos, false);
+
+			InventoryView inventoryView =
+					InventoryView.appendingBundles(InventoryView.ofContainer(player.getInventory()));
+			for (InventoryViewEntry entry : inventoryView) {
+				if (entry.getStack().getItem() == referenceStack.getItem()) {
+					if (entry.getLocation() instanceof InventoryViewLocation.Bundle) {
+						StackPicker.Options stackPickerOptions = new StackPicker.Options(
+								StackPicker.TargetMode.PREFER_EMPTY_HOTBAR_SLOTS,
+								true
+						);
+						if (new StackPicker(player).pickFromBundleLocation(
+								((InventoryViewLocation.Bundle) entry.getLocation()),
+								stackPickerOptions
+						)) {
+							break;
+						}
+					} else {
+						break;
+					}
+				}
 			}
 		}
 		//# if MC_VERSION_NUMBER >= 12104

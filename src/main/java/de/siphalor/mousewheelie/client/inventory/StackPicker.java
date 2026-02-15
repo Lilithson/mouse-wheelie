@@ -20,7 +20,7 @@ import net.minecraft.world.item.component.BundleContents;
 
 @RequiredArgsConstructor
 public class StackPicker {
-	private static final int HOTBAR_CONATINER_START_SLOT = InventoryMenu.USE_ROW_SLOT_START;
+	private static final int HOTBAR_CONTAINER_START_SLOT = InventoryMenu.USE_ROW_SLOT_START;
 	private static final int MAIN_INVENTORY_START_SLOT = InventoryMenu.INV_SLOT_START;
 
 	private final Player player;
@@ -62,7 +62,7 @@ public class StackPicker {
 			InteractionManager.push(new InteractionManager.ClickEvent(
 					player.inventoryMenu.containerId,
 					inventorySlotToContainerSlot(backfillSlot),
-					1,
+					0,
 					ClickType.PICKUP
 				));
 		} else if (backfillSlot >= 0) {
@@ -120,7 +120,7 @@ public class StackPicker {
 		} else if (targetMode == TargetMode.PREFER_EMPTY_HOTBAR_SLOTS) {
 			int nextFreeHotbarSlot = findNextFreeHotbarInventorySlot();
 			if (nextFreeHotbarSlot >= 0) {
-				return HOTBAR_CONATINER_START_SLOT + nextFreeHotbarSlot;
+				return HOTBAR_CONTAINER_START_SLOT + nextFreeHotbarSlot;
 			}
 		}
 
@@ -157,7 +157,7 @@ public class StackPicker {
 
 	private void swapWithTargetContainerSlot(int targetContainerSlot) {
 		if (InventoryMenu.isHotbarSlot(targetContainerSlot)) {
-			int hotbarSlot = targetContainerSlot - HOTBAR_CONATINER_START_SLOT;
+			int hotbarSlot = targetContainerSlot - HOTBAR_CONTAINER_START_SLOT;
 			if (hotbarSlot != getSelectedHotbarSlot()) {
 				selectHotbarSlot(hotbarSlot);
 			}
@@ -191,7 +191,7 @@ public class StackPicker {
 
 	private static int inventorySlotToContainerSlot(int inventorySlot) {
 		if (Inventory.isHotbarSlot(inventorySlot)) {
-			return inventorySlot + HOTBAR_CONATINER_START_SLOT;
+			return inventorySlot + HOTBAR_CONTAINER_START_SLOT;
 		} else {
 			return inventorySlot - Inventory.SELECTION_SIZE + MAIN_INVENTORY_START_SLOT;
 		}
