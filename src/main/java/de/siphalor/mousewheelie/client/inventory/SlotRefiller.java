@@ -19,6 +19,9 @@ package de.siphalor.mousewheelie.client.inventory;
 
 //- import de.siphalor.mousewheelie.MWConfig;
 import de.siphalor.mousewheelie.MouseWheelie;
+import de.siphalor.mousewheelie.client.inventory.view.InventoryView;
+import de.siphalor.mousewheelie.client.inventory.view.InventoryViewEntry;
+import de.siphalor.mousewheelie.client.inventory.view.InventoryViewLocation;
 import de.siphalor.mousewheelie.client.network.InteractionManager;
 //- import de.siphalor.mousewheelie.client.network.MWClientNetworking;
 import de.siphalor.mousewheelie.client.util.ItemStackUtils;
@@ -27,15 +30,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.component.DataComponents;
-//- import net.minecraft.network.protocol.game.ServerboundPickItemPacket;
-import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
@@ -59,6 +59,7 @@ public class SlotRefiller {
 	};
 
 	private static Inventory playerInventory;
+	private static InventoryView inventoryView;
 	private static ItemStack stack;
 	private static long refillStartTime = System.currentTimeMillis() - MAX_REFILL_MILLIS;
 
@@ -98,44 +99,39 @@ public class SlotRefiller {
 		setupRefill(inventory, referenceStack);
 	}
 
-	public static boolean performRefill() {
-		if (refillHand == null) return false;
+	public static void performRefill() {
+		if (refillHand == null) return;
 
 		InteractionHand hand = refillHand;
 		refillHand = null;
 		if (hand == InteractionHand.OFF_HAND && !MouseWheelie.config.refill.offHand) {
-			return false;
+			return;
 		}
-		refill(hand);
 
-		return true;
+		refill(hand);
 	}
 
 
 	public static void setupRefill(Inventory playerInventory, ItemStack stack) {
 		SlotRefiller.playerInventory = playerInventory;
+		SlotRefiller.inventoryView = InventoryView.ofContainer(playerInventory);
+		if (MouseWheelie.config.refill.fromBundles) {
+			SlotRefiller.inventoryView = InventoryView.appendingBundles(SlotRefiller.inventoryView);
+		}
 		SlotRefiller.stack = stack;
 	}
 
-	/**
-	 * @deprecated Use {@link #refill(InteractionHand)} instead.
-	 */
-	@Deprecated
-	public static boolean refill() {
-		return refill(InteractionHand.MAIN_HAND);
-	}
-
 	@SuppressWarnings("UnusedReturnValue")
-	public static boolean refill(InteractionHand hand) {
+	public static void refill(InteractionHand hand) {
 		if (isRefillInProgress()) {
-			return false;
+			return;
 		}
 		//# if MC_VERSION_NUMBER >= 12101
 		if (!stack.getOrDefault(
 				EnchantmentEffectComponents.TRIDENT_RETURN_ACCELERATION,
 				Collections.emptyList()
 		).isEmpty()) {
-			return false;
+			return;
 		}
 		//# else
 		//- if (stack.getItem() == Items.TRIDENT && EnchantmentHelper.getLoyalty(stack) > 0) {
@@ -150,14 +146,14 @@ public class SlotRefiller {
 				continue;
 			}
 
-			int slot = rule.findMatchingStack(playerInventory, stack);
+			Optional<InventoryViewLocation> location = rule.findMatchingStack(inventoryView, stack);
 
-			if (slot != -1) {
-				refillFromSlot(hand, slot);
-				return true;
+			if (location.isPresent()) {
+				refillFromLocation(hand, location.get());
+				return;
 			}
 		}
-		return false;
+		return;
 	}
 
 	private static void startRefill() {
@@ -188,84 +184,32 @@ public class SlotRefiller {
 		);
 	}
 
-	private static void refillFromSlot(InteractionHand hand, int slot) {
+	private static void refillFromLocation(InteractionHand hand, InventoryViewLocation location) {
 		//# if MC_VERSION_NUMBER >= 12108
-		if (slot == playerInventory.getSelectedSlot()) {
+		if (location.getInventorySlotId() == playerInventory.getSelectedSlot()) {
 		//# else
 		//- if (slot == playerInventory.selected) {
 		//# end
 			return;
 		}
 
-		if (Inventory.isHotbarSlot(slot)) {
-			refillFromHotbar(hand, slot);
+		startRefill();
+
+		StackPicker.TargetMode targetMode;
+		if (hand == InteractionHand.OFF_HAND) {
+			targetMode = StackPicker.TargetMode.OFFHAND;
+		} else if (MouseWheelie.config.refill.restoreSelectedSlot) {
+			targetMode = StackPicker.TargetMode.KEEP_SELECTED_HOTBAR_SLOT;
 		} else {
-			refillFromInventory(hand, slot);
+			targetMode = StackPicker.TargetMode.PREFER_EMPTY_HOTBAR_SLOTS;
+		}
+
+		StackPicker stackPicker = new StackPicker(playerInventory.player);
+		if (stackPicker.pick(location, new StackPicker.Options(targetMode, true))) {
+			scheduleRefillSound();
 		}
 
 		InteractionManager.push(REFILL_END_EVENT);
-	}
-
-	private static void refillFromHotbar(InteractionHand hand, int hotbarSlot) {
-		startRefill();
-		scheduleRefillSound();
-
-		if (MouseWheelie.config.refill.restoreSelectedSlot) {
-			//# if MC_VERSION_NUMBER >= 12108
-			ItemStack offhandStack = playerInventory.player.getOffhandItem();
-			//# else
-			//- ItemStack offhandStack = playerInventory.offhand.get(0);
-			//# end
-			if (hand == InteractionHand.MAIN_HAND && !offhandStack.isEmpty()) {
-				InteractionManager.push(InteractionManager.SWAP_WITH_OFFHAND_EVENT);
-			}
-			InteractionManager.push(new InteractionManager.PacketEvent(
-					new ServerboundSetCarriedItemPacket(hotbarSlot),
-					InteractionManager.Waiter.equal(InteractionManager.TriggerType.HELD_ITEM_CHANGE)
-			));
-			InteractionManager.push(InteractionManager.SWAP_WITH_OFFHAND_EVENT);
-			InteractionManager.push(new InteractionManager.PacketEvent(
-					//# if MC_VERSION_NUMBER >= 12108
-					new ServerboundSetCarriedItemPacket(playerInventory.getSelectedSlot()),
-					//# else
-					//- new ServerboundSetCarriedItemPacket(playerInventory.selected),
-					//# end
-					InteractionManager.TICK_WAITER
-			));
-			if (hand == InteractionHand.MAIN_HAND) {
-				InteractionManager.push(InteractionManager.SWAP_WITH_OFFHAND_EVENT);
-			}
-		} else {
-			if (hand == InteractionHand.OFF_HAND) {
-				InteractionManager.push(InteractionManager.SWAP_WITH_OFFHAND_EVENT);
-			}
-			//# if MC_VERSION_NUMBER >= 12108
-			playerInventory.setSelectedSlot(hotbarSlot);
-			//# else
-			//- playerInventory.selected = hotbarSlot;
-			//# end
-			InteractionManager.push(new InteractionManager.PacketEvent(new ServerboundSetCarriedItemPacket(hotbarSlot), InteractionManager.TICK_WAITER));
-			if (hand == InteractionHand.OFF_HAND) {
-				InteractionManager.push(InteractionManager.SWAP_WITH_OFFHAND_EVENT);
-			}
-		}
-	}
-
-	private static void refillFromInventory(InteractionHand hand, int inventorySlot) {
-		startRefill();
-		scheduleRefillSound();
-		if (hand == InteractionHand.OFF_HAND) {
-			new StackPicker(playerInventory.player)
-					.pick(inventorySlot, StackPicker.TargetMode.OFFHAND);
-		} else {
-			if (MouseWheelie.config.refill.restoreSelectedSlot) {
-				new StackPicker(playerInventory.player)
-					.pick(inventorySlot, StackPicker.TargetMode.KEEP_SELECTED_HOTBAR_SLOT);
-			} else {
-				new StackPicker(playerInventory.player)
-					.pick(inventorySlot, StackPicker.TargetMode.PREFER_EMPTY_HOTBAR_SLOTS);
-			}
-		}
 	}
 
 	static {
@@ -293,49 +237,32 @@ public class SlotRefiller {
 		 * @param oldStack The stack to check.
 		 * @return Whether the rule applies to the given stack.
 		 */
-		abstract boolean matches(ItemStack oldStack);
+		public abstract boolean matches(ItemStack oldStack);
 
 		/**
 		 * Find a matching slot for the given base stack in the player inventory.
 		 *
-		 * @param playerInventory The player inventory to search in.
-		 * @param oldStack        The base stack to search for.
-		 * @return The slot index of the matching stack or -1 if no match was found.
+		 * @param inventoryView the inventory to search in.
+		 * @param oldStack      The base stack to search for.
+		 * @return The inventory entry, if any matching slot was found.
 		 */
-		abstract int findMatchingStack(Inventory playerInventory, ItemStack oldStack);
-
-		/***
-		 * Utility function that iterates over all slots of the player inventory and returns the first slot that matches the given predicate.
-		 * @param playerInventory The player inventory to search in.
-		 * @param predicate       The predicate to check for.
-		 * @return The slot index of the matching stack or -1 if no match was found.
-		 */
-		protected int iterateInventory(Inventory playerInventory, Predicate<ItemStack> predicate) {
-			//# if MC_VERSION_NUMBER >= 12108
-			int invSize = playerInventory.getContainerSize();
-			//# else
-			//- int invSize = playerInventory.items.size();
-			//# end
-			for (int i = 0; i < invSize; i++) {
-				//# if MC_VERSION_NUMBER >= 12108
-				if (predicate.test(playerInventory.getItem(i))) return i;
-				//# else
-				//- if (predicate.test(playerInventory.items.get(i))) return i;
-				//# end
-			}
-			return -1;
-		}
+		public abstract Optional<InventoryViewLocation> findMatchingStack(InventoryView inventoryView, ItemStack oldStack);
 	}
 
 	public static class BlockRule extends Rule {
 		@Override
-		boolean matches(ItemStack oldStack) {
+		public boolean matches(ItemStack oldStack) {
 			return MouseWheelie.config.refill.rules.anyBlock && oldStack.getItem() instanceof BlockItem;
 		}
 
 		@Override
-		int findMatchingStack(Inventory playerInventory, ItemStack oldStack) {
-			return iterateInventory(playerInventory, stack -> stack.getItem() instanceof BlockItem);
+		public Optional<InventoryViewLocation> findMatchingStack(InventoryView inventoryView, ItemStack oldStack) {
+			for (InventoryViewEntry entry : inventoryView) {
+				if (entry.getStack().getItem() instanceof BlockItem) {
+					return Optional.of(entry.getLocation());
+				}
+			}
+			return Optional.empty();
 		}
 	}
 
@@ -346,7 +273,7 @@ public class SlotRefiller {
 		}
 
 		@Override
-		boolean matches(ItemStack oldStack) {
+		public boolean matches(ItemStack oldStack) {
 			if (!MouseWheelie.config.refill.rules.itemgroup) {
 				return false;
 			}
@@ -359,7 +286,7 @@ public class SlotRefiller {
 		}
 
 		@Override
-		int findMatchingStack(Inventory playerInventory, ItemStack oldStack) {
+		public Optional<InventoryViewLocation> findMatchingStack(InventoryView inventoryView, ItemStack oldStack) {
 			List<CreativeModeTab> checkGroups = new ArrayList<>();
 			for (CreativeModeTab group : CreativeModeTabs.allTabs()) {
 				if (containsBroad(group, oldStack)) {
@@ -367,40 +294,42 @@ public class SlotRefiller {
 				}
 			}
 			if (checkGroups.isEmpty()) {
-				return -1;
+				return Optional.empty();
 			}
-			return iterateInventory(playerInventory, stack -> {
+
+			for (InventoryViewEntry entry : inventoryView) {
 				for (CreativeModeTab group : checkGroups) {
-					if (containsBroad(group, stack)) {
-						return true;
+					if (containsBroad(group, entry.getStack())) {
+						return Optional.of(entry.getLocation());
 					}
 				}
-				return false;
-			});
+			}
+			return Optional.empty();
 		}
 	}
 
 	public static class ItemHierarchyRule extends Rule {
 		@Override
-		boolean matches(ItemStack oldStack) {
-			return MouseWheelie.config.refill.rules.itemHierarchy && oldStack.getItem().getClass() != Item.class && !(oldStack.getItem() instanceof BlockItem);
+		public boolean matches(ItemStack oldStack) {
+			return MouseWheelie.config.refill.rules.itemHierarchy
+					&& oldStack.getItem().getClass() != Item.class && !(oldStack.getItem() instanceof BlockItem);
 		}
 
 		@Override
-		int findMatchingStack(Inventory playerInventory, ItemStack oldStack) {
-			return findBestThroughClassHierarchy(oldStack, playerInventory, Item::getClass, Item.class);
+		public Optional<InventoryViewLocation> findMatchingStack(InventoryView inventoryView, ItemStack oldStack) {
+			return findBestThroughClassHierarchy(oldStack, inventoryView, Item::getClass, Item.class);
 		}
 	}
 
 	public static class BlockHierarchyRule extends Rule {
 		@Override
-		boolean matches(ItemStack oldStack) {
+		public boolean matches(ItemStack oldStack) {
 			return MouseWheelie.config.refill.rules.blockHierarchy && oldStack.getItem() instanceof BlockItem;
 		}
 
 		@Override
-		int findMatchingStack(Inventory playerInventory, ItemStack oldStack) {
-			return findBestThroughClassHierarchy(oldStack, playerInventory, item -> {
+		public Optional<InventoryViewLocation> findMatchingStack(InventoryView inventoryView, ItemStack oldStack) {
+			return findBestThroughClassHierarchy(oldStack, inventoryView, item -> {
 				if (item instanceof BlockItem) {
 					return ((BlockItem) item).getBlock().getClass();
 				} else {
@@ -410,8 +339,12 @@ public class SlotRefiller {
 		}
 	}
 
-	private static int findBestThroughClassHierarchy(ItemStack baseStack, Inventory inventory, Function<Item, Class<?>> getClass, Class<?> baseClass) {
-		int currentRank = 0;
+	public static Optional<InventoryViewLocation> findBestThroughClassHierarchy(
+			ItemStack baseStack,
+			InventoryView inventoryView,
+			Function<Item, Class<?>> getClass,
+			Class<?> baseClass
+	) {
 		Collection<Class<?>> classes = new ArrayList<>(10);
 		Class<?> clazz = getClass.apply(baseStack.getItem());
 		while (clazz != baseClass) {
@@ -420,22 +353,14 @@ public class SlotRefiller {
 		}
 		int classesSize = classes.size();
 		if (classesSize == 0)
-			return -1;
+			return Optional.empty();
 
-		int index = -1;
+		int bestRank = 0;
+		InventoryViewLocation bestLocation = null;
 
-		//# if MC_VERSION_NUMBER >= 12108
-		int invSize = inventory.getContainerSize();
-		//# else
-		//- int invSize = inventory.items.size();
-		//# end
 		outer:
-		for (int i = 0; i < invSize; i++) {
-			//# if MC_VERSION_NUMBER >= 12108
-			clazz = getClass.apply(inventory.getItem(i).getItem());
-			//# else
-			//- clazz = getClass.apply(inventory.items.get(i).getItem());
-			//# end
+		for (InventoryViewEntry entry : inventoryView) {
+			clazz = getClass.apply(entry.getStack().getItem());
 			if (clazz == null) {
 				continue;
 			}
@@ -443,29 +368,37 @@ public class SlotRefiller {
 				int classRank = classesSize;
 				for (Iterator<Class<?>> iterator = classes.iterator(); iterator.hasNext(); classRank--) {
 					if (classRank <= 0) break;
-					if (classRank <= currentRank) continue outer;
+					if (classRank <= bestRank) continue outer;
 					if (Objects.equals(clazz, iterator.next())) {
-						if (classRank >= classesSize) return i;
-						currentRank = classRank;
-						index = i;
+						if (classRank >= classesSize) {
+							break outer;
+						}
+						bestRank = classRank;
+						bestLocation = entry.getLocation();
 						continue outer;
 					}
 				}
 				clazz = clazz.getSuperclass();
 			}
 		}
-		return index;
+
+		return Optional.ofNullable(bestLocation);
 	}
 
 	public static class FoodRule extends Rule {
 		@Override
-		boolean matches(ItemStack oldStack) {
+		public boolean matches(ItemStack oldStack) {
 			return MouseWheelie.config.refill.rules.food && isEdible(oldStack);
 		}
 
 		@Override
-		int findMatchingStack(Inventory playerInventory, ItemStack oldStack) {
-			return iterateInventory(playerInventory, FoodRule::isEdible);
+		public Optional<InventoryViewLocation> findMatchingStack(InventoryView inventoryView, ItemStack oldStack) {
+			for (InventoryViewEntry entry : inventoryView) {
+				if (isEdible(entry.getStack())) {
+					return Optional.of(entry.getLocation());
+				}
+			}
+			return Optional.empty();
 		}
 
 		private static boolean isEdible(ItemStack stack) {
@@ -479,26 +412,36 @@ public class SlotRefiller {
 
 	public static class EqualItemRule extends Rule {
 		@Override
-		boolean matches(ItemStack oldStack) {
+		public boolean matches(ItemStack oldStack) {
 			return MouseWheelie.config.refill.rules.equalItems;
 		}
 
 		@Override
-		int findMatchingStack(Inventory playerInventory, ItemStack oldStack) {
+		public Optional<InventoryViewLocation> findMatchingStack(InventoryView inventoryView, ItemStack oldStack) {
 			Item item = oldStack.getItem();
-			return iterateInventory(playerInventory, stack -> stack.getItem() == item);
+			for (InventoryViewEntry entry : inventoryView) {
+				if (entry.getStack().getItem() == item) {
+					return Optional.of(entry.getLocation());
+				}
+			}
+			return Optional.empty();
 		}
 	}
 
 	public static class EqualStackRule extends Rule {
 		@Override
-		boolean matches(ItemStack oldStack) {
+		public boolean matches(ItemStack oldStack) {
 			return MouseWheelie.config.refill.rules.equalStacks;
 		}
 
 		@Override
-		int findMatchingStack(Inventory playerInventory, ItemStack oldStack) {
-			return iterateInventory(playerInventory, stack -> ItemStackUtils.canCombine(stack, oldStack));
+		public Optional<InventoryViewLocation> findMatchingStack(InventoryView inventoryView, ItemStack oldStack) {
+			for (InventoryViewEntry entry : inventoryView) {
+				if (ItemStackUtils.canCombine(entry.getStack(), oldStack)) {
+					return Optional.of(entry.getLocation());
+				}
+			}
+			return Optional.empty();
 		}
 	}
 }

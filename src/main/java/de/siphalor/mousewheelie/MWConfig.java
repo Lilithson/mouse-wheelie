@@ -117,6 +117,7 @@ public class MWConfig {
 
 		public boolean offHand = true;
 		public boolean restoreSelectedSlot = false;
+		public boolean fromBundles = true;
 
 		public boolean itemChanges = true;
 

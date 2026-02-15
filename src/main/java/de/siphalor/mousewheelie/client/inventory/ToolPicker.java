@@ -135,7 +135,7 @@ public class ToolPicker {
 				//# end
 			} else {
 				new StackPicker(inventory.player)
-						.pick(index, StackPicker.TargetMode.KEEP_SELECTED_HOTBAR_SLOT);
+						.pickFromInventorySlot(index, StackPicker.TargetMode.KEEP_SELECTED_HOTBAR_SLOT);
 			}
 			return true;
 		}
