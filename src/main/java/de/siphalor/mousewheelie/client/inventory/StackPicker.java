@@ -61,12 +61,17 @@ public class StackPicker {
 		if (backfillToBundle) {
 			InteractionManager.push(new InteractionManager.ClickEvent(
 					player.inventoryMenu.containerId,
-					inventorySlotToContainerSlot(backfillSlot),
+					inventorySlotToContainerSlot(bundleLocation.getInventorySlotId()),
 					0,
 					ClickType.PICKUP
 				));
 		} else if (backfillSlot >= 0) {
-			swapWithInventorySlot(backfillSlot);
+			InteractionManager.pushClickEvent(
+					player.inventoryMenu.containerId,
+					inventorySlotToContainerSlot(backfillSlot),
+					0,
+					ClickType.PICKUP
+			);
 		}
 		return true;
 	}
@@ -80,9 +85,11 @@ public class StackPicker {
 			return false;
 		}
 
-		Fraction excludeWeight = BundleContentsAccessor.callGetWeight(excludeStack);
-		Fraction backfillWeight = BundleContentsAccessor.callGetWeight(backfillStack);
-		return bundleContents.weight().subtract(excludeWeight).add(backfillWeight).compareTo(Fraction.ONE) > 0;
+		Fraction excludeWeight = BundleContentsAccessor.callGetWeight(excludeStack)
+				.multiplyBy(Fraction.getFraction(excludeStack.getCount(), 1));
+		Fraction backfillWeight = BundleContentsAccessor.callGetWeight(backfillStack)
+				.multiplyBy(Fraction.getFraction(backfillStack.getCount(), 1));
+		return bundleContents.weight().subtract(excludeWeight).add(backfillWeight).compareTo(Fraction.ONE) <= 0;
 	}
 
 	private void takeFromBundle(InventoryViewLocation.Bundle bundleLocation, BundleContents bundleContents) {
@@ -106,11 +113,22 @@ public class StackPicker {
 			return;
 		}
 
-		swapWithInventorySlot(inventorySlot);
+		InteractionManager.pushClickEvent(
+				player.inventoryMenu.containerId,
+				inventorySlotToContainerSlot(inventorySlot),
+				0,
+				ClickType.PICKUP
+		);
 		int targetContainerSlot = resolveTargetContainerSlot(targetMode);
+		boolean needsBackfill = player.inventoryMenu.getSlot(targetContainerSlot).hasItem();
 		swapWithTargetContainerSlot(targetContainerSlot);
-		if (player.inventoryMenu.getSlot(targetContainerSlot).hasItem()) {
-			swapWithInventorySlot(inventorySlot);
+		if (needsBackfill) {
+			InteractionManager.pushClickEvent(
+					player.inventoryMenu.containerId,
+					inventorySlotToContainerSlot(inventorySlot),
+					0,
+					ClickType.PICKUP
+			);
 		}
 	}
 
@@ -124,7 +142,7 @@ public class StackPicker {
 			}
 		}
 
-		return getSelectedHotbarSlot();
+		return HOTBAR_CONTAINER_START_SLOT + getSelectedHotbarSlot();
 	}
 
 	private int findFreeMainInventorySlot() {
@@ -161,9 +179,9 @@ public class StackPicker {
 			if (hotbarSlot != getSelectedHotbarSlot()) {
 				selectHotbarSlot(hotbarSlot);
 			}
-			swapWithInventorySlot(targetContainerSlot);
+			swapWithContainerSlot(targetContainerSlot);
 		} else {
-			swapWithInventorySlot(targetContainerSlot);
+			swapWithContainerSlot(targetContainerSlot);
 		}
 	}
 
@@ -172,11 +190,11 @@ public class StackPicker {
 		Minecraft.getInstance().getConnection().send(new ServerboundSetCarriedItemPacket(hotbarSlot));
 	}
 
-	private void swapWithInventorySlot(int slot) {
+	private void swapWithContainerSlot(int slot) {
 		InteractionManager.push(new InteractionManager.ClickEvent(
 				player.inventoryMenu.containerId,
-				inventorySlotToContainerSlot(slot),
-				player.getInventory().getItem(slot).isEmpty() ? 0 : 1,
+				slot,
+				player.inventoryMenu.getSlot(slot).hasItem() ? 1 : 0,
 				ClickType.PICKUP
 		));
 	}
