@@ -198,7 +198,7 @@ public class SlotRefiller {
 		StackPicker.TargetMode targetMode;
 		if (hand == InteractionHand.OFF_HAND) {
 			targetMode = StackPicker.TargetMode.OFFHAND;
-		} else if (MouseWheelie.config.refill.restoreSelectedSlot) {
+		} else if (MouseWheelie.config.refill.alwaysKeepSelectedSlot) {
 			targetMode = StackPicker.TargetMode.KEEP_SELECTED_HOTBAR_SLOT;
 		} else {
 			targetMode = StackPicker.TargetMode.PREFER_EMPTY_HOTBAR_SLOTS;

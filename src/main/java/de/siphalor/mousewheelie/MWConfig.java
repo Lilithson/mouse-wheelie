@@ -20,6 +20,7 @@ package de.siphalor.mousewheelie;
 import de.siphalor.mousewheelie.client.config.MWServerRequiredTweedExtension;
 import de.siphalor.mousewheelie.client.inventory.sort.SortMode;
 import de.siphalor.mousewheelie.client.util.ItemStackUtils;
+import de.siphalor.mousewheelie.config.MWConfigMigrationExtension;
 import de.siphalor.tweed5.coat.bridge.api.TweedCoatAttributes;
 import de.siphalor.tweed5.commentloaderextension.api.CommentLoaderExtension;
 import de.siphalor.tweed5.defaultextensions.presets.api.PresetsExtension;
@@ -37,6 +38,7 @@ import lombok.NoArgsConstructor;
 @SuppressWarnings({"WeakerAccess", "unused"})
 @DefaultTweedMinecraftWeaving
 @TweedExtension(CommentLoaderExtension.class)
+@TweedExtension(MWConfigMigrationExtension.class)
 @CompoundWeaving(namingFormat = "kebab_case")
 @Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, value = "textures/block/green_concrete_powder.png")
 @AllArgsConstructor
@@ -118,7 +120,7 @@ public class MWConfig {
 		public boolean playSound = true;
 
 		public boolean offHand = true;
-		public boolean restoreSelectedSlot = false;
+		public boolean alwaysKeepSelectedSlot = false;
 		public boolean fromBundles = true;
 
 		public boolean itemChanges = true;
