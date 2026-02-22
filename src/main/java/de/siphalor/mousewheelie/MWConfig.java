@@ -82,7 +82,9 @@ public class MWConfig {
 
 		public boolean enableBundleDragging = true;
 
+		//# if MC_VERSION_NUMBER >= 12103
 		public boolean pickFromBundles = true;
+		//# end
 	}
 
 	@CompoundWeaving
@@ -121,7 +123,9 @@ public class MWConfig {
 
 		public boolean offHand = true;
 		public boolean alwaysKeepSelectedSlot = false;
+		//# if MC_VERSION_NUMBER >= 12103
 		public boolean fromBundles = true;
+		//# end
 
 		// Refill causes
 		public boolean itemChanges = true;

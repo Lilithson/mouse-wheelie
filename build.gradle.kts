@@ -91,6 +91,8 @@ dependencies {
 	})
 	modImplementation(libs.fabric.loader)
 
+	compileOnly(libs.jspecify)
+
 	for (mod in listOf(
 		"fabric-api-base",
 		"fabric-events-interaction-v0",

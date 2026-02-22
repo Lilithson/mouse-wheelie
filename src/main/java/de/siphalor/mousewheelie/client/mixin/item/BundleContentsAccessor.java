@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BundleContents;
 
+//# if MC_VERSION_NUMBER >= 12103
 @Mixin(BundleContents.class)
 public interface BundleContentsAccessor {
 	@Invoker
@@ -14,3 +15,4 @@ public interface BundleContentsAccessor {
 		return Fraction.ONE;
 	}
 }
+//# end

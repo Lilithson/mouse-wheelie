@@ -10,9 +10,11 @@ public interface InventoryViewLocation {
 		int inventorySlotId;
 	}
 
+	//# if MC_VERSION_NUMBER >= 12103
 	@Value
 	class Bundle implements InventoryViewLocation {
 		int inventorySlotId;
 		int indexInBundle;
 	}
+	//# end
 }

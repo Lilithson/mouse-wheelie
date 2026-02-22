@@ -45,6 +45,7 @@ public interface InventoryView extends Iterable<InventoryViewEntry> {
 		};
 	}
 
+	//# if MC_VERSION_NUMBER >= 12103
 	static InventoryView appendingBundles(InventoryView inner) {
 		@Value
 		class BundleEntry {
@@ -115,4 +116,5 @@ public interface InventoryView extends Iterable<InventoryViewEntry> {
 			}
 		};
 	}
+	//# end
 }

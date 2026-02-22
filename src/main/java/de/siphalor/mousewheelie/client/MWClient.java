@@ -298,10 +298,15 @@ public class MWClient implements ClientModInitializer {
 				//# end
 			}
 		}
+		//# if MC_VERSION_NUMBER >= 12103
 		if (MouseWheelie.config.general.pickFromBundles && hitResult instanceof BlockHitResult) {
 			BlockPos blockPos = ((BlockHitResult) hitResult).getBlockPos();
 			BlockState blockState = player.level().getBlockState(blockPos);
+			//# if MC_VERSION_NUMBER >= 12104
 			ItemStack referenceStack = blockState.getCloneItemStack(player.level(), blockPos, false);
+			//# else
+			//- ItemStack referenceStack = blockState.getBlock().getCloneItemStack(player.level(), blockPos, blockState);
+			//# end
 
 			InventoryView inventoryView =
 					InventoryView.appendingBundles(InventoryView.ofContainer(player.getInventory()));
@@ -324,6 +329,7 @@ public class MWClient implements ClientModInitializer {
 				}
 			}
 		}
+		//# end
 		//# if MC_VERSION_NUMBER >= 12104
 		return false;
 		//# else

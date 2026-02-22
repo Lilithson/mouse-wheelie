@@ -115,9 +115,11 @@ public class SlotRefiller {
 	public static void setupRefill(Inventory playerInventory, ItemStack stack) {
 		SlotRefiller.playerInventory = playerInventory;
 		SlotRefiller.inventoryView = InventoryView.ofContainer(playerInventory);
+		//# if MC_VERSION_NUMBER >= 12103
 		if (MouseWheelie.config.refill.fromBundles) {
 			SlotRefiller.inventoryView = InventoryView.appendingBundles(SlotRefiller.inventoryView);
 		}
+		//# end
 		SlotRefiller.stack = stack;
 	}
 
@@ -135,7 +137,7 @@ public class SlotRefiller {
 		}
 		//# else
 		//- if (stack.getItem() == Items.TRIDENT && EnchantmentHelper.getLoyalty(stack) > 0) {
-		//- 	return false;
+		//- 	return;
 		//- }
 		//# end
 
@@ -153,7 +155,6 @@ public class SlotRefiller {
 				return;
 			}
 		}
-		return;
 	}
 
 	private static void startRefill() {
@@ -188,7 +189,7 @@ public class SlotRefiller {
 		//# if MC_VERSION_NUMBER >= 12108
 		if (location.getInventorySlotId() == playerInventory.getSelectedSlot()) {
 		//# else
-		//- if (slot == playerInventory.selected) {
+		//- if (location.getInventorySlotId() == playerInventory.selected) {
 		//# end
 			return;
 		}

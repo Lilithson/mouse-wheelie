@@ -20,20 +20,24 @@ import net.minecraft.world.item.component.BundleContents;
 
 @RequiredArgsConstructor
 public class StackPicker {
+	private static final int HOTBAR_INVENTORY_START_SLOT = 0;
+	private static final int MAIN_INVENTORY_START_SLOT = Inventory.getSelectionSize();
 	private static final int HOTBAR_CONTAINER_START_SLOT = InventoryMenu.USE_ROW_SLOT_START;
-	private static final int MAIN_INVENTORY_START_SLOT = InventoryMenu.INV_SLOT_START;
+	private static final int MAIN_INVENTORY_CONTAINER_START_SLOT = InventoryMenu.INV_SLOT_START;
 
 	private final Player player;
 
 	public boolean pick(InventoryViewLocation from, Options options) {
+		//# if MC_VERSION_NUMBER >= 12103
 		if (from instanceof InventoryViewLocation.Bundle) {
 			return pickFromBundleLocation((InventoryViewLocation.Bundle) from, options);
-		} else {
-			pickFromInventorySlot(from.getInventorySlotId(), options.getTargetMode());
-			return true;
 		}
+		//# end
+		pickFromInventorySlot(from.getInventorySlotId(), options.getTargetMode());
+		return true;
 	}
 
+	//# if MC_VERSION_NUMBER >= 12103
 	public boolean pickFromBundleLocation(InventoryViewLocation.Bundle bundleLocation, Options options) {
 		int targetContainerSlot = resolveTargetContainerSlot(
 				options.getTargetMode() == TargetMode.OFFHAND
@@ -109,6 +113,7 @@ public class StackPicker {
 				ClickType.PICKUP
 		);
 	}
+	//# end
 
 	public void pickFromInventorySlot(int inventorySlot, TargetMode targetMode) {
 		if (Inventory.isHotbarSlot(inventorySlot)) {
@@ -149,7 +154,7 @@ public class StackPicker {
 	}
 
 	private int findFreeMainInventorySlot() {
-		for (int i = Inventory.SELECTION_SIZE; i < Inventory.INVENTORY_SIZE; i++) {
+		for (int i = MAIN_INVENTORY_START_SLOT; i < Inventory.INVENTORY_SIZE; i++) {
 			if (player.getInventory().getItem(i).isEmpty()) {
 				return i;
 			}
@@ -189,7 +194,11 @@ public class StackPicker {
 	}
 
 	private void selectHotbarSlot(int hotbarSlot) {
+		//# if MC_VERSION_NUMBER >= 12108
 		player.getInventory().setSelectedSlot(hotbarSlot);
+		//# else
+		//- player.getInventory().selected = hotbarSlot;
+		//# end
 		Minecraft.getInstance().getConnection().send(new ServerboundSetCarriedItemPacket(hotbarSlot));
 	}
 
@@ -212,9 +221,9 @@ public class StackPicker {
 
 	private static int inventorySlotToContainerSlot(int inventorySlot) {
 		if (Inventory.isHotbarSlot(inventorySlot)) {
-			return inventorySlot + HOTBAR_CONTAINER_START_SLOT;
+			return inventorySlot - HOTBAR_INVENTORY_START_SLOT + HOTBAR_CONTAINER_START_SLOT;
 		} else {
-			return inventorySlot - Inventory.SELECTION_SIZE + MAIN_INVENTORY_START_SLOT;
+			return inventorySlot - MAIN_INVENTORY_START_SLOT + MAIN_INVENTORY_CONTAINER_START_SLOT;
 		}
 	}
 
