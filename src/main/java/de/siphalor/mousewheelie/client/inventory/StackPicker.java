@@ -46,8 +46,11 @@ public class StackPicker {
 				.getOrDefault(DataComponents.BUNDLE_CONTENTS, BundleContents.EMPTY);
 		ItemStack refillStack = bundleContents.getItemUnsafe(bundleLocation.getIndexInBundle());
 
+		int bundleContainerSlot = inventorySlotToContainerSlot(bundleLocation.getInventorySlotId());
+
 		boolean backfillToBundle = !backfillStack.isEmpty()
 				&& options.isBackfillToBundleAllowed()
+				&& bundleContainerSlot != targetContainerSlot
 				&& isBackfillToBundlePossible(bundleContents, refillStack, backfillStack);
 		int backfillSlot = backfillToBundle ? -1 : findFreeMainInventorySlot();
 
@@ -61,7 +64,7 @@ public class StackPicker {
 		if (backfillToBundle) {
 			InteractionManager.push(new InteractionManager.ClickEvent(
 					player.inventoryMenu.containerId,
-					inventorySlotToContainerSlot(bundleLocation.getInventorySlotId()),
+					bundleContainerSlot,
 					0,
 					ClickType.PICKUP
 				));
