@@ -28,8 +28,8 @@ _No mouses were harmed in the making of this mod._
 | Depositing/Restocking | Move all items that already exist in another inventory                     | Hold space and left click                     | Everywhere                                               |
 | Inventory sorting     | Sort items in inventories by name, quantity or creative order              | Press middle mouse button                     | Everywhere (faster if on server¹, creative since 1.19.3) |
 | Scroll through tabs   | Scroll through tabs and pages in the creative inventory or recipe book     | Scroll over tabs/pages                        | Everywhere                                               |
-| Auto refill           | Automatically refills used up tools, foods and the like from the inventory | Use something up                              | Up to 1.21.3, later only if on server¹                   |
-| Tool picking          | Pick the correct tools for the focused block                               | Press middle mouse button when holding a tool | Up to 1.21.3, later only if on server¹                   |
+| Auto refill           | Automatically refills used up tools, foods and the like from the inventory | Use something up                              | Everywhere                                               |
+| Tool picking          | Pick the correct tools for the focused block                               | Press middle mouse button when holding a tool | Everywhere                                               |
 | Quick crafing/trading | Right click on recipes in the recipe book or trades to instant trade       | Read to the left :)                           | Everywhere                                               |
 | Armor swapping        | Quickly swap equivalent armor pieces                                       | Right-click while having the item in hotbar   | Up to 1.19.4, later built in to Vanilla                  |
 
@@ -41,10 +41,6 @@ Additionally, clicks and scrolling in the inventory will change behavior when pr
 Basically all the actions are rebindable in the controls menu.
 
 ¹: Works on singleplayer or on servers if the mod is installed on the server as well.
-<!-- curseforge.exclude.start -->
-Alternatively, you can install the [Mouse Wheelie Companion data pack](https://modrinth.com/project/E9oUbZ2Q) on the server.
-<!-- curseforge.exclude.end -->
-<!-- curseforge.include: Alternatively, you can install the [Mouse Wheelie Companion data pack](https://legacy.curseforge.com/minecraft/data-packs/mouse-wheelie-companion) on the server. -->
 
 ## Configuration
 
