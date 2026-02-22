@@ -123,8 +123,8 @@ public class MWConfig {
 		public boolean alwaysKeepSelectedSlot = false;
 		public boolean fromBundles = true;
 
+		// Refill causes
 		public boolean itemChanges = true;
-
 		public boolean eat = true;
 		public boolean drop = true;
 		public boolean use = true;
@@ -154,5 +154,7 @@ public class MWConfig {
 		@Attribute(key = MWServerRequiredTweedExtension.ATTRIBUTE, value = "true")
 		//# end
 		public boolean pickFromInventory = true;
+
+		public boolean alwaysKeepSelectedSlot = false;
 	}
 }

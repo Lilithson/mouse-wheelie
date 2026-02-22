@@ -134,8 +134,12 @@ public class ToolPicker {
 				//- inventory.selected = index;
 				//# end
 			} else {
-				new StackPicker(inventory.player)
-						.pickFromInventorySlot(index, StackPicker.TargetMode.KEEP_SELECTED_HOTBAR_SLOT);
+				new StackPicker(inventory.player).pickFromInventorySlot(
+						index,
+						MouseWheelie.config.toolPicking.alwaysKeepSelectedSlot
+								? StackPicker.TargetMode.KEEP_SELECTED_HOTBAR_SLOT
+								: StackPicker.TargetMode.PREFER_EMPTY_HOTBAR_SLOTS
+				);
 			}
 			return true;
 		}
