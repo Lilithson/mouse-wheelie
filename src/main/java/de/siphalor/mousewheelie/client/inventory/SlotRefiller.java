@@ -205,7 +205,7 @@ public class SlotRefiller {
 		}
 
 		StackPicker stackPicker = new StackPicker(playerInventory.player);
-		if (stackPicker.pick(location, new StackPicker.Options(targetMode, true))) {
+		if (stackPicker.pick(location, new StackPicker.Options(targetMode, false))) {
 			scheduleRefillSound();
 		}
 
