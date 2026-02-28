@@ -4,11 +4,12 @@
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [],
 	"client": [
+		"CreativeModeTabsAccessor",
+		"MinecraftClientAccessor",
 		"MixinClientPlayNetworkHandler",
 		"MixinContainer",
 		"MixinCreativeSlot",
 		"MixinMinecraftClient",
-		"MinecraftClientAccessor",
 		"MixinSlot",
 		"entity.MixinClientPlayerEntity",
 		"entity.MixinLivingEntity",

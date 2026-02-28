@@ -18,6 +18,7 @@
 package de.siphalor.mousewheelie.client.util;
 
 import de.siphalor.mousewheelie.MouseWheelie;
+import de.siphalor.mousewheelie.client.mixin.CreativeModeTabsAccessor;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.ArrayList;
@@ -28,7 +29,9 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.minecraft.client.Minecraft;
+//- import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.flag.FeatureFlagSet;
+//- import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 
@@ -62,8 +65,15 @@ public class CreativeSearchOrder {
 			FeatureFlagSet enabledFeatures = client.level.enabledFeatures();
 
 			if (stackToSearchPositionLookup.isEmpty() || !Objects.equals(enabledFeatures, lastFeatureSet)) {
+				lastFeatureSet = enabledFeatures;
+
 				CreativeModeTabs.tryRebuildTabContents(enabledFeatures, true, client.level.registryAccess());
 				Collection<ItemStack> displayStacks = new ArrayList<>(CreativeModeTabs.searchTab().getDisplayItems());
+
+				// Reset cached parameters, so that the tabs will be rebuild when the creative inventory is opened next time.
+				// Apparently, CreativeInventoryScreen heavily relies on the state of the creative mod tabs
+				CreativeModeTabsAccessor.setCACHED_PARAMETERS(null);
+
 				new Thread(() -> {
 					Lock lock = stackToSearchPositionLookupLock.writeLock();
 					lock.lock();
