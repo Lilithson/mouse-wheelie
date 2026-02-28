@@ -40,6 +40,7 @@ public class StackPicker {
 	private static final int HOTBAR_INVENTORY_START_SLOT = 0;
 	private static final int MAIN_INVENTORY_START_SLOT = Inventory.getSelectionSize();
 	private static final int HOTBAR_CONTAINER_START_SLOT = InventoryMenu.USE_ROW_SLOT_START;
+	private static final int HOTBAR_CONTAINER_END_SLOT = InventoryMenu.USE_ROW_SLOT_END;
 	private static final int MAIN_INVENTORY_CONTAINER_START_SLOT = InventoryMenu.INV_SLOT_START;
 
 	private final Player player;
@@ -199,7 +200,8 @@ public class StackPicker {
 	}
 
 	private void swapWithTargetContainerSlot(int targetContainerSlot) {
-		if (InventoryMenu.isHotbarSlot(targetContainerSlot)) {
+		// InventoryMenu#isHotbarSlot for some reason includes the offhand slot
+		if (targetContainerSlot >= HOTBAR_CONTAINER_START_SLOT && targetContainerSlot < HOTBAR_CONTAINER_END_SLOT) {
 			int hotbarSlot = targetContainerSlot - HOTBAR_CONTAINER_START_SLOT;
 			if (hotbarSlot != getSelectedHotbarSlot()) {
 				selectHotbarSlot(hotbarSlot);
