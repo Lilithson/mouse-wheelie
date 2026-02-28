@@ -226,7 +226,7 @@ publisher {
 
 	displayName = "[${mcProps["mc.version.title"]}] $shortVersion"
 	changelog.set(providers.exec {
-		commandLine("git", "log", "-1", "--format=format:##%x20%s%n%n%b%nRelease%x20by%x20%an", "--grep", "Version")
+		commandLine("git", "log", "-1", "--format=format:##%x20%s%n%n%b", "--grep", "Version")
 	}.standardOutput.asText.map { it.trim() })
 
 	curseDepends {
