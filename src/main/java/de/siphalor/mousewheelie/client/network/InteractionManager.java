@@ -35,7 +35,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
-import net.minecraft.world.inventory.ClickType;
+//- import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 
 @Environment(EnvType.CLIENT)
 @CustomLog
@@ -83,7 +84,16 @@ public class InteractionManager {
 		}
 	}
 
-	public static void pushClickEvent(int containerSyncId, int slotId, int buttonId, ClickType slotAction) {
+	public static void pushClickEvent(
+			int containerSyncId,
+			int slotId,
+			int buttonId,
+			//# if MC_VERSION_NUMBER >= 260100
+			ContainerInput slotAction
+			//# else
+			//- ClickType slotAction
+			//# end
+	) {
 		push(new ClickEvent(containerSyncId, slotId, buttonId, slotAction));
 	}
 
@@ -215,13 +225,36 @@ public class InteractionManager {
 		private final int containerSyncId;
 		private final int slotId;
 		private final int buttonId;
-		private final ClickType slotAction;
+		//# if MC_VERSION_NUMBER >= 260100
+		private final ContainerInput slotAction;
+		//# else
+		//- private final ClickType slotAction;
+		//# end
 
-		public ClickEvent(int containerSyncId, int slotId, int buttonId, ClickType slotAction) {
+		public ClickEvent(
+				int containerSyncId,
+				int slotId,
+				int buttonId,
+				//# if MC_VERSION_NUMBER >= 260100
+				ContainerInput slotAction
+				//# else
+				//- ClickType slotAction
+				//# end
+		) {
 			this(containerSyncId, slotId, buttonId, slotAction, TICK_WAITER);
 		}
 
-		public ClickEvent(int containerSyncId, int slotId, int buttonId, ClickType slotAction, Waiter waiter) {
+		public ClickEvent(
+				int containerSyncId,
+				int slotId,
+				int buttonId,
+				//# if MC_VERSION_NUMBER >= 260100
+				ContainerInput slotAction,
+				//# else
+				//- ClickType slotAction,
+				//# end
+				Waiter waiter
+		) {
 			this.containerSyncId = containerSyncId;
 			this.slotId = slotId;
 			this.buttonId = buttonId;
@@ -231,7 +264,13 @@ public class InteractionManager {
 
 		@Override
 		public Waiter send() {
-			Minecraft.getInstance().gameMode.handleInventoryMouseClick(containerSyncId, slotId, buttonId, slotAction, Minecraft.getInstance().player);
+			Minecraft.getInstance().gameMode
+					//# if MC_VERSION_NUMBER >= 260100
+					.handleContainerInput
+					//# else
+					//- .handleInventoryMouseClick
+					//# end
+							(containerSyncId, slotId, buttonId, slotAction, Minecraft.getInstance().player);
 			return waiter;
 		}
 

@@ -43,7 +43,8 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickType;
+//- import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
@@ -84,7 +85,15 @@ public class ContainerScreenHelper<T extends AbstractContainerScreen<?>> {
 		return false;
 	}
 
-	public InteractionManager.InteractionEvent createClickEvent(Slot slot, int action, ClickType actionType) {
+	public InteractionManager.InteractionEvent createClickEvent(
+			Slot slot,
+			int action,
+			//# if MC_VERSION_NUMBER >= 260100
+			ContainerInput actionType
+			//# else
+			//- ClickType actionType
+			//# end
+	) {
 		if (getSlotState(slot).areInteractionsLocked()) {
 			return null;
 		}
@@ -299,17 +308,44 @@ public class ContainerScreenHelper<T extends AbstractContainerScreen<?>> {
 		}
 
 		if (slotState.isAmountStable() && slot.getItem().getCount() == 1) {
-			InteractionManager.push(clickEventFactory.create(slot, 0, ClickType.QUICK_MOVE));
+			InteractionManager.push(
+					//# if MC_VERSION_NUMBER >= 260100
+					clickEventFactory.create(slot, 0, ContainerInput.QUICK_MOVE)
+					//# else
+					//- clickEventFactory.create(slot, 0, ClickType.QUICK_MOVE)
+					//# end
+			);
 			return;
 		}
-		InteractionManager.push(lockBefore(clickEventFactory.create(slot, 0, ClickType.PICKUP), slot, SlotInteractionState.UNSTABLE_AMOUNT));
-		InteractionManager.push(clickEventFactory.create(slot, 1, ClickType.PICKUP));
-		InteractionManager.push(clickEventFactory.create(slot, 0, ClickType.QUICK_MOVE));
-		InteractionManager.push(unlockAfter(clickEventFactory.create(slot, 0, ClickType.PICKUP), slot));
+		//# if MC_VERSION_NUMBER >= 260100
+		InteractionManager.push(lockBefore(
+				clickEventFactory.create(slot, 0, ContainerInput.PICKUP),
+				slot,
+				SlotInteractionState.UNSTABLE_AMOUNT
+		));
+		InteractionManager.push(clickEventFactory.create(slot, 1, ContainerInput.PICKUP));
+		InteractionManager.push(clickEventFactory.create(slot, 0, ContainerInput.QUICK_MOVE));
+		InteractionManager.push(unlockAfter(clickEventFactory.create(slot, 0, ContainerInput.PICKUP), slot));
+		//# else
+		//- InteractionManager.push(lockBefore(
+		//- 		clickEventFactory.create(slot, 0, ClickType.PICKUP),
+		//- 		slot,
+		//- 		SlotInteractionState.UNSTABLE_AMOUNT
+		//- ));
+		//- InteractionManager.push(clickEventFactory.create(slot, 1, ClickType.PICKUP));
+		//- InteractionManager.push(clickEventFactory.create(slot, 0, ClickType.QUICK_MOVE));
+		//- InteractionManager.push(unlockAfter(clickEventFactory.create(slot, 0, ClickType.PICKUP), slot));
+		//# end
 	}
 
 	public void sendStack(Slot slot) {
-		InteractionManager.push(createClickEvent(slot, 0, ClickType.QUICK_MOVE));
+		InteractionManager.push(
+				//# if MC_VERSION_NUMBER >= 260100
+				createClickEvent(slot, 0, ContainerInput.QUICK_MOVE)
+				//# else
+				//- createClickEvent(slot, 0, ClickType.QUICK_MOVE)
+				//# end
+		);
 	}
 
 	public void sendStackLocked(Slot slot) {
@@ -318,7 +354,14 @@ public class ContainerScreenHelper<T extends AbstractContainerScreen<?>> {
 		}
 
 		setSlotState(slot, SlotInteractionState.TEMP_LOCKED);
-		InteractionManager.push(unlockAfter(clickEventFactory.create(slot, 0, ClickType.QUICK_MOVE), slot));
+		InteractionManager.push(unlockAfter(
+				//# if MC_VERSION_NUMBER >= 260100
+				clickEventFactory.create(slot, 0, ContainerInput.QUICK_MOVE),
+				//# else
+				//- clickEventFactory.create(slot, 0, ClickType.QUICK_MOVE),
+				//# end
+				slot
+		));
 	}
 
 	public void sendAllOfAKind(Slot referenceSlot) {
@@ -409,10 +452,22 @@ public class ContainerScreenHelper<T extends AbstractContainerScreen<?>> {
 							break;
 						}
 					}
-					InteractionManager.push(clickEventFactory.create(currentTakeSlot, 0, ClickType.PICKUP));
+					InteractionManager.push(
+							//# if MC_VERSION_NUMBER >= 260100
+							clickEventFactory.create(currentTakeSlot, 0, ContainerInput.PICKUP)
+							//# else
+							//- clickEventFactory.create(currentTakeSlot, 0, ClickType.PICKUP)
+							//# end
+					);
 				}
 
-				InteractionManager.push(clickEventFactory.create(targetSlot, 0, ClickType.PICKUP));
+				InteractionManager.push(
+						//# if MC_VERSION_NUMBER >= 260100
+						clickEventFactory.create(targetSlot, 0, ContainerInput.PICKUP)
+						//# else
+						//- clickEventFactory.create(targetSlot, 0, ClickType.PICKUP)
+						//# end
+				);
 				space -= currentTakeCount;
 
 				if (space <= 0) {
@@ -424,7 +479,13 @@ public class ContainerScreenHelper<T extends AbstractContainerScreen<?>> {
 		}
 
 		if (currentTakeCount > 0) {
-			InteractionManager.push(clickEventFactory.create(currentTakeSlot, 0, ClickType.PICKUP));
+			InteractionManager.push(
+					//# if MC_VERSION_NUMBER >= 260100
+					clickEventFactory.create(currentTakeSlot, 0, ContainerInput.PICKUP)
+					//# else
+					//- clickEventFactory.create(currentTakeSlot, 0, ClickType.PICKUP)
+					//# end
+			);
 		}
 	}
 
@@ -453,7 +514,13 @@ public class ContainerScreenHelper<T extends AbstractContainerScreen<?>> {
 			return;
 		}
 
-		InteractionManager.push(createClickEvent(slot, 1, ClickType.THROW));
+		InteractionManager.push(
+				//# if MC_VERSION_NUMBER >= 260100
+				createClickEvent(slot, 1, ContainerInput.THROW)
+				//# else
+				//- createClickEvent(slot, 1, ClickType.THROW)
+				//# end
+		);
 	}
 
 	public void dropStackLocked(Slot slot) {
@@ -462,7 +529,14 @@ public class ContainerScreenHelper<T extends AbstractContainerScreen<?>> {
 		}
 
 		setSlotState(slot, SlotInteractionState.TEMP_LOCKED);
-		InteractionManager.push(unlockAfter(clickEventFactory.create(slot, 1, ClickType.THROW), slot));
+		InteractionManager.push(unlockAfter(
+				//# if MC_VERSION_NUMBER >= 260100
+				clickEventFactory.create(slot, 1, ContainerInput.THROW),
+				//# else
+				//- clickEventFactory.create(slot, 1, ClickType.THROW),
+				//# end
+				slot
+		));
 	}
 
 	public void dropAllOfAKind(Slot referenceSlot) {

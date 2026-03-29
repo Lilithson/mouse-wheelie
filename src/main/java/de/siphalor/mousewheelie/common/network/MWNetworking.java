@@ -30,11 +30,16 @@ public class MWNetworking {
 	protected MWNetworking() {}
 
 	public static void setup() {
-		//# if MC_VERSION_NUMBER >= 12006
-		PayloadTypeRegistry.playC2S().register(ReorderInventoryPacket.TYPE, ReorderInventoryPacket.STREAM_CODEC);
-		//# if MC_VERSION_NUMBER >= 12104
-		PayloadTypeRegistry.playC2S().register(PickFromInventoryPacket.TYPE, PickFromInventoryPacket.STREAM_CODEC);
-		//# end
+		//# if MC_VERSION_NUMBER >= 260100
+		PayloadTypeRegistry.serverboundPlay()
+				.register(ReorderInventoryPacket.TYPE, ReorderInventoryPacket.STREAM_CODEC);
+		PayloadTypeRegistry.serverboundPlay()
+				.register(PickFromInventoryPacket.TYPE, PickFromInventoryPacket.STREAM_CODEC);
+		//# elif MC_VERSION_NUMBER >= 12006
+		//- PayloadTypeRegistry.playC2S().register(ReorderInventoryPacket.TYPE, ReorderInventoryPacket.STREAM_CODEC);
+		//- //# if MC_VERSION_NUMBER >= 12104
+		//- PayloadTypeRegistry.playC2S().register(PickFromInventoryPacket.TYPE, PickFromInventoryPacket.STREAM_CODEC);
+		//- //# end
 		//# end
 	}
 	//# if MC_VERSION_NUMBER < 12006

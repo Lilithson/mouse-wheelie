@@ -57,7 +57,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 //- import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
+//- import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.BundleItem;
 //- import net.minecraft.world.item.Equipable;
@@ -67,6 +68,13 @@ import net.minecraft.world.item.equipment.Equippable;
 @SuppressWarnings("WeakerAccess")
 @Mixin(AbstractContainerScreen.class)
 public abstract class MixinAbstractContainerScreen extends Screen implements IContainerScreen {
+	@Unique
+	//# if MC_VERSION_NUMBER >= 260100
+	private static final ContainerInput PICKUP_CONTAINER_INPUT = ContainerInput.PICKUP;
+	//# else
+	//- private static final ClickType PICKUP_CONTAINER_INPUT = ClickType.PICKUP;
+	//# end
+
 	protected MixinAbstractContainerScreen(Component textComponent_1) {
 		super(textComponent_1);
 	}
@@ -85,7 +93,16 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 	//# end
 
 	@Shadow
-	protected abstract void slotClicked(Slot slot_1, int int_1, int int_2, ClickType slotActionType_1);
+	protected abstract void slotClicked(
+			Slot slot,
+			int slotId,
+			int button,
+			//# if MC_VERSION_NUMBER >= 260100
+			ContainerInput slotAction
+			//# else
+			//- ClickType slotAction
+			//# end
+	);
 
 	@Shadow
 	@Final
@@ -251,7 +268,16 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 						screenHelper.get().dropAllOfAKind(hoveredSlot);
 					}
 				} else {
-					slotClicked(hoveredSlot, ((ISlot) hoveredSlot).mouseWheelie_getIdInContainer(), 1, ClickType.THROW);
+					slotClicked(
+							hoveredSlot,
+							((ISlot) hoveredSlot).mouseWheelie_getIdInContainer(),
+							1,
+							//# if MC_VERSION_NUMBER >= 260100
+							ContainerInput.THROW
+							//# else
+							//- ClickType.THROW
+							//# end
+					);
 				}
 			} else if (MWClient.ALL_OF_KIND_MODIFIER.isDown()) {
 				if (MWClient.WHOLE_STACK_MODIFIER.isDown()) {
@@ -272,7 +298,7 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 				if (MouseWheelie.config.general.enableBundleDragging && isCarryingBundle()) {
 					if (!hoveredSlot.getItem().isEmpty()) {
 						bundleDragMode = BundleDragMode.PICKING_UP;
-						slotClicked(hoveredSlot, hoveredSlot.index, 0, ClickType.PICKUP);
+						slotClicked(hoveredSlot, hoveredSlot.index, 0, PICKUP_CONTAINER_INPUT);
 						success = true;
 					}
 				}
@@ -307,15 +333,15 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 
 	@Unique
 	private void bundlePutOut(Slot slot) {
-		slotClicked(slot, slot.index, 1, ClickType.PICKUP);
+		slotClicked(slot, slot.index, 1, PICKUP_CONTAINER_INPUT);
 	}
 
 	@Unique
 	private void bundlePickUp(Slot slot) {
 		//# if MC_VERSION_NUMBER >= 12102
-		slotClicked(slot, slot.index, 0, ClickType.PICKUP);
+		slotClicked(slot, slot.index, 0, PICKUP_CONTAINER_INPUT);
 		//# else
-		//- slotClicked(slot, slot.index, 1, ClickType.PICKUP);
+		//- slotClicked(slot, slot.index, 1, PICKUP_CONTAINER_INPUT);
 		//# end
 	}
 
@@ -376,9 +402,14 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 				//- if (equipmentSlot.getType() == EquipmentSlot.Type.ARMOR) {
 				//# end
 					int hoveredSlotId = ((ISlot) hoveredSlot).mouseWheelie_getIdInContainer();
-					InteractionManager.pushClickEvent(menu.containerId, hoveredSlotId, 0, ClickType.PICKUP);
-					InteractionManager.pushClickEvent(menu.containerId, 8 - equipmentSlot.getIndex(), 0, ClickType.PICKUP);
-					InteractionManager.pushClickEvent(menu.containerId, hoveredSlotId, 0, ClickType.PICKUP);
+					InteractionManager.pushClickEvent(menu.containerId, hoveredSlotId, 0, PICKUP_CONTAINER_INPUT);
+					InteractionManager.pushClickEvent(
+							menu.containerId,
+							8 - equipmentSlot.getIndex(),
+							0,
+							PICKUP_CONTAINER_INPUT
+					);
+					InteractionManager.pushClickEvent(menu.containerId, hoveredSlotId, 0, PICKUP_CONTAINER_INPUT);
 					return ScrollAction.SUCCESS;
 				}
 			}

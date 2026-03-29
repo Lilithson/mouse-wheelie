@@ -17,9 +17,18 @@
 
 package de.siphalor.mousewheelie.client.network;
 
-import net.minecraft.world.inventory.ClickType;
+//- import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 
 public interface ClickEventFactory {
-	InteractionManager.InteractionEvent create(Slot slot, int action, ClickType slotActionType);
+	InteractionManager.InteractionEvent create(
+			Slot slot,
+			int action,
+			//# if MC_VERSION_NUMBER >= 260100
+			ContainerInput slotActionType
+			//# else
+			//- ClickType slotActionType
+			//# end
+	);
 }

@@ -31,7 +31,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.world.inventory.ClickType;
+//- import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 
 @Environment(EnvType.CLIENT)
 @Mixin(targets = "net/minecraft/client/gui/screens/inventory/MerchantScreen$TradeOfferButton")
@@ -50,9 +51,27 @@ public class MixinMerchantWidgetButtonPage implements ISpecialClickableButtonWid
 			((IMerchantScreen) screen).mouseWheelie_syncRecipeId();
 			if (screen instanceof AbstractContainerScreen) {
 				if (MWClient.WHOLE_STACK_MODIFIER.isDown())
-					InteractionManager.pushClickEvent(((AbstractContainerScreen<?>) screen).getMenu().containerId, 2, 1, ClickType.QUICK_MOVE);
+					InteractionManager.pushClickEvent(
+							((AbstractContainerScreen<?>) screen).getMenu().containerId,
+							2,
+							1,
+							//# if MC_VERSION_NUMBER >= 260100
+							ContainerInput.QUICK_MOVE
+							//# else
+							//- ClickType.QUICK_MOVE
+							//# end
+					);
 				else
-					InteractionManager.pushClickEvent(((AbstractContainerScreen<?>) screen).getMenu().containerId, 2, 1, ClickType.PICKUP);
+					InteractionManager.pushClickEvent(
+							((AbstractContainerScreen<?>) screen).getMenu().containerId,
+							2,
+							1,
+							//# if MC_VERSION_NUMBER >= 260100
+							ContainerInput.PICKUP
+							//# else
+							//- ClickType.PICKUP
+							//# end
+					);
 			}
 		}
 

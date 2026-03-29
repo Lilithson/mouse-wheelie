@@ -1,25 +1,20 @@
 import de.siphalor.jcyo.gradle.JcyoTask
+import de.siphalor.minecraft_modding_toolkit.gradle.project_plugin.filter.JsonMergeFilterReader
 import de.siphalor.mousewheelie.gradle.FormatReadmeForModSites
-import java.util.*
 
 plugins {
-	alias(libs.plugins.loom)
 	java
 	`maven-publish`
+	alias(mcLibs.plugins.smcmtk)
+	alias(mcLibs.plugins.fabric.loom)
 	alias(libs.plugins.licenser)
 	alias(libs.plugins.jcyo)
 	alias(libs.plugins.modPublisher)
 	alias(libs.plugins.modrinth)
 }
 
-val minecraftVersionDescriptor = project.properties["minecraft.version.descriptor"] as String
-val mcProps = Properties().apply {
-	val propFile = project.layout.settingsDirectory.file("gradle/mc-${minecraftVersionDescriptor}/gradle.properties")
-	load(propFile.asFile.inputStream())
-}
-
 group = "de.siphalor.${project.name}"
-val archivesBaseName = "${project.name}-mc${minecraftVersionDescriptor}"
+val archivesBaseName = "${project.name}-mc${properties["minecraft.version.descriptor"]}"
 val shortVersion = "${properties["version"]}"
 version = "${shortVersion}+mc${mcLibs.versions.minecraft.get()}"
 
@@ -78,72 +73,76 @@ configurations {
 	}
 }
 
+smcmtk {
+	useMojangMappings()
+	createModConfigurations(listOf(sourceSets.main.get()))
+}
+
 dependencies {
 	annotationProcessor(libs.lombok)
 	compileOnly(libs.lombok)
 
 	minecraft(mcLibs.minecraft)
-	mappings(loom.layered {
-		officialMojangMappings()
-		parchment(variantOf(mcLibs.parchment) {
-			artifactType("zip")
-		})
-	})
-	modImplementation(libs.fabric.loader)
+	"modImplementation"(libs.fabric.loader)
 
 	compileOnly(libs.jspecify)
 
-	for (mod in listOf(
+	for (mod in listOfNotNull(
 		"fabric-api-base",
 		"fabric-events-interaction-v0",
 		"fabric-item-api-v1",
-		"fabric-item-group-api-v1",
+		smcmtk.mcProps.getting("fabric.api.item_group").orNull,
 		"fabric-lifecycle-events-v1",
-		"fabric-key-binding-api-v1",
+		smcmtk.mcProps.getting("fabric.api.key_mapping").get(),
 		"fabric-message-api-v1",
 		"fabric-networking-api-v1",
 		"fabric-resource-loader-v0",
 		"fabric-registry-sync-v0",
 		"fabric-screen-api-v1",
 	)) {
-		modImplementation(fabricApi.module(mod, mcLibs.versions.fabric.api.get()))
+		"modImplementation"(fabricApi.module(mod, mcLibs.versions.fabric.api.get()))
 	}
 
-	modImplementation(mcLibs.modmenu)
+	"modImplementation"(mcLibs.modmenu)
 
 	include(mcLibs.bundles.config)
-	modApi(mcLibs.bundles.config) {
+	"modApi"(mcLibs.bundles.config) {
 		exclude(group = "net.fabricmc.fabric-api")
 		exclude(group = "de.siphalor.amecs-api")
 	}
 
 	include(mcLibs.amecs.key.mapping.descriptions)
-	modImplementation(mcLibs.amecs.key.mapping.descriptions) {
+	"modImplementation"(mcLibs.amecs.key.mapping.descriptions) {
 		exclude(group = "net.fabricmc.fabric-api")
 	}
 	include(mcLibs.amecs.mouse.inputs)
-	modImplementation(mcLibs.amecs.mouse.inputs) {
+	"modImplementation"(mcLibs.amecs.mouse.inputs) {
 		exclude(group = "net.fabricmc.fabric-api")
 	}
 	include(mcLibs.amecs.priority.key.mappings)
-	modImplementation(mcLibs.amecs.priority.key.mappings) {
+	"modImplementation"(mcLibs.amecs.priority.key.mappings) {
 		exclude(group = "net.fabricmc.fabric-api")
 	}
 }
 
 tasks.processResources {
     inputs.property("version", project.version)
-	inputs.property("extraClientMixins", mcProps["mixins.extra.client"])
+	inputs.property("extraClientMixins", smcmtk.mcProps.getting("mixins.extra.client"))
 
 	filesMatching("fabric.mod.json") {
-		expand("version" to project.version)
+		filter<JsonMergeFilterReader>("merge" to mapOf(
+			"version" to project.version,
+			"depends" to mapOf(
+				smcmtk.mcProps.getting("fabric.api.key_mapping").get() to "*"
+			)
+		))
 	}
 	filesMatching("mousewheelie.mixins.json") {
-		val extraClientMixins = mcProps.getProperty("mixins.extra.client")?.split(",")?.map { it.trim() } ?: listOf()
-		expand("extraClientMixins" to
-				if (extraClientMixins.isEmpty()) ""
-				else "," + extraClientMixins.joinToString(",") { "\"$it\"" }
-		)
+		filter<JsonMergeFilterReader>("merge" to mapOf(
+			"client" to (smcmtk.mcProps.getting("mixins.extra.client").orNull?.let {
+				it.split(",").map { mixin -> mixin.trim() }
+			} ?: listOf())
+		))
 	}
 }
 
@@ -153,13 +152,11 @@ java {
 	withSourcesJar()
 }
 
-val jcyoVars = mcProps.stringPropertyNames()
-	.filter { it.startsWith("preprocessor.") }
-	.map { it to mcProps[it] }
-	.associate { (key, value) -> key.substring("preprocessor.".length) to value.toString() }
 val jcyo = tasks.register<JcyoTask>("jcyo") {
 	inputDirectory = file("src/main/java")
-	variables = jcyoVars
+	variables = smcmtk.mcProps.map {
+		it.filterKeys { key -> key.startsWith("preprocessor.") }.mapKeys { (key, _) -> key.substring("preprocessor.".length) }
+	}
 	importOrder = listOf(
 		"",
 		"net.minecraft",
@@ -215,16 +212,16 @@ publisher {
 	curseID = "317514"
 	modrinthID = "u5Ic2U1u"
 
-	artifact.set(tasks.remapJar)
+	artifact.set(tasks.findByName("remapJar") ?: tasks.jar)
 
 	projectVersion = project.version as String
 	versionType = project.property("version.type") as String
 	loaders = listOf("fabric")
 	curseEnvironment = "client"
 
-	gameVersions = (mcProps["mc.version.supported"] as String).split(", ")
+	gameVersions = smcmtk.mcProps.getting("mc.version.supported").map { it.split(", ") }
 
-	displayName = "[${mcProps["mc.version.title"]}] $shortVersion"
+	displayName = "[${smcmtk.mcProps.getting("mc.version.title").get()}] $shortVersion"
 	changelog.set(providers.exec {
 		commandLine("git", "log", "-1", "--format=format:##%x20%s%n%n%b", "--grep", "Version")
 	}.standardOutput.asText.map { it.trim() })

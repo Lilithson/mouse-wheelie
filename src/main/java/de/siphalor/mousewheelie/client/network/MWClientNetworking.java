@@ -40,12 +40,19 @@ public class MWClientNetworking extends MWNetworking {
 
 	public static void setup() {
 		//# if MC_VERSION_NUMBER >= 12006
-		PayloadTypeRegistry.configurationS2C().register(MWFeatureControlPacket.TYPE, MWFeatureControlPacket.STREAM_CODEC);
+		//# if MC_VERSION_NUMBER >= 260100
+		PayloadTypeRegistry.clientboundConfiguration()
+				.register(MWFeatureControlPacket.TYPE, MWFeatureControlPacket.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay()
+				.register(MWFeatureControlPacket.TYPE, MWFeatureControlPacket.STREAM_CODEC);
+		//# else
+		//- PayloadTypeRegistry.configurationS2C().register(MWFeatureControlPacket.TYPE, MWFeatureControlPacket.STREAM_CODEC);
+		//- PayloadTypeRegistry.playS2C().register(MWFeatureControlPacket.TYPE, MWFeatureControlPacket.STREAM_CODEC);
+		//# end
 		ClientConfigurationNetworking.registerGlobalReceiver(
 				MWFeatureControlPacket.TYPE,
 				(packet, context) -> onFeatureControlPacket(packet)
 		);
-		PayloadTypeRegistry.playS2C().register(MWFeatureControlPacket.TYPE, MWFeatureControlPacket.STREAM_CODEC);
 		ClientPlayNetworking.registerGlobalReceiver(
 				MWFeatureControlPacket.TYPE,
 				(packet, context) -> onFeatureControlPacket(packet)

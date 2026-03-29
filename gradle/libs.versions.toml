@@ -1,17 +1,15 @@
 [versions]
-fabric-loader = "0.18.2"
+fabric-loader = "0.18.5"
 jcyo = "0.6.0"
 jspecify = "1.0.0"
 licenser = "2.2.1"
-lombok = "1.18.38"
-loom = "1.13-SNAPSHOT"
+lombok = "1.18.44"
 modPublisher = "2.1.8"
 modrinth = "2.8.10"
 
 [plugins]
 jcyo = { id = "de.siphalor.jcyo", version.ref = "jcyo" }
 licenser = { id = "dev.yumi.gradle.licenser", version.ref = "licenser" }
-loom = { id = "fabric-loom", version.ref = "loom" }
 modPublisher = { id = "com.hypherionmc.modutils.modpublisher", version.ref = "modPublisher" }
 modrinth = { id = "com.modrinth.minotaur", version.ref = "modrinth" }
 

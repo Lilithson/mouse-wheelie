@@ -25,7 +25,8 @@ import net.fabricmc.api.Environment;
 
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickType;
+//- import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
@@ -46,8 +47,13 @@ public class CreativeInventoryContainerScreenHelper<T extends CreativeModeInvent
 				if (getScope(testSlot) != scope) {
 					ItemStack itemStack = testSlot.getItem();
 					if (ItemStackUtils.canCombine(slot.getItem(), itemStack) && itemStack.getCount() < itemStack.getMaxStackSize()) {
-						InteractionManager.push(clickEventFactory.create(slot, 0, ClickType.PICKUP));
-						InteractionManager.push(clickEventFactory.create(testSlot, 0, ClickType.PICKUP));
+						//# if MC_VERSION_NUMBER >= 260100
+						InteractionManager.push(clickEventFactory.create(slot, 0, ContainerInput.PICKUP));
+						InteractionManager.push(clickEventFactory.create(testSlot, 0, ContainerInput.PICKUP));
+						//# else
+						//- InteractionManager.push(clickEventFactory.create(slot, 0, ClickType.PICKUP));
+						//- InteractionManager.push(clickEventFactory.create(testSlot, 0, ClickType.PICKUP));
+						//# end
 						return;
 					}
 				}
@@ -55,8 +61,13 @@ public class CreativeInventoryContainerScreenHelper<T extends CreativeModeInvent
 			for (Slot testSlot : screen.getMenu().slots) {
 				if (getScope(testSlot) != scope) {
 					if (!testSlot.hasItem()) {
-						InteractionManager.push(clickEventFactory.create(slot, 0, ClickType.PICKUP));
-						InteractionManager.push(clickEventFactory.create(testSlot, 0, ClickType.PICKUP));
+						//# if MC_VERSION_NUMBER >= 260100
+						InteractionManager.push(clickEventFactory.create(slot, 0, ContainerInput.PICKUP));
+						InteractionManager.push(clickEventFactory.create(testSlot, 0, ContainerInput.PICKUP));
+						//# else
+						//- InteractionManager.push(clickEventFactory.create(slot, 0, ClickType.PICKUP));
+						//- InteractionManager.push(clickEventFactory.create(testSlot, 0, ClickType.PICKUP));
+						//# end
 						return;
 					}
 				}
@@ -83,19 +94,35 @@ public class CreativeInventoryContainerScreenHelper<T extends CreativeModeInvent
 			super.sendStack(slot);
 		} else {
 			int count = slot.getItem().getMaxStackSize();
-			InteractionManager.push(clickEventFactory.create(slot, 0, ClickType.CLONE));
+			//# if MC_VERSION_NUMBER >= 260100
+			InteractionManager.push(clickEventFactory.create(slot, 0, ContainerInput.CLONE));
+			//# else
+			//- InteractionManager.push(clickEventFactory.create(slot, 0, ClickType.CLONE));
+			//# end
 			for (Slot testSlot : screen.getMenu().slots) {
 				ItemStack itemStack = testSlot.getItem();
 				if (itemStack.isEmpty()) {
-					InteractionManager.push(clickEventFactory.create(testSlot, 0, ClickType.PICKUP));
+					//# if MC_VERSION_NUMBER >= 260100
+					InteractionManager.push(clickEventFactory.create(testSlot, 0, ContainerInput.PICKUP));
+					//# else
+					//- InteractionManager.push(clickEventFactory.create(testSlot, 0, ClickType.PICKUP));
+					//# end
 					return;
 				} else if (ItemStackUtils.canCombine(itemStack, slot.getItem()) && itemStack.getCount() < itemStack.getMaxStackSize()) {
 					count -= itemStack.getCount();
-					InteractionManager.push(clickEventFactory.create(testSlot, 0, ClickType.PICKUP));
+					//# if MC_VERSION_NUMBER >= 260100
+					InteractionManager.push(clickEventFactory.create(testSlot, 0, ContainerInput.PICKUP));
+					//# else
+					//- InteractionManager.push(clickEventFactory.create(testSlot, 0, ClickType.PICKUP));
+					//# end
 					if (count <= 0) return;
 				}
 			}
-			InteractionManager.push(clickEventFactory.create(getDelSlot(slot.getItem()), 0, ClickType.PICKUP));
+			//# if MC_VERSION_NUMBER >= 260100
+			InteractionManager.push(clickEventFactory.create(getDelSlot(slot.getItem()), 0, ContainerInput.PICKUP));
+			//# else
+			//- InteractionManager.push(clickEventFactory.create(getDelSlot(slot.getItem()), 0, ClickType.PICKUP));
+			//# end
 		}
 	}
 

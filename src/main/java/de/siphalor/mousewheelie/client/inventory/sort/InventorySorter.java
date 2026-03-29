@@ -32,12 +32,19 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.world.inventory.ClickType;
+//- import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 @Environment(EnvType.CLIENT)
 public class InventorySorter {
+	//# if MC_VERSION_NUMBER >= 260100
+	private static final ContainerInput PICKUP_CONTAINER_INPUT = ContainerInput.PICKUP;
+	//# else
+	//- private static final ClickType PICKUP_CONTAINER_INPUT = ClickType.PICKUP;
+	//# end
+
 	private final ContainerScreenHelper<? extends AbstractContainerScreen<?>> screenHelper;
 	private final AbstractContainerScreen<?> containerScreen;
 	private Slot[] inventorySlots;
@@ -96,7 +103,7 @@ public class InventorySorter {
 			if (stack.isEmpty()) continue;
 			int stackSize = stack.getCount();
 			if (stackSize >= ItemStackUtils.getMaxStackSize(stack)) continue;
-			clickEvents.add(screenHelper.createClickEvent(inventorySlots[i], 0, ClickType.PICKUP));
+			clickEvents.add(screenHelper.createClickEvent(inventorySlots[i], 0, PICKUP_CONTAINER_INPUT));
 			for (int j = 0; j < i; j++) {
 				ItemStack targetStack = stacks[j];
 				if (targetStack.isEmpty()) continue;
@@ -106,7 +113,7 @@ public class InventorySorter {
 					delta = Math.min(delta, stackSize);
 					stackSize -= delta;
 					targetStack.setCount(targetStack.getCount() + delta);
-					clickEvents.add(screenHelper.createClickEvent(inventorySlots[j], 0, ClickType.PICKUP));
+					clickEvents.add(screenHelper.createClickEvent(inventorySlots[j], 0, PICKUP_CONTAINER_INPUT));
 					if (stackSize <= 0) break;
 				}
 			}
@@ -118,7 +125,7 @@ public class InventorySorter {
 			InteractionManager.triggerSend(InteractionManager.TriggerType.GUI_CONFIRM);
 			clickEvents.clear();
 			if (stackSize > 0) {
-				InteractionManager.push(screenHelper.createClickEvent(inventorySlots[i], 0, ClickType.PICKUP));
+				clickEvents.add(screenHelper.createClickEvent(inventorySlots[i], 0, PICKUP_CONTAINER_INPUT));
 				stack.setCount(stackSize);
 			} else {
 				stacks[i] = ItemStack.EMPTY;
@@ -193,7 +200,9 @@ public class InventorySorter {
 
 			// This is where the action happens.
 			// Pick up the stack at the origin slot.
-			InteractionManager.push(screenHelper.createClickEvent(inventorySlots[sortedIds[i]], 0, ClickType.PICKUP));
+			InteractionManager.push(
+					screenHelper.createClickEvent(inventorySlots[sortedIds[i]], 0, PICKUP_CONTAINER_INPUT)
+			);
 			doneSlashEmpty.set(slotCount + sortedIds[i]); // Mark the origin slot as empty (because we picked the stack up, duh)
 			currentStack = stacks[sortedIds[i]]; // Save the stack we're currently working with
 			Slot workingSlot = inventorySlots[sortedIds[i]]; // A slot that we can use when fiddling around with swapping stacks
@@ -214,11 +223,11 @@ public class InventorySorter {
 					if (currentStack.getCount() < stacks[id].getCount()) { // Clicking with a low stack on a full stack does nothing
 						// The workaround is: click working slot, click target slot, click working slot, click target slot, click working slot
 						Slot targetSlot = inventorySlots[id];
-						InteractionManager.push(screenHelper.createClickEvent(workingSlot, 0, ClickType.PICKUP));
-						InteractionManager.push(screenHelper.createClickEvent(targetSlot, 0, ClickType.PICKUP));
-						InteractionManager.push(screenHelper.createClickEvent(workingSlot, 0, ClickType.PICKUP));
-						InteractionManager.push(screenHelper.createClickEvent(targetSlot, 0, ClickType.PICKUP));
-						InteractionManager.push(screenHelper.createClickEvent(workingSlot, 0, ClickType.PICKUP));
+						InteractionManager.push(screenHelper.createClickEvent(workingSlot, 0, PICKUP_CONTAINER_INPUT));
+						InteractionManager.push(screenHelper.createClickEvent(targetSlot, 0, PICKUP_CONTAINER_INPUT));
+						InteractionManager.push(screenHelper.createClickEvent(workingSlot, 0, PICKUP_CONTAINER_INPUT));
+						InteractionManager.push(screenHelper.createClickEvent(targetSlot, 0, PICKUP_CONTAINER_INPUT));
+						InteractionManager.push(screenHelper.createClickEvent(workingSlot, 0, PICKUP_CONTAINER_INPUT));
 
 						currentStack = stacks[id];
 						doneSlashEmpty.set(id); // mark the current target as done
@@ -233,7 +242,7 @@ public class InventorySorter {
 						inventorySlots[id],
 						// special logic for bundles, full stacks have to be swapped with right-click, empty ones with left-click
 						targetIsEmpty ? 0 : 1,
-						ClickType.PICKUP
+						PICKUP_CONTAINER_INPUT
 				));
 				currentStack = stacks[id];
 				doneSlashEmpty.set(id); // mark the current target as done

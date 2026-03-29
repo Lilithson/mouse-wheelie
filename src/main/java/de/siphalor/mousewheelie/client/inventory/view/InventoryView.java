@@ -102,7 +102,14 @@ public interface InventoryView extends Iterable<InventoryViewEntry> {
 
 							InventoryViewEntry entry = new InventoryViewEntry(
 									new InventoryViewLocation.Bundle(bundleEntry.getInvIndex(), bundleContentsIndex),
-									bundleEntry.getContents().getItemUnsafe(bundleContentsIndex)
+									bundleEntry.getContents()
+											//# if MC_VERSION_NUMBER >= 260100
+											.itemCopyStream()
+											.skip(bundleContentsIndex)
+											.findFirst().orElse(ItemStack.EMPTY)
+											//# else
+											//- .getItemUnsafe(bundleContentsIndex)
+											//# end
 							);
 
 							bundleContentsIndex++;

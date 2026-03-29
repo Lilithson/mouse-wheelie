@@ -77,7 +77,11 @@ public abstract class MixinMinecraftClient {
 
 	//# if MC_VERSION_NUMBER >= 12104
 	@Inject(
-			method = "pickBlock",
+			//# if MC_VERSION_NUMBER >= 260100
+			method = "pickBlockOrEntity",
+			//# else
+			//- method = "pickBlock",
+			//# end
 			//# if MC_VERSION_NUMBER >= 12109
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;hasControlDown()Z"),
 			//# else

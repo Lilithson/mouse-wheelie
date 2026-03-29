@@ -30,7 +30,8 @@ import net.minecraft.network.protocol.game.ServerboundSelectBundleItemPacket;
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickType;
+//- import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BundleContents;
@@ -42,6 +43,12 @@ public class StackPicker {
 	private static final int HOTBAR_CONTAINER_START_SLOT = InventoryMenu.USE_ROW_SLOT_START;
 	private static final int HOTBAR_CONTAINER_END_SLOT = InventoryMenu.USE_ROW_SLOT_END;
 	private static final int MAIN_INVENTORY_CONTAINER_START_SLOT = InventoryMenu.INV_SLOT_START;
+
+	//# if MC_VERSION_NUMBER >= 260100
+	private static final ContainerInput PICKUP_CONTAINER_INPUT = ContainerInput.PICKUP;
+	//# else
+	//- private static final ClickType PICKUP_CONTAINER_INPUT = ClickType.PICKUP;
+	//# end
 
 	private final Player player;
 
@@ -66,7 +73,15 @@ public class StackPicker {
 
 		BundleContents bundleContents = player.getInventory().getItem(bundleLocation.getInventorySlotId())
 				.getOrDefault(DataComponents.BUNDLE_CONTENTS, BundleContents.EMPTY);
-		ItemStack refillStack = bundleContents.getItemUnsafe(bundleLocation.getIndexInBundle());
+		ItemStack refillStack =
+				//# if MC_VERSION_NUMBER >= 260100
+				bundleContents.itemCopyStream()
+						.skip(bundleLocation.getIndexInBundle())
+						.findFirst()
+						.orElse(ItemStack.EMPTY);
+				//# else
+				//- bundleContents.getItemUnsafe(bundleLocation.getIndexInBundle());
+				//# end
 
 		int bundleContainerSlot = inventorySlotToContainerSlot(bundleLocation.getInventorySlotId());
 
@@ -88,14 +103,14 @@ public class StackPicker {
 					player.inventoryMenu.containerId,
 					bundleContainerSlot,
 					0,
-					ClickType.PICKUP
+					PICKUP_CONTAINER_INPUT
 				));
 		} else if (backfillSlot >= 0) {
 			InteractionManager.pushClickEvent(
 					player.inventoryMenu.containerId,
 					inventorySlotToContainerSlot(backfillSlot),
 					0,
-					ClickType.PICKUP
+					PICKUP_CONTAINER_INPUT
 			);
 		}
 		return true;
@@ -111,14 +126,30 @@ public class StackPicker {
 		}
 
 		Fraction excludeWeight = BundleContentsAccessor.callGetWeight(excludeStack)
+				//# if MC_VERSION_NUMBER >= 260100
+				.result().orElse(Fraction.ZERO)
+				//# end
 				.multiplyBy(Fraction.getFraction(excludeStack.getCount(), 1));
 		Fraction backfillWeight = BundleContentsAccessor.callGetWeight(backfillStack)
+				//# if MC_VERSION_NUMBER >= 260100
+				.result().orElse(Fraction.ONE)
+				//# end
 				.multiplyBy(Fraction.getFraction(backfillStack.getCount(), 1));
-		return bundleContents.weight().subtract(excludeWeight).add(backfillWeight).compareTo(Fraction.ONE) <= 0;
+		return bundleContents.weight()
+				//# if MC_VERSION_NUMBER >= 260100
+				.result().orElse(Fraction.getFraction(Integer.MAX_VALUE, 1))
+				//# end
+				.subtract(excludeWeight).add(backfillWeight).compareTo(Fraction.ONE) <= 0;
 	}
 
 	private void takeFromBundle(InventoryViewLocation.Bundle bundleLocation, BundleContents bundleContents) {
-		if (bundleContents.getSelectedItem() != bundleLocation.getIndexInBundle()) {
+		if (
+				//# if MC_VERSION_NUMBER >= 260100
+				bundleContents.getSelectedItemIndex() != bundleLocation.getIndexInBundle()
+				//# else
+				//- bundleContents.getSelectedItem() != bundleLocation.getIndexInBundle()
+				//# end
+		) {
 			InteractionManager.push(new InteractionManager.PacketEvent(new ServerboundSelectBundleItemPacket(
 					inventorySlotToContainerSlot(bundleLocation.getInventorySlotId()),
 					bundleLocation.getIndexInBundle()
@@ -128,7 +159,7 @@ public class StackPicker {
 				player.inventoryMenu.containerId,
 				inventorySlotToContainerSlot(bundleLocation.getInventorySlotId()),
 				1,
-				ClickType.PICKUP
+				PICKUP_CONTAINER_INPUT
 		);
 	}
 	//# end
@@ -143,7 +174,7 @@ public class StackPicker {
 				player.inventoryMenu.containerId,
 				inventorySlotToContainerSlot(inventorySlot),
 				0,
-				ClickType.PICKUP
+				PICKUP_CONTAINER_INPUT
 		);
 		int targetContainerSlot = resolveTargetContainerSlot(targetMode);
 		boolean needsBackfill = player.inventoryMenu.getSlot(targetContainerSlot).hasItem();
@@ -153,7 +184,7 @@ public class StackPicker {
 					player.inventoryMenu.containerId,
 					inventorySlotToContainerSlot(inventorySlot),
 					0,
-					ClickType.PICKUP
+					PICKUP_CONTAINER_INPUT
 			);
 		}
 	}
@@ -226,7 +257,7 @@ public class StackPicker {
 				player.inventoryMenu.containerId,
 				slot,
 				player.inventoryMenu.getSlot(slot).hasItem() ? 1 : 0,
-				ClickType.PICKUP
+				PICKUP_CONTAINER_INPUT
 		));
 	}
 

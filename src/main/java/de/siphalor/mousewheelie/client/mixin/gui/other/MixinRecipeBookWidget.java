@@ -53,7 +53,8 @@ import net.minecraft.network.protocol.game.ServerboundPlaceRecipePacket;
 import net.minecraft.util.Mth;
 //- import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.entity.player.StackedItemContents;
-import net.minecraft.world.inventory.ClickType;
+//- import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -241,7 +242,16 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 								&& !isCraftingSlot(menu.slots.get(MWClient.lastUpdatedSlot))
 				);
 			}
-			InteractionManager.pushClickEvent(menu.containerId, resSlot, 0, MWClient.WHOLE_STACK_MODIFIER.isDown() ? ClickType.QUICK_MOVE : ClickType.PICKUP);
+			InteractionManager.pushClickEvent(
+					menu.containerId,
+					resSlot,
+					0,
+					//# if MC_VERSION_NUMBER >= 260100
+					MWClient.WHOLE_STACK_MODIFIER.isDown() ? ContainerInput.QUICK_MOVE : ContainerInput.PICKUP
+					//# else
+					//- MWClient.WHOLE_STACK_MODIFIER.isDown() ? ClickType.QUICK_MOVE : ClickType.PICKUP
+					//# end
+			);
 		}
 	}
 
@@ -307,7 +317,11 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 						}
 						int cnt = getMaxCraftsCount(recipeEntry);
 						for (int i = 1; i < cnt; i++) {
-							InteractionManager.pushClickEvent(menu.containerId, resSlot, 1, ClickType.THROW);
+							//# if MC_VERSION_NUMBER >= 260100
+							InteractionManager.pushClickEvent(menu.containerId, resSlot, 1, ContainerInput.THROW);
+							//# else
+							//- InteractionManager.pushClickEvent(menu.containerId, resSlot, 1, ClickType.THROW);
+							//# end
 						}
 					} else {
 						if (oldRecipeEntry != recipeEntry || menu.slots.get(resSlot).getItem().isEmpty()) {
@@ -322,7 +336,23 @@ public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {
 						}
 					}
 					InteractionManager.push(new InteractionManager.CallbackEvent(() -> {
-						minecraft.gameMode.handleInventoryMouseClick(menu.containerId, getResultSlotIndex(), 0, ClickType.THROW, minecraft.player);
+						//# if MC_VERSION_NUMBER >= 260100
+						minecraft.gameMode.handleContainerInput(
+								menu.containerId,
+								getResultSlotIndex(),
+								0,
+								ContainerInput.THROW,
+								minecraft.player
+						);
+						//# else
+						//- minecraft.gameMode.handleInventoryMouseClick(
+						//- 		menu.containerId,
+						//- 		getResultSlotIndex(),
+						//- 		0,
+						//- 		ClickType.THROW,
+						//- 		minecraft.player
+						//- );
+						//# end
 						//# if MC_VERSION_NUMBER >= 12103
 						updateCollections(false, isFiltering());
 						//# else

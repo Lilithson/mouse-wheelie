@@ -21,7 +21,6 @@
 		"gui.screen.MixinAbstractContainerScreen",
 		"gui.screen.MixinCreativeInventoryScreen",
 		"gui.screen.MixinMerchantScreen"
-		${extraClientMixins}
 	],
 	"injectors": {
 		"defaultRequire": 1

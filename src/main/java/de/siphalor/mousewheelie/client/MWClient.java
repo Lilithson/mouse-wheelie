@@ -47,7 +47,8 @@ import java.util.Locale;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+//- import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 //- import net.fabricmc.fabric.api.event.client.player.ClientPickBlockGatherCallback;
 
@@ -136,17 +137,17 @@ public class MWClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		KeyBindingHelper.registerKeyBinding(OPEN_CONFIG_SCREEN);
-		KeyBindingHelper.registerKeyBinding(SORT_KEY_BINDING);
-		KeyBindingHelper.registerKeyBinding(SCROLL_UP_KEY_BINDING);
-		KeyBindingHelper.registerKeyBinding(SCROLL_DOWN_KEY_BINDING);
-		KeyBindingHelper.registerKeyBinding(PICK_TOOL_KEY_BINDING);
+		registerKeyMapping(OPEN_CONFIG_SCREEN);
+		registerKeyMapping(SORT_KEY_BINDING);
+		registerKeyMapping(SCROLL_UP_KEY_BINDING);
+		registerKeyMapping(SCROLL_DOWN_KEY_BINDING);
+		registerKeyMapping(PICK_TOOL_KEY_BINDING);
 
-		KeyBindingHelper.registerKeyBinding(WHOLE_STACK_MODIFIER);
-		KeyBindingHelper.registerKeyBinding(ALL_OF_KIND_MODIFIER);
-		KeyBindingHelper.registerKeyBinding(DROP_MODIFIER);
-		KeyBindingHelper.registerKeyBinding(DEPOSIT_MODIFIER);
-		KeyBindingHelper.registerKeyBinding(RESTOCK_MODIFIER);
+		registerKeyMapping(WHOLE_STACK_MODIFIER);
+		registerKeyMapping(ALL_OF_KIND_MODIFIER);
+		registerKeyMapping(DROP_MODIFIER);
+		registerKeyMapping(DEPOSIT_MODIFIER);
+		registerKeyMapping(RESTOCK_MODIFIER);
 
 		//# if MC_VERSION_NUMBER < 12104
 		//- ClientPickBlockGatherCallback.EVENT.register(MWClient::triggerPick);
@@ -163,6 +164,16 @@ public class MWClient implements ClientModInitializer {
 			MouseWheelie.endFeatureSession();
 		});
 	}
+
+	//# if MC_VERSION_NUMBER >= 260100
+	private static void registerKeyMapping(KeyMapping keyMapping) {
+		KeyMappingHelper.registerKeyMapping(keyMapping);
+	}
+	//# else
+	//- private static void registerKeyMapping(KeyMapping keyMapping) {
+	//- 	KeyBindingHelper.registerKeyBinding(keyMapping);
+	//- }
+	//# end
 
 	public static boolean isTool(ItemStack stack) {
 		//# if MC_VERSION_NUMBER >= 12103
@@ -213,7 +224,11 @@ public class MWClient implements ClientModInitializer {
 			}
 		}
 
-		Minecraft.getInstance().player.displayClientMessage(message, false);
+		//# if MC_VERSION_NUMBER >= 260100
+		Minecraft.getInstance().player.sendOverlayMessage(message);
+		//# else
+		//- Minecraft.getInstance().player.displayClientMessage(message, false);
+		//# end
 	}
 
 	public static void onConfigChanged() {

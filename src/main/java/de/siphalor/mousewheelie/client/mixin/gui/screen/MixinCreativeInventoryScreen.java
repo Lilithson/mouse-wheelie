@@ -36,7 +36,8 @@ import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickType;
+//- import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -51,7 +52,16 @@ public abstract class MixinCreativeInventoryScreen extends AbstractContainerScre
 	protected abstract void selectTab(CreativeModeTab itemGroup_1);
 
 	@Shadow
-	protected abstract void slotClicked(Slot slot, int invSlot, int button, ClickType slotActionType);
+	protected abstract void slotClicked(
+			Slot slot,
+			int invSlot,
+			int button,
+			//# if MC_VERSION_NUMBER >= 260100
+			ContainerInput slotActionType
+			//# else
+			//- ClickType slotActionType
+			//# end
+	);
 
 	@Shadow public abstract boolean isInventoryOpen();
 
