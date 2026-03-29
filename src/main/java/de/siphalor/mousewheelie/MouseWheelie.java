@@ -137,6 +137,9 @@ public class MouseWheelie implements ModInitializer {
 			config.sort.shiftSort = SortMode.NONE;
 			config.sort.controlSort = SortMode.NONE;
 		}
+		if (config.scrolling.enable) {
+			config.scrolling.enable = features.contains(MWFeature.SCROLL);
+		}
 		if (config.general.enableQuickCraft) {
 			config.general.enableQuickCraft = features.contains(MWFeature.QUICK_CRAFT);
 		}
