@@ -8,7 +8,7 @@ java = "17"
 minecraft = "1.20.6"
 modmenu = "10.0.0"
 parchment = "2024.06.16"
-tweed = "0.7.2"
+tweed = "0.8.1"
 
 [libraries]
 amecs-key-mapping-descriptions = { group = "de.siphalor.amecs.amecs-key-mapping-descriptions", name = "amecs-key-mapping-descriptions-mc1.20.2", version.ref = "amecs-key-mapping-descriptions" }

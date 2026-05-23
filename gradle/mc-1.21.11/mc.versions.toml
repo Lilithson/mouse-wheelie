@@ -2,13 +2,13 @@
 amecs-key-mapping-descriptions = "1.0.1"
 amecs-mouse-inputs = "1.0.1"
 amecs-priority-key-mappings = "1.0.1"
-coat = "1.1.1"
+coat = "1.1.2"
 fabric-api = "0.139.5+1.21.11"
 java = "17"
 minecraft = "1.21.11"
 modmenu = "17.0.0-alpha.1"
 parchment = "2025.10.12"
-tweed = "0.7.2"
+tweed = "0.8.1"
 
 [libraries]
 amecs-key-mapping-descriptions = { group = "de.siphalor.amecs.amecs-key-mapping-descriptions", name = "amecs-key-mapping-descriptions-mc1.21.9", version.ref = "amecs-key-mapping-descriptions" }

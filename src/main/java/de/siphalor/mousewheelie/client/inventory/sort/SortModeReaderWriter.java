@@ -18,33 +18,42 @@
 package de.siphalor.mousewheelie.client.inventory.sort;
 
 import de.siphalor.tweed5.core.api.entry.ConfigEntry;
-import de.siphalor.tweed5.data.extension.api.TweedEntryReadException;
-import de.siphalor.tweed5.data.extension.api.TweedReadContext;
-import de.siphalor.tweed5.data.extension.api.TweedWriteContext;
-import de.siphalor.tweed5.data.extension.api.readwrite.TweedEntryReaderWriter;
-import de.siphalor.tweed5.dataapi.api.*;
+import de.siphalor.tweed5.serde.extension.api.TweedReadContext;
+import de.siphalor.tweed5.serde.extension.api.TweedWriteContext;
+import de.siphalor.tweed5.serde.extension.api.read.result.TweedReadIssue;
+import de.siphalor.tweed5.serde.extension.api.read.result.TweedReadResult;
+import de.siphalor.tweed5.serde.extension.api.readwrite.TweedEntryReaderWriter;
+import de.siphalor.tweed5.serde_api.api.TweedDataReadException;
+import de.siphalor.tweed5.serde_api.api.TweedDataReader;
+import de.siphalor.tweed5.serde_api.api.TweedDataToken;
+import de.siphalor.tweed5.serde_api.api.TweedDataVisitor;
+import de.siphalor.tweed5.serde_api.api.TweedDataWriteException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class SortModeReaderWriter implements TweedEntryReaderWriter<SortMode, @NotNull ConfigEntry<SortMode>> {
 	@Override
-	public SortMode read(
+	public TweedReadResult<SortMode> read(
 			@NotNull TweedDataReader tweedDataReader,
 			ConfigEntry<SortMode> sortModeConfigEntry,
 			@NotNull TweedReadContext context
-	) throws TweedEntryReadException {
+	) {
 		try {
 			TweedDataToken token = tweedDataReader.readToken();
 			if (!token.canReadAsString()) {
-				throw new TweedEntryReadException("Failed to understand token " + token + " as sort mode, expected string", context);
+				return TweedReadResult.error(TweedReadIssue.error(
+						"Failed to understand token " + token + " as sort mode, expected string", context
+				));
 			}
 			SortMode sortMode = SortMode.getByName(token.readAsString());
 			if (sortMode == null) {
-				throw new TweedEntryReadException("Unknown sort mode " + token.readAsString(), context);
+				return TweedReadResult.error(TweedReadIssue.error(
+						"Unknown sort mode " + token.readAsString(), context
+				));
 			}
-			return sortMode;
+			return TweedReadResult.ok(sortMode);
 		} catch (TweedDataReadException e) {
-			throw new TweedEntryReadException("Failed to read sort mode", e, context);
+			return TweedReadResult.failed(TweedReadIssue.error(e, context));
 		}
 	}
 

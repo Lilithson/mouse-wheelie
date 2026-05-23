@@ -2,12 +2,12 @@
 amecs-key-mapping-descriptions = "1.0.1"
 amecs-mouse-inputs = "1.0.1"
 amecs-priority-key-mappings = "1.0.1"
-coat = "1.1.1"
+coat = "1.1.2"
 fabric-api = "0.144.3+26.1"
 java = "25"
 minecraft = "26.1"
 modmenu = "18.0.0-alpha.8"
-tweed = "0.7.2"
+tweed = "0.8.1"
 
 [libraries]
 amecs-key-mapping-descriptions = { group = "de.siphalor.amecs.amecs-key-mapping-descriptions", name = "amecs-key-mapping-descriptions-mc26.1.0", version.ref = "amecs-key-mapping-descriptions" }

@@ -27,6 +27,7 @@ import de.siphalor.tweed5.core.api.extension.TweedExtension;
 import de.siphalor.tweed5.core.api.middleware.Middleware;
 import de.siphalor.tweed5.defaultextensions.validation.api.ConfigEntryValidator;
 import de.siphalor.tweed5.defaultextensions.validation.api.ValidationProvidingExtension;
+import de.siphalor.tweed5.defaultextensions.validation.api.ValidatorMiddlewareContext;
 import de.siphalor.tweed5.defaultextensions.validation.api.result.ValidationIssue;
 import de.siphalor.tweed5.defaultextensions.validation.api.result.ValidationIssueLevel;
 import de.siphalor.tweed5.defaultextensions.validation.api.result.ValidationResult;
@@ -79,7 +80,7 @@ public class MWServerRequiredTweedExtension implements TweedExtension, Validatio
 	}
 
 	@Override
-	public @NotNull Middleware<ConfigEntryValidator> validationMiddleware() {
+	public @NotNull Middleware<ConfigEntryValidator, ValidatorMiddlewareContext> validationMiddleware() {
 		return new Middleware<>() {
 			@Override
 			public String id() {
@@ -87,7 +88,7 @@ public class MWServerRequiredTweedExtension implements TweedExtension, Validatio
 			}
 
 			@Override
-			public ConfigEntryValidator process(ConfigEntryValidator inner) {
+			public ConfigEntryValidator process(ConfigEntryValidator inner, ValidatorMiddlewareContext context) {
 				return new ConfigEntryValidator() {
 					@Override
 					public <T> @NotNull ValidationResult<T> validate(@NotNull ConfigEntry<T> configEntry, T value) {

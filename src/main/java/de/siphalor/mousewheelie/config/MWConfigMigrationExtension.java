@@ -23,15 +23,17 @@ import de.siphalor.tweed5.core.api.container.ConfigContainer;
 import de.siphalor.tweed5.core.api.entry.ConfigEntry;
 import de.siphalor.tweed5.core.api.extension.TweedExtension;
 import de.siphalor.tweed5.core.api.middleware.Middleware;
-import de.siphalor.tweed5.data.extension.api.TweedEntryReader;
-import de.siphalor.tweed5.data.extension.api.TweedReadContext;
-import de.siphalor.tweed5.data.extension.api.extension.ReadWriteExtensionSetupContext;
-import de.siphalor.tweed5.data.extension.api.extension.ReadWriteRelatedExtension;
-import de.siphalor.tweed5.dataapi.api.TweedDataReadException;
-import de.siphalor.tweed5.dataapi.api.TweedDataReader;
-import de.siphalor.tweed5.dataapi.api.TweedDataToken;
 import de.siphalor.tweed5.defaultextensions.pather.api.PatherExtension;
 import de.siphalor.tweed5.patchwork.api.PatchworkPartAccess;
+import de.siphalor.tweed5.serde.extension.api.TweedEntryReader;
+import de.siphalor.tweed5.serde.extension.api.TweedReadContext;
+import de.siphalor.tweed5.serde.extension.api.extension.ReadWriteExtensionSetupContext;
+import de.siphalor.tweed5.serde.extension.api.extension.ReadWriteRelatedExtension;
+import de.siphalor.tweed5.serde.extension.api.extension.ReaderMiddlewareContext;
+import de.siphalor.tweed5.serde.extension.api.read.result.TweedReadResult;
+import de.siphalor.tweed5.serde_api.api.TweedDataReadException;
+import de.siphalor.tweed5.serde_api.api.TweedDataReader;
+import de.siphalor.tweed5.serde_api.api.TweedDataToken;
 import java.util.Set;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -67,13 +69,13 @@ public class MWConfigMigrationExtension implements TweedExtension, ReadWriteRela
 			}
 
 			@Override
-			public TweedEntryReader<?, ?> process(TweedEntryReader<?, ?> inner) {
+			public TweedEntryReader<?, ?> process(TweedEntryReader<?, ?> inner, ReaderMiddlewareContext context) {
 				TweedEntryReader<Object, ConfigEntry<Object>> castedInner =
 						(TweedEntryReader<Object, ConfigEntry<Object>>) inner;
 				return (TweedEntryReader<Object, ConfigEntry<Object>>) (reader, entry, readContext) -> {
 					MigrationData migrationData = readContext.extensionsData().get(migrationDataAccess);
 
-					Object value;
+					TweedReadResult<Object> value;
 					if (migrationData == null) {
 						migrationData = new MigrationData();
 						readContext.extensionsData().set(migrationDataAccess, migrationData);
@@ -90,8 +92,8 @@ public class MWConfigMigrationExtension implements TweedExtension, ReadWriteRela
 						value = castedInner.read(reader, entry, readContext);
 					}
 
-					if (entry.valueClass() == (Class) MWConfig.class) {
-						applyMigrations((MWConfig) value, migrationData);
+					if (value.hasValue() && value.value().getClass() == MWConfig.class) {
+						applyMigrations((MWConfig) value.value(), migrationData);
 					}
 					return value;
 				};
