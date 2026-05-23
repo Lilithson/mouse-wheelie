@@ -132,6 +132,7 @@ public class MWConfig {
 		public boolean eat = true;
 		public boolean drop = true;
 		public boolean use = true;
+		public boolean other = true;
 
 		public Rules rules = new Rules();
 
