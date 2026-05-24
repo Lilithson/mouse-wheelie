@@ -114,9 +114,6 @@ public class MWConfig {
 	@CompoundWeaving
 	@Attribute(key = TweedCoatAttributes.BACKGROUND_TEXTURE, value = "textures/block/horn_coral_block.png")
 	public static class Refill {
-		//# if MC_VERSION_NUMBER >= 12104
-		@Attribute(key = MWServerRequiredTweedExtension.ATTRIBUTE, value = "true")
-		//# end
 		public boolean enable = true;
 
 		public boolean playSound = true;
@@ -154,9 +151,6 @@ public class MWConfig {
 	public static class ToolPicking {
 		public boolean holdTool = true;
 		public boolean holdBlock = false;
-		//# if MC_VERSION_NUMBER >= 12104
-		@Attribute(key = MWServerRequiredTweedExtension.ATTRIBUTE, value = "true")
-		//# end
 		public boolean pickFromInventory = true;
 
 		public boolean alwaysKeepSelectedSlot = false;
