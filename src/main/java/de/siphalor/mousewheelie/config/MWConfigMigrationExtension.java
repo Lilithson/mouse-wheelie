@@ -19,14 +19,13 @@ package de.siphalor.mousewheelie.config;
 
 import de.siphalor.mousewheelie.MWConfig;
 import de.siphalor.mousewheelie.MouseWheelie;
-import de.siphalor.tweed5.core.api.container.ConfigContainer;
 import de.siphalor.tweed5.core.api.entry.ConfigEntry;
 import de.siphalor.tweed5.core.api.extension.TweedExtension;
 import de.siphalor.tweed5.core.api.middleware.Middleware;
-import de.siphalor.tweed5.defaultextensions.pather.api.PatherExtension;
+import de.siphalor.tweed5.defaultextensions.pather.api.PathTracking;
+import de.siphalor.tweed5.defaultextensions.pather.api.PathTrackingDataReader;
 import de.siphalor.tweed5.patchwork.api.PatchworkPartAccess;
 import de.siphalor.tweed5.serde.extension.api.TweedEntryReader;
-import de.siphalor.tweed5.serde.extension.api.TweedReadContext;
 import de.siphalor.tweed5.serde.extension.api.extension.ReadWriteExtensionSetupContext;
 import de.siphalor.tweed5.serde.extension.api.extension.ReadWriteRelatedExtension;
 import de.siphalor.tweed5.serde.extension.api.extension.ReaderMiddlewareContext;
@@ -34,15 +33,12 @@ import de.siphalor.tweed5.serde.extension.api.read.result.TweedReadResult;
 import de.siphalor.tweed5.serde_api.api.TweedDataReadException;
 import de.siphalor.tweed5.serde_api.api.TweedDataReader;
 import de.siphalor.tweed5.serde_api.api.TweedDataToken;
-import java.util.Set;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class MWConfigMigrationExtension implements TweedExtension, ReadWriteRelatedExtension {
 	private static final String REFILL_RESTORE_SELECTED_SLOT_PATH = ".refill.restore-selected-slot";
-
-	private final ConfigContainer<?> configContainer;
 
 	@Override
 	public String getId() {
@@ -54,18 +50,10 @@ public class MWConfigMigrationExtension implements TweedExtension, ReadWriteRela
 		PatchworkPartAccess<MigrationData> migrationDataAccess =
 				context.registerReadWriteContextExtensionData(MigrationData.class);
 
-		PatherExtension patherExtension = configContainer.extension(PatherExtension.class)
-				.orElseThrow(() -> new IllegalStateException("PatherExtension not found"));
-
 		context.registerReaderMiddleware(new Middleware<>() {
 			@Override
 			public String id() {
 				return getId();
-			}
-
-			@Override
-			public Set<String> mustComeAfter() {
-				return Set.of(PatherExtension.EXTENSION_ID);
 			}
 
 			@Override
@@ -80,11 +68,10 @@ public class MWConfigMigrationExtension implements TweedExtension, ReadWriteRela
 						migrationData = new MigrationData();
 						readContext.extensionsData().set(migrationDataAccess, migrationData);
 
-						TweedDataReader customReader = new DataReader(
-								reader,
-								patherExtension,
-								readContext,
-								migrationData
+						PathTracking pathTracking = PathTracking.create();
+						TweedDataReader customReader = new PathTrackingDataReader(
+								new DataReader(reader, pathTracking, migrationData),
+								pathTracking
 						);
 
 						value = castedInner.read(customReader, entry, readContext);
@@ -110,8 +97,7 @@ public class MWConfigMigrationExtension implements TweedExtension, ReadWriteRela
 	@RequiredArgsConstructor
 	private static class DataReader implements TweedDataReader {
 		private final TweedDataReader delegate;
-		private final PatherExtension patherExtension;
-		private final TweedReadContext readContext;
+		private final PathTracking pathTracking;
 		private final MigrationData migrationData;
 
 		@Override
@@ -124,7 +110,7 @@ public class MWConfigMigrationExtension implements TweedExtension, ReadWriteRela
 			TweedDataToken token = delegate.readToken();
 
 			if (token.isMapEntryKey()) {
-				String path = patherExtension.getPath(readContext);
+				String path = pathTracking.currentPath();
 				if (path.equals(REFILL_RESTORE_SELECTED_SLOT_PATH)) {
 					TweedDataToken value = delegate.peekToken();
 					migrationData.setWasRefillRestoreSelectedSlot(
