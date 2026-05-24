@@ -102,15 +102,18 @@ public class SlotRefiller {
 	public static void performRefill() {
 		if (refillHand == null) return;
 
-		InteractionHand hand = refillHand;
-		refillHand = null;
-		if (hand == InteractionHand.OFF_HAND && !MouseWheelie.config.refill.offHand) {
+		if (refillHand == InteractionHand.OFF_HAND && !MouseWheelie.config.refill.offHand) {
+			clearRefill();
 			return;
 		}
 
-		refill(hand);
+		refill(refillHand);
+		clearRefill();
 	}
 
+	public static void clearRefill() {
+		refillHand = null;
+	}
 
 	public static void setupRefill(Inventory playerInventory, ItemStack stack) {
 		SlotRefiller.playerInventory = playerInventory;

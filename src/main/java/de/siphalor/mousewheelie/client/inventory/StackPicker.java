@@ -237,10 +237,8 @@ public class StackPicker {
 			if (hotbarSlot != getSelectedHotbarSlot()) {
 				selectHotbarSlot(hotbarSlot);
 			}
-			swapWithContainerSlot(targetContainerSlot);
-		} else {
-			swapWithContainerSlot(targetContainerSlot);
 		}
+		swapWithContainerSlot(targetContainerSlot);
 	}
 
 	private void selectHotbarSlot(int hotbarSlot) {

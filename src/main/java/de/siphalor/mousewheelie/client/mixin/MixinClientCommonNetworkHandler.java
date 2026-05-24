@@ -23,6 +23,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
@@ -35,7 +36,9 @@ public class MixinClientCommonNetworkHandler {
 	public void onSend(Packet<?> packet, CallbackInfo callbackInfo) {
 		if (packet instanceof ServerboundPlayerActionPacket) {
 			if (((ServerboundPlayerActionPacket) packet).getAction() == ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND) {
-				MWClientNetworking.blockNextGuiUpdateRefillTriggers(2);
+				MWClientNetworking.setPlayerInventoryMenuAlreadyProcessedStateId(
+						Minecraft.getInstance().player.inventoryMenu.getStateId() + 2
+				);
 			}
 		}
 	}

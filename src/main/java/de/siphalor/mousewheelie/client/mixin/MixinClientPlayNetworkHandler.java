@@ -75,12 +75,6 @@ public abstract class MixinClientPlayNetworkHandler
 	//- }
 	//# end
 
-	@Inject(method = "handleContainerSetSlot", at = @At("RETURN"))
-	public void onGuiSlotUpdateBegin(ClientboundContainerSetSlotPacket packet, CallbackInfo callbackInfo) {
-		MWClient.lastUpdatedSlot = packet.getSlot();
-		InteractionManager.triggerSend(InteractionManager.TriggerType.CONTAINER_SLOT_UPDATE);
-	}
-
 	@Inject(method = "handleContainerSetSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/InventoryMenu;setItem(IILnet/minecraft/world/item/ItemStack;)V", shift = At.Shift.BEFORE))
 	public void onGuiSlotUpdateHotbar(ClientboundContainerSetSlotPacket packet, CallbackInfo callbackInfo) {
 		if (MouseWheelie.config.refill.enable && MouseWheelie.config.refill.other) {
@@ -132,14 +126,18 @@ public abstract class MixinClientPlayNetworkHandler
 			}
 	)
 	public void onGuiSlotUpdated(ClientboundContainerSetSlotPacket packet, CallbackInfo callbackInfo) {
-		if (packet.getContainerId() == 0) {
-			if (MWClientNetworking.areGuiUpdateRefillTriggersBlocked()) {
-				MWClientNetworking.decrementGuiUpdateRefillTriggerBlocks();
-				return;
-			}
-
+		if (packet.getContainerId() == 0
+				&& packet.getStateId() > MWClientNetworking.getPlayerInventoryMenuAlreadyProcessedStateId()) {
 			SlotRefiller.performRefill();
+		} else {
+			SlotRefiller.clearRefill();
 		}
+	}
+
+	@Inject(method = "handleContainerSetSlot", at = @At("RETURN"))
+	public void onGuiSlotUpdateEnd(ClientboundContainerSetSlotPacket packet, CallbackInfo callbackInfo) {
+		MWClient.lastUpdatedSlot = packet.getSlot();
+		InteractionManager.triggerSend(InteractionManager.TriggerType.CONTAINER_SLOT_UPDATE);
 	}
 
 	//# if MC_VERSION_NUMBER >= 12002
@@ -149,7 +147,9 @@ public abstract class MixinClientPlayNetworkHandler
 	//- public void onSend(Packet<?> packet, CallbackInfo callbackInfo) {
 	//- 	if (packet instanceof ServerboundPlayerActionPacket) {
 	//- 		if (((ServerboundPlayerActionPacket) packet).getAction() == ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND) {
-	//- 			MWClientNetworking.blockNextGuiUpdateRefillTriggers(2);
+	//- 			MWClientNetworking.setPlayerInventoryMenuAlreadyProcessedStateId(
+	//- 					minecraft.player.inventoryMenu.getStateId() + 2
+	//- 			);
 	//- 		}
 	//- 	}
 	//- }

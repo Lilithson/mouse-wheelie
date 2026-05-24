@@ -23,6 +23,8 @@ import de.siphalor.mousewheelie.common.network.MWNetworking;
 import de.siphalor.mousewheelie.common.network.ReorderInventoryPacket;
 import java.util.concurrent.CompletableFuture;
 import lombok.CustomLog;
+import lombok.Getter;
+import lombok.Setter;
 import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -36,7 +38,9 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 @CustomLog
 public class MWClientNetworking extends MWNetworking {
 
-	private static int blockNextGuiUpdateRefillTriggers;
+	@Getter
+	@Setter
+	private static int playerInventoryMenuAlreadyProcessedStateId;
 
 	public static void setup() {
 		//# if MC_VERSION_NUMBER >= 12006
@@ -91,17 +95,5 @@ public class MWClientNetworking extends MWNetworking {
 		//- packet.write(buffer);
 		//- ClientPlayNetworking.send(REORDER_INVENTORY_C2S_PACKET, buffer);
 		//# end
-	}
-
-	public static synchronized void blockNextGuiUpdateRefillTriggers(int amount) {
-		blockNextGuiUpdateRefillTriggers += amount;
-	}
-
-	public static synchronized boolean areGuiUpdateRefillTriggersBlocked() {
-		return blockNextGuiUpdateRefillTriggers > 0;
-	}
-
-	public static synchronized void decrementGuiUpdateRefillTriggerBlocks() {
-		blockNextGuiUpdateRefillTriggers--;
 	}
 }

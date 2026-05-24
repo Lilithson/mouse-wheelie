@@ -20,6 +20,7 @@ package de.siphalor.mousewheelie.client.mixin;
 import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.MWClient;
 import de.siphalor.mousewheelie.client.inventory.SlotRefiller;
+import de.siphalor.mousewheelie.client.network.MWClientNetworking;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
@@ -63,14 +64,28 @@ public abstract class MixinMinecraftClient {
 
 	@Inject(method = "startUseItem", at = @At("RETURN"))
 	public void onItemUsed(CallbackInfo callbackInfo) {
-		boolean refillScheduled = false;
 		if (mainHandStack != null) {
-			refillScheduled = SlotRefiller.scheduleRefillChecked(InteractionHand.MAIN_HAND, player.getInventory(), mainHandStack, player.getMainHandItem());
+			if(SlotRefiller.scheduleRefillChecked(
+					InteractionHand.MAIN_HAND,
+					player.getInventory(),
+					mainHandStack,
+					player.getMainHandItem()
+			)) {
+				SlotRefiller.performRefill();
+				MWClientNetworking.setPlayerInventoryMenuAlreadyProcessedStateId(player.inventoryMenu.getStateId() + 1);
+			}
 		}
-		if (!refillScheduled && offHandStack != null) {
-			SlotRefiller.scheduleRefillChecked(InteractionHand.OFF_HAND, player.getInventory(), offHandStack, player.getOffhandItem());
+		if (offHandStack != null) {
+			if (SlotRefiller.scheduleRefillChecked(
+					InteractionHand.OFF_HAND,
+					player.getInventory(),
+					offHandStack,
+					player.getOffhandItem()
+			)) {
+				SlotRefiller.performRefill();
+				MWClientNetworking.setPlayerInventoryMenuAlreadyProcessedStateId(player.inventoryMenu.getStateId() + 1);
+			}
 		}
-		SlotRefiller.performRefill();
 		mainHandStack = null;
 		offHandStack = null;
 	}
