@@ -19,9 +19,10 @@ package de.siphalor.mousewheelie.client.keybinding;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import de.siphalor.amecs.priority_key_mappings.api.AmecsPriorityKeyMapping;
+import de.siphalor.mousewheelie.client.MWClient;
 import de.siphalor.mousewheelie.client.util.inject.IContainerScreen;
 
-import net.minecraft.client.Minecraft;
+//- import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 
 public class SortKeyBinding extends MWBaseKeyMapping implements AmecsPriorityKeyMapping {
@@ -35,7 +36,7 @@ public class SortKeyBinding extends MWBaseKeyMapping implements AmecsPriorityKey
 
 	@Override
 	public boolean onPressedPriority() {
-		Screen currentScreen = Minecraft.getInstance().screen;
+		Screen currentScreen = MWClient.getOpenScreen();
 		if (currentScreen instanceof IContainerScreen)
 			return ((IContainerScreen) currentScreen).mouseWheelie_triggerSort();
 		return false;

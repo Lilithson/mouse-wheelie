@@ -39,7 +39,8 @@ import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.client.resources.language.I18n;
+//- import net.minecraft.client.resources.language.I18n;
+import net.minecraft.locale.Language;
 
 /**
  * Custom Tweed extension that adds an informational message
@@ -114,10 +115,14 @@ public class MWServerRequiredTweedExtension implements TweedExtension, Validatio
 						if (!innerDescription.isBlank()) {
 							innerDescription += "\n\n";
 						}
-						if (I18n.exists(MESSAGE_KEY)) {
-							return innerDescription + (I18n.get(MESSAGE_KEY));
-						}
-						return innerDescription + englishMessage;
+						//# if MC_VERSION_NUMBER >= 260200
+						return innerDescription + Language.getInstance().getOrDefault(MESSAGE_KEY, englishMessage);
+						//# else
+						//- if (I18n.exists(MESSAGE_KEY)) {
+						//- 	return innerDescription + (I18n.get(MESSAGE_KEY));
+						//- }
+						//- return innerDescription + englishMessage;
+						//# end
 					}
 				};
 			}

@@ -28,7 +28,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import net.minecraft.client.Minecraft;
+//- import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 //- import net.minecraft.world.inventory.ClickType;
@@ -44,8 +44,7 @@ public class MixinMerchantWidgetButtonPage implements ISpecialClickableButtonWid
 	@Override
 	public boolean mouseWheelie_mouseClickedSpecial(int mouseButton) {
 		if (mouseButton != 1 || !MouseWheelie.config.general.enableQuickCraft) return false;
-		Minecraft minecraft = Minecraft.getInstance();
-		Screen screen = minecraft.screen;
+		Screen screen = MWClient.getOpenScreen();
 		if (screen instanceof IMerchantScreen) {
 			((IMerchantScreen) screen).mouseWheelie_setRecipeId(this.index + ((IMerchantScreen) screen).mouseWheelie_getRecipeIdOffset());
 			((IMerchantScreen) screen).mouseWheelie_syncRecipeId();

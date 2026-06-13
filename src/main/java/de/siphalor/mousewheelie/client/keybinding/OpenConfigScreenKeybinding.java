@@ -21,7 +21,8 @@ import com.mojang.blaze3d.platform.InputConstants;
 import de.siphalor.amecs.priority_key_mappings.api.AmecsPriorityKeyMapping;
 import de.siphalor.mousewheelie.client.MWClient;
 
-import net.minecraft.client.Minecraft;
+//- import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
@@ -36,9 +37,9 @@ public class OpenConfigScreenKeybinding extends MWBaseKeyMapping implements Amec
 
 	@Override
 	public boolean onPressedPriority() {
-		Minecraft minecraftClient = Minecraft.getInstance();
-		if (minecraftClient.screen == null || minecraftClient.screen instanceof AbstractContainerScreen || minecraftClient.screen instanceof TitleScreen) {
-			minecraftClient.setScreen(MWClient.createConfigScreen());
+		Screen openScreen = MWClient.getOpenScreen();
+		if (openScreen == null || openScreen instanceof AbstractContainerScreen || openScreen instanceof TitleScreen) {
+			MWClient.openScreen(MWClient.createConfigScreen());
 			return true;
 		}
 		return false;

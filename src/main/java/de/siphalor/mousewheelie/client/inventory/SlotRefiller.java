@@ -19,6 +19,7 @@ package de.siphalor.mousewheelie.client.inventory;
 
 //- import de.siphalor.mousewheelie.MWConfig;
 import de.siphalor.mousewheelie.MouseWheelie;
+import de.siphalor.mousewheelie.client.MWClient;
 import de.siphalor.mousewheelie.client.inventory.view.InventoryView;
 import de.siphalor.mousewheelie.client.inventory.view.InventoryViewEntry;
 import de.siphalor.mousewheelie.client.inventory.view.InventoryViewLocation;
@@ -77,7 +78,7 @@ public class SlotRefiller {
 	 * @return whether a refill has been scheduled
 	 */
 	public static boolean scheduleRefillChecked(InteractionHand hand, Inventory inventory, ItemStack oldStack, ItemStack newStack) {
-		if (Minecraft.getInstance().screen != null) {
+		if (MWClient.getOpenScreen() != null) {
 			return false;
 		}
 

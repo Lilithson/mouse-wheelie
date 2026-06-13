@@ -19,6 +19,7 @@ package de.siphalor.mousewheelie.client.keybinding;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import de.siphalor.amecs.priority_key_mappings.api.AmecsPriorityKeyMapping;
+import de.siphalor.mousewheelie.client.MWClient;
 import de.siphalor.mousewheelie.client.inventory.ToolPicker;
 
 import net.minecraft.client.Minecraft;
@@ -37,7 +38,7 @@ public class PickToolKeyBinding extends MWBaseKeyMapping implements AmecsPriorit
 
 	@Override
 	public boolean onPressedPriority() {
-		if (Minecraft.getInstance().screen != null) return false;
+		if (MWClient.getOpenScreen() != null) return false;
 		Player playerEntity = Minecraft.getInstance().player;
 		if (playerEntity != null) {
 			HitResult hitResult = playerEntity.pick(4.5D, 0.0F, false);

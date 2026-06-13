@@ -112,7 +112,8 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 	protected Slot hoveredSlot;
 
 	@Shadow
-	private @Nullable Slot clickedSlot;
+	private @Nullable Slot /*# if MC_VERSION_NUMBER >= 260200 */lastClickSlot/*# else *//*- clickedSlot *//*# end */;
+
 	@Shadow
 	protected boolean isQuickCrafting;
 
@@ -353,7 +354,11 @@ public abstract class MixinAbstractContainerScreen extends Screen implements ICo
 	//- public void onMouseRelease(double x, double y, int button, CallbackInfoReturnable<Boolean> cir) {
 	//# end
 		if (bundleDragMode != null && bundleDragMode != BundleDragMode.AUTO) {
-			clickedSlot = null;
+			//# if MC_VERSION_NUMBER >= 260200
+			lastClickSlot = null;
+			//# else
+			//- clickedSlot = null;
+			//# end
 			isQuickCrafting = false;
 			cir.setReturnValue(true);
 		}

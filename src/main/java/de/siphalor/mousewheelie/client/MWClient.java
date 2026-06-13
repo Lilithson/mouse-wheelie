@@ -54,7 +54,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-//- import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -251,20 +251,21 @@ public class MWClient implements ClientModInitializer {
 	public static boolean triggerScroll(double mouseX, double mouseY, double scrollY) {
 		double scrollAmount = scrollY * CLIENT.options.mouseWheelSensitivity().get();
 		ScrollAction result;
-		if (CLIENT.screen instanceof ISpecialScrollableScreen) {
-			result = ((ISpecialScrollableScreen) CLIENT.screen).mouseWheelie_onMouseScrolledSpecial(mouseX, mouseY, scrollAmount);
+		Screen openScreen = getOpenScreen();
+		if (openScreen instanceof ISpecialScrollableScreen) {
+			result = ((ISpecialScrollableScreen) openScreen).mouseWheelie_onMouseScrolledSpecial(mouseX, mouseY, scrollAmount);
 			if (result.cancelsCustomActions()) {
 				return result.cancelsAllActions();
 			}
 		}
-		if (CLIENT.screen instanceof IContainerScreen) {
-			result = ((IContainerScreen) CLIENT.screen).mouseWheelie_onMouseScroll(mouseX, mouseY, scrollY);
+		if (openScreen instanceof IContainerScreen) {
+			result = ((IContainerScreen) openScreen).mouseWheelie_onMouseScroll(mouseX, mouseY, scrollY);
 			if (result.cancelsCustomActions()) {
 				return result.cancelsAllActions();
 			}
 		}
-		if (CLIENT.screen instanceof IScrollableRecipeBook) {
-			result = ((IScrollableRecipeBook) CLIENT.screen).mouseWheelie_onMouseScrollRecipeBook(mouseX, mouseY, scrollY);
+		if (openScreen instanceof IScrollableRecipeBook) {
+			result = ((IScrollableRecipeBook) openScreen).mouseWheelie_onMouseScrollRecipeBook(mouseX, mouseY, scrollY);
 			if (result.cancelsCustomActions()) {
 				return result.cancelsAllActions();
 			}
@@ -389,5 +390,21 @@ public class MWClient implements ClientModInitializer {
 					MWClient.onConfigChanged();
 				})
 				.build());
+	}
+
+	public static Screen getOpenScreen() {
+		//# if MC_VERSION_NUMBER >= 260200
+		return CLIENT.gui.screen();
+		//# else
+		//- return CLIENT.screen;
+		//# end
+	}
+
+	public static void openScreen(Screen screen) {
+		//# if MC_VERSION_NUMBER >= 260200
+		CLIENT.gui.setScreen(screen);
+		//# else
+		//- CLIENT.setScreen(screen);
+		//# end
 	}
 }
