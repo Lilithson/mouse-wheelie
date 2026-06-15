@@ -127,7 +127,7 @@ public abstract class MixinClientPlayNetworkHandler
 	)
 	public void onGuiSlotUpdated(ClientboundContainerSetSlotPacket packet, CallbackInfo callbackInfo) {
 		if (packet.getContainerId() == 0
-				&& packet.getStateId() > MWClientNetworking.getPlayerInventoryMenuAlreadyProcessedStateId()) {
+				&& MWClientNetworking.shouldPlayerInventoryMenuUpdateBeProcessedForState(packet.getStateId())) {
 			SlotRefiller.performRefill();
 		} else {
 			SlotRefiller.clearRefill();

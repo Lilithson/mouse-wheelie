@@ -23,8 +23,6 @@ import de.siphalor.mousewheelie.common.network.MWNetworking;
 import de.siphalor.mousewheelie.common.network.ReorderInventoryPacket;
 import java.util.concurrent.CompletableFuture;
 import lombok.CustomLog;
-import lombok.Getter;
-import lombok.Setter;
 import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -37,10 +35,22 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 
 @CustomLog
 public class MWClientNetworking extends MWNetworking {
+	private static final long PLAYER_INVENTORY_MENU_ALREADY_PROCESSED_STATE_ID_CHANGED_NANOS_THRESHOLD = 10_000_000L;
 
-	@Getter
-	@Setter
 	private static int playerInventoryMenuAlreadyProcessedStateId;
+
+	private static long playerInventoryMenuAlreadyProcessedStateIdTimeout;
+
+	public static boolean shouldPlayerInventoryMenuUpdateBeProcessedForState(int stateId) {
+		return stateId > playerInventoryMenuAlreadyProcessedStateId
+				|| System.nanoTime() > playerInventoryMenuAlreadyProcessedStateIdTimeout;
+	}
+
+	public static void setPlayerInventoryMenuAlreadyProcessedStateId(int newValue) {
+		playerInventoryMenuAlreadyProcessedStateId = newValue;
+		playerInventoryMenuAlreadyProcessedStateIdTimeout = System.nanoTime()
+			+ PLAYER_INVENTORY_MENU_ALREADY_PROCESSED_STATE_ID_CHANGED_NANOS_THRESHOLD;
+	}
 
 	public static void setup() {
 		//# if MC_VERSION_NUMBER >= 12006

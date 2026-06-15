@@ -26,6 +26,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ServerboundPickItemFromBlockPacket;
+import net.minecraft.network.protocol.game.ServerboundPickItemFromEntityPacket;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 
 //# if MC_VERSION_NUMBER >= 12002
@@ -40,6 +42,11 @@ public class MixinClientCommonNetworkHandler {
 						Minecraft.getInstance().player.inventoryMenu.getStateId() + 2
 				);
 			}
+		} else if (packet instanceof ServerboundPickItemFromBlockPacket
+				|| packet instanceof ServerboundPickItemFromEntityPacket) {
+			MWClientNetworking.setPlayerInventoryMenuAlreadyProcessedStateId(
+					Minecraft.getInstance().player.inventoryMenu.getStateId() + 1
+			);
 		}
 	}
 }

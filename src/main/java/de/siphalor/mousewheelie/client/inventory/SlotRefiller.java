@@ -118,7 +118,7 @@ public class SlotRefiller {
 
 	public static void setupRefill(Inventory playerInventory, ItemStack stack) {
 		SlotRefiller.playerInventory = playerInventory;
-		SlotRefiller.inventoryView = InventoryView.ofContainer(playerInventory);
+		SlotRefiller.inventoryView = InventoryView.ofContainerRange(playerInventory, 0, Inventory.INVENTORY_SIZE);
 		//# if MC_VERSION_NUMBER >= 12103
 		if (MouseWheelie.config.refill.fromBundles) {
 			SlotRefiller.inventoryView = InventoryView.appendingBundles(SlotRefiller.inventoryView);

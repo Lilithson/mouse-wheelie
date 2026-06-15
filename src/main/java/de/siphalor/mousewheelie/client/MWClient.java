@@ -61,6 +61,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 //- import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.state.BlockState;
@@ -324,8 +325,9 @@ public class MWClient implements ClientModInitializer {
 			//- ItemStack referenceStack = blockState.getBlock().getCloneItemStack(player.level(), blockPos, blockState);
 			//# end
 
-			InventoryView inventoryView =
-					InventoryView.appendingBundles(InventoryView.ofContainer(player.getInventory()));
+			InventoryView inventoryView = InventoryView.appendingBundles(
+					InventoryView.ofContainerRange(player.getInventory(), 0, Inventory.INVENTORY_SIZE)
+			);
 			for (InventoryViewEntry entry : inventoryView) {
 				if (entry.getStack().getItem() == referenceStack.getItem()) {
 					if (entry.getLocation() instanceof InventoryViewLocation.Bundle) {
