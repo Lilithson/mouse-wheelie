@@ -35,7 +35,7 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 
 @CustomLog
 public class MWClientNetworking extends MWNetworking {
-	private static final long PLAYER_INVENTORY_MENU_ALREADY_PROCESSED_STATE_ID_CHANGED_NANOS_THRESHOLD = 10_000_000L;
+	private static final long PLAYER_INVENTORY_MENU_ALREADY_PROCESSED_STATE_ID_CHANGED_NANOS_THRESHOLD = 10_000_000_000L;
 
 	private static int playerInventoryMenuAlreadyProcessedStateId;
 

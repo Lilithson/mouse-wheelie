@@ -43,6 +43,7 @@ import net.minecraft.network.protocol.game.ClientboundSetHeldSlotPacket;
 //- import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.InventoryMenu;
 
 @Environment(EnvType.CLIENT)
 @Mixin(ClientPacketListener.class)
@@ -95,16 +96,8 @@ public abstract class MixinClientPlayNetworkHandler
 						//# end
 						packet.getItem()
 				);
-			}
-		}
-	}
-
-	@Inject(method = "handleContainerSetSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;setItem(IILnet/minecraft/world/item/ItemStack;)V", shift = At.Shift.BEFORE))
-	public void onGuiSlotUpdateOther(ClientboundContainerSetSlotPacket packet, CallbackInfo callbackInfo) {
-		//noinspection ConstantConditions
-		if (MouseWheelie.config.refill.enable && MouseWheelie.config.refill.other && minecraft.player.containerMenu == minecraft.player.inventoryMenu && packet.getSlot() == 45) {
-			Inventory inventory = minecraft.player.getInventory();
-			if (packet.getSlot() == /*# if MC_VERSION_NUMBER >= 12108 */Inventory.SLOT_OFFHAND/*# else *//*- 45 *//*# end */) {
+			//# if MC_VERSION_NUMBER >= 12103
+			} else if (packet.getSlot() == InventoryMenu.SHIELD_SLOT) {
 				SlotRefiller.scheduleRefillChecked(
 						InteractionHand.OFF_HAND,
 						inventory,
@@ -115,14 +108,36 @@ public abstract class MixinClientPlayNetworkHandler
 						//# end
 						packet.getItem()
 				);
+			//# end
 			}
 		}
 	}
 
-	@Inject(method = "handleContainerSetSlot", require = 2,
+	//# if MC_VERSION_NUMBER < 12103
+	//- @Inject(method = "handleContainerSetSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;setItem(IILnet/minecraft/world/item/ItemStack;)V", shift = At.Shift.BEFORE))
+	//- public void onGuiSlotUpdateOther(ClientboundContainerSetSlotPacket packet, CallbackInfo callbackInfo) {
+	//- 	//noinspection ConstantConditions
+	//- 	if (MouseWheelie.config.refill.enable && MouseWheelie.config.refill.other && minecraft.player.containerMenu == minecraft.player.inventoryMenu && packet.getSlot() == 45) {
+	//- 		Inventory inventory = minecraft.player.getInventory();
+	//- 		if (packet.getSlot() == 45) {
+	//- 			SlotRefiller.scheduleRefillChecked(
+	//- 					InteractionHand.OFF_HAND,
+	//- 					inventory,
+	//- 					inventory.offhand.get(0),
+	//- 					packet.getItem()
+	//- 			);
+	//- 		}
+	//- 	}
+	//- }
+	//# end
+
+	@Inject(method = "handleContainerSetSlot",
+			require = /*# if MC_VERSION_NUMBER >= 12103 */ 1 /*# else *//*-  2  *//*# end */,
 			at = {
 				@At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/InventoryMenu;setItem(IILnet/minecraft/world/item/ItemStack;)V", shift = At.Shift.AFTER),
-				@At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;setItem(IILnet/minecraft/world/item/ItemStack;)V", shift = At.Shift.AFTER),
+				//# if MC_VERSION_NUMBER < 12103
+				//- @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/AbstractContainerMenu;setItem(IILnet/minecraft/world/item/ItemStack;)V", shift = At.Shift.AFTER),
+				//# end
 			}
 	)
 	public void onGuiSlotUpdated(ClientboundContainerSetSlotPacket packet, CallbackInfo callbackInfo) {

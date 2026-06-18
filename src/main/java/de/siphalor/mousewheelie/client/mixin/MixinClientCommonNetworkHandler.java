@@ -37,16 +37,19 @@ public class MixinClientCommonNetworkHandler {
 	@Inject(method = "send(Lnet/minecraft/network/protocol/Packet;)V", at = @At("HEAD"))
 	public void onSend(Packet<?> packet, CallbackInfo callbackInfo) {
 		if (packet instanceof ServerboundPlayerActionPacket) {
-			if (((ServerboundPlayerActionPacket) packet).getAction() == ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND) {
+			if (((ServerboundPlayerActionPacket) packet).getAction()
+					== ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND) {
 				MWClientNetworking.setPlayerInventoryMenuAlreadyProcessedStateId(
 						Minecraft.getInstance().player.inventoryMenu.getStateId() + 2
 				);
 			}
+		//# if MC_VERSION_NUMBER >= 260100
 		} else if (packet instanceof ServerboundPickItemFromBlockPacket
 				|| packet instanceof ServerboundPickItemFromEntityPacket) {
 			MWClientNetworking.setPlayerInventoryMenuAlreadyProcessedStateId(
 					Minecraft.getInstance().player.inventoryMenu.getStateId() + 1
 			);
+		//# end
 		}
 	}
 }
