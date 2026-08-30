@@ -21,8 +21,6 @@ import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.inventory.SlotRefiller;
 import de.siphalor.mousewheelie.client.util.inject.ISlot;
 import java.util.List;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,7 +36,6 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-@Environment(EnvType.CLIENT)
 @Mixin(AbstractContainerMenu.class)
 public abstract class MixinContainer {
 	@Shadow

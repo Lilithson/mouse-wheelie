@@ -28,12 +28,12 @@
 	"entrypoints": {
 		"client": [
 			{
-				"value": "de.siphalor.mousewheelie.client.MWClient"
+				"value": "de.siphalor.mousewheelie.platform.fabric.MWClientFabric"
 			}
 		],
 		"main": [
 			{
-				"value": "de.siphalor.mousewheelie.MouseWheelie"
+				"value": "de.siphalor.mousewheelie.platform.fabric.MouseWheelieFabric"
 			}
 		],
 		"modmenu": [

@@ -23,8 +23,6 @@ import de.siphalor.mousewheelie.client.MWClient;
 //- import de.siphalor.mousewheelie.client.network.MWClientNetworking;
 import lombok.CustomLog;
 import lombok.RequiredArgsConstructor;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 
 //- import net.minecraft.client.Minecraft;
 //- import net.minecraft.network.protocol.game.ServerboundPickItemPacket;
@@ -32,7 +30,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
-@Environment(EnvType.CLIENT)
 @RequiredArgsConstructor
 @CustomLog
 public class ToolPicker {

@@ -28,8 +28,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 //- import net.minecraft.world.inventory.ClickType;
@@ -37,7 +35,6 @@ import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-@Environment(EnvType.CLIENT)
 public class InventorySorter {
 	//# if MC_VERSION_NUMBER >= 260100
 	private static final ContainerInput PICKUP_CONTAINER_INPUT = ContainerInput.PICKUP;

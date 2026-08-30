@@ -28,8 +28,6 @@ import de.siphalor.mousewheelie.client.util.inject.IRecipeBookWidget;
 import de.siphalor.mousewheelie.client.util.inject.ISlot;
 import java.util.List;
 import lombok.CustomLog;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -65,7 +63,6 @@ import net.minecraft.world.item.crafting.display.RecipeDisplayEntry;
 import net.minecraft.world.item.crafting.display.RecipeDisplayId;
 import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 
-@Environment(EnvType.CLIENT)
 @Mixin(RecipeBookComponent.class)
 @CustomLog
 public abstract class MixinRecipeBookWidget implements IRecipeBookWidget {

@@ -27,8 +27,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import lombok.CustomLog;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -38,7 +36,6 @@ import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 //- import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.ContainerInput;
 
-@Environment(EnvType.CLIENT)
 @CustomLog
 public class InteractionManager {
 	private static final Queue<InteractionEvent> interactionEventQueue = new ArrayDeque<>();

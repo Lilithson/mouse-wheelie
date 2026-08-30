@@ -1,0 +1,28 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "Apache-2.0"
+
+[[mods]]
+modId = "mousewheelie"
+version = "${file.jarVersion}"
+displayName = "Mouse Wheelie"
+description = "Improves mouse wheel actions in some guis."
+authors = "Siphalor, Fourmisain"
+logoFile = "assets/mousewheelie/icon.png"
+
+[[mixins]]
+config = "mousewheelie.mixins.json"
+
+[[dependencies.mousewheelie]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.mousewheelie]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.22)"
+ordering = "NONE"
+side = "BOTH"

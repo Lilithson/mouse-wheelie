@@ -22,6 +22,7 @@ import de.siphalor.mousewheelie.client.config.MWServerRequiredTweedExtension;
 import de.siphalor.mousewheelie.client.inventory.sort.SortMode;
 import de.siphalor.mousewheelie.common.network.MWLogicalServerNetworking;
 import de.siphalor.mousewheelie.common.network.MWNetworking;
+import de.siphalor.mousewheelie.platform.LoaderUtils;
 import de.siphalor.tweed5.coat.bridge.api.TweedCoatBridgeExtension;
 import de.siphalor.tweed5.core.api.container.ConfigContainer;
 import de.siphalor.tweed5.fabric.helper.api.FabricConfigCommentLoader;
@@ -32,10 +33,7 @@ import de.siphalor.tweed5.serde.hjson.HjsonWriter;
 import de.siphalor.tweed5.weaver.pojo.api.TweedPojoWeaver;
 import java.util.EnumSet;
 import lombok.CustomLog;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.ModInitializer;
 //- import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.fabricmc.loader.api.FabricLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,13 +46,14 @@ import net.minecraft.resources.Identifier;
 //- import net.minecraft.world.level.Level;
 
 @CustomLog
-public class MouseWheelie implements ModInitializer {
+public class MouseWheelie {
 	public static final String MOD_ID = "mousewheelie";
 	public static final String MOD_NAME = "Mouse Wheelie";
 
 	public static MWConfig globalConfig;
 	public static MWConfig config;
 	public static EnumSet<MWFeature> enabledFeatures = EnumSet.allOf(MWFeature.class);
+	private static boolean initialized;
 
 	public static FabricConfigContainerHelper<MWConfig> configContainerHelper;
 
@@ -76,8 +75,11 @@ public class MouseWheelie implements ModInitializer {
 	//- }
 	//# end
 
-	@Override
-	public void onInitialize() {
+	public static synchronized void initialize() {
+		if (initialized) {
+			return;
+		}
+		initialized = true;
 		initializeConfig();
 		loadConfig();
 
@@ -89,9 +91,9 @@ public class MouseWheelie implements ModInitializer {
 		MWLogicalServerNetworking.setup();
 	}
 
-	private void initializeConfig() {
+	private static void initializeConfig() {
 		TweedPojoWeaver<MWConfig> weaver = TweedPojoWeaver.forClass(MWConfig.class);
-		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+		if (LoaderUtils.isClientEnvironment()) {
 			weaver.withExtension(TweedCoatBridgeExtension.class).withExtension(MWServerRequiredTweedExtension.class);
 		}
 
@@ -111,10 +113,10 @@ public class MouseWheelie implements ModInitializer {
 		);
 	}
 
-	private void loadConfig() {
+	private static void loadConfig() {
 		globalConfig = configContainerHelper.loadAndUpdateInConfigDirectory();
 		config = globalConfig;
-		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+		if (LoaderUtils.isClientEnvironment()) {
 			MWClient.onConfigChanged();
 		}
 		log.info("Loaded {} config", MOD_NAME);
@@ -151,7 +153,7 @@ public class MouseWheelie implements ModInitializer {
 		}
 
 		if (features.size() < MWFeature.values().length
-				&& FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+				&& LoaderUtils.isClientEnvironment()) {
 			MWClient.onFeatureSetReduced();
 		}
 	}

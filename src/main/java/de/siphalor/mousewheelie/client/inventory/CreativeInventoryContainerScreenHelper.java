@@ -20,8 +20,6 @@ package de.siphalor.mousewheelie.client.inventory;
 import de.siphalor.mousewheelie.client.network.ClickEventFactory;
 import de.siphalor.mousewheelie.client.network.InteractionManager;
 import de.siphalor.mousewheelie.client.util.ItemStackUtils;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.world.entity.player.Inventory;
@@ -30,7 +28,6 @@ import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-@Environment(EnvType.CLIENT)
 public class CreativeInventoryContainerScreenHelper<T extends CreativeModeInventoryScreen>
 		extends PlayerInventoryFocusedContainerScreenHelper<T> {
 	public CreativeInventoryContainerScreenHelper(T screen, ClickEventFactory clickEventFactory) {

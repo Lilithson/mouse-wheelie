@@ -31,8 +31,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Function;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -47,7 +45,6 @@ import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.level.block.Block;
 
 @SuppressWarnings("unused")
-@Environment(EnvType.CLIENT)
 public class SlotRefiller {
 	/**
 	 * Indicates the maximum time in milliseconds a refill is expected to take.

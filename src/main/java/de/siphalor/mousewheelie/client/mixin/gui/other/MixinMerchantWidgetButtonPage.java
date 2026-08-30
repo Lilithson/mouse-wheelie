@@ -22,8 +22,6 @@ import de.siphalor.mousewheelie.client.MWClient;
 import de.siphalor.mousewheelie.client.network.InteractionManager;
 import de.siphalor.mousewheelie.client.util.inject.IMerchantScreen;
 import de.siphalor.mousewheelie.client.util.inject.ISpecialClickableButtonWidget;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -34,7 +32,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 //- import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.ContainerInput;
 
-@Environment(EnvType.CLIENT)
 @Mixin(targets = "net/minecraft/client/gui/screens/inventory/MerchantScreen$TradeOfferButton")
 public class MixinMerchantWidgetButtonPage implements ISpecialClickableButtonWidget {
 	@Shadow

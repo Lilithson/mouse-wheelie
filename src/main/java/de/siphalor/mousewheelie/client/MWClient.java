@@ -44,9 +44,6 @@ import de.siphalor.tweed5.defaultextensions.presets.api.PresetsExtension;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Locale;
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 //- import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -72,10 +69,10 @@ import net.minecraft.world.phys.HitResult;
 import static de.siphalor.mousewheelie.MouseWheelie.createId;
 import static de.siphalor.tweed5.defaultextensions.presets.api.PresetsExtension.presetValue;
 
-@Environment(EnvType.CLIENT)
 @SuppressWarnings("WeakerAccess")
-public class MWClient implements ClientModInitializer {
+public class MWClient {
 	private static final Minecraft CLIENT = Minecraft.getInstance();
+	private static boolean initialized;
 
 	//# if MC_VERSION_NUMBER >= 12109
 	public static final KeyMapping.Category KEY_BINDING_CATEGORY = new KeyMapping.Category(createId("main"));
@@ -136,8 +133,11 @@ public class MWClient implements ClientModInitializer {
 
 	public static int lastUpdatedSlot = -1;
 
-	@Override
-	public void onInitializeClient() {
+	public static synchronized void initializeClient() {
+		if (initialized) {
+			return;
+		}
+		initialized = true;
 		registerKeyMapping(OPEN_CONFIG_SCREEN);
 		registerKeyMapping(SORT_KEY_BINDING);
 		registerKeyMapping(SCROLL_UP_KEY_BINDING);
