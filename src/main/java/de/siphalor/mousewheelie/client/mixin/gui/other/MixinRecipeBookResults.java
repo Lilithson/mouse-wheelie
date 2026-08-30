@@ -20,8 +20,6 @@ package de.siphalor.mousewheelie.client.mixin.gui.other;
 import de.siphalor.mousewheelie.MouseWheelie;
 import de.siphalor.mousewheelie.client.util.inject.IRecipeBookResults;
 import java.util.Iterator;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -39,7 +37,6 @@ import net.minecraft.util.context.ContextMap;
 //- import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.display.RecipeDisplayId;
 
-@Environment(EnvType.CLIENT)
 @Mixin(RecipeBookPage.class)
 public abstract class MixinRecipeBookResults implements IRecipeBookResults {
 	@Shadow

@@ -22,8 +22,6 @@ import de.siphalor.mousewheelie.client.MWClient;
 import de.siphalor.mousewheelie.client.inventory.SlotRefiller;
 import de.siphalor.mousewheelie.client.network.InteractionManager;
 import de.siphalor.mousewheelie.client.network.MWClientNetworking;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 //- import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 //- import org.spongepowered.asm.mixin.Shadow;
@@ -45,7 +43,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
 
-@Environment(EnvType.CLIENT)
 @Mixin(ClientPacketListener.class)
 public abstract class MixinClientPlayNetworkHandler
 	/*# if MC_VERSION_NUMBER >= 12002 */extends ClientCommonPacketListenerImpl/*# end */ {
